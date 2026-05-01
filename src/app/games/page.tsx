@@ -5,7 +5,7 @@ import CategoryNav from "@/components/CategoryNav"
 import SearchForm from "./SearchForm"
 
 export const metadata: Metadata = {
-  title: "全部游戏 - H5 游戏平台",
+  title: "全部游戏 - 乐游",
 }
 
 export default async function GamesPage({

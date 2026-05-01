@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const category = getCategoryBySlug(slug)
   if (!category) return { title: "分类未找到" }
   return {
-    title: `${category.name}游戏 - H5 游戏平台`,
+    title: `${category.name}游戏 - 乐游`,
     description: category.description,
   }
 }

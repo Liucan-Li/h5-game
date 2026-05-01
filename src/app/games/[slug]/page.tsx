@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const game = getGameBySlug(slug)
   if (!game) return { title: "游戏未找到" }
   return {
-    title: `${game.title} - H5 游戏平台`,
+    title: `${game.title} - 乐游`,
     description: game.description,
   }
 }

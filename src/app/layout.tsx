@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "H5 游戏平台 - 在线畅玩海量小游戏",
-  description: "聚合海量 H5 小游戏，无需下载，打开即玩。动作、益智、休闲、街机等各类游戏一应俱全。",
+  title: "乐游 - 在线畅玩海量小游戏",
+  description: "乐游 - 聚合海量 H5 小游戏，无需下载，打开即玩。动作、益智、休闲、街机等各类游戏一应俱全。",
 }
 
 export default function RootLayout({

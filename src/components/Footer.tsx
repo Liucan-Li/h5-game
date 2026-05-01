@@ -11,7 +11,7 @@ export default function Footer() {
               H5
             </span>
             <span className="text-sm font-medium text-[var(--text-secondary)]">
-              H5 游戏平台
+              乐游
             </span>
           </div>
           <p className="text-xs text-[var(--text-muted)]">

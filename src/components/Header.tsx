@@ -30,7 +30,7 @@ export default function Header() {
             H5
           </span>
           <span className="hidden text-base font-semibold sm:block">
-            <span className="text-gradient">游戏平台</span>
+            <span className="text-gradient">乐游</span>
           </span>
         </Link>
 
