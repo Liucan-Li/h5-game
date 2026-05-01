@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Dino Runner</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #1a1a2e; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px;
+    -webkit-user-select: none; user-select: none; touch-action: none;
+  }
+  .container { text-align: center; width: 100%; max-width: 500px; }
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  h1 { font-size: 2em; font-weight: 800; color: #7c3aed; }
+  .score-box { background: #16213e; padding: 6px 14px; border-radius: 8px; min-width: 70px; }
+  .score-label { font-size: 0.65em; text-transform: uppercase; color: #7f8c8d; letter-spacing: 1px; }
+  .score-value { font-size: 1.3em; font-weight: 700; color: #fff; }
+  #gameCanvas {
+    display: block; width: 100%; aspect-ratio: 5/3; max-height: 70vh;
+    margin: 0 auto; border-radius: 12px; background: #0f3460;
+  }
+  .controls { margin-top: 12px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  button {
+    background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #fff;
+    border: none; padding: 8px 24px; border-radius: 8px; font-size: 0.9em;
+    font-weight: 700; cursor: pointer; transition: transform 0.1s;
+  }
+  button:active { transform: scale(0.95); }
+  button.secondary { background: #16213e; color: #ccc; }
+  .status { color: #7f8c8d; font-size: 0.8em; margin-top: 8px; }
+  .high-score { color: #7f8c8d; font-size: 0.85em; margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Dino Run</h1>
+    <div class="score-box"><div class="score-label">Score</div><div class="score-value" id="score">0</div></div>
+  </div>
+  <canvas id="gameCanvas" width="500" height="300"></canvas>
+  <div class="controls">
+    <button id="startBtn">Start Game</button>
+    <button class="secondary" id="resetBtn">Reset</button>
+  </div>
+  <div class="high-score">High Score: <span id="highScore">0</span></div>
+  <div class="status">Press Space / tap to jump</div>
+</div>
+<script>
+(function() {
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const scoreEl = document.getElementById('score');
+  const highScoreEl = document.getElementById('highScore');
+  const startBtn = document.getElementById('startBtn');
+  const resetBtn = document.getElementById('resetBtn');
+
+  const W = 500, H = 300;
+  const GROUND_Y = 260;
+  const GRAVITY = 0.6;
+  const JUMP_FORCE = -12;
+
+  let dino, obstacles, particles, groundOffset;
+  let gameRunning, gameStarted, gameOver;
+  let score, highScore, speed, frameCount;
+  let animationId, spawnTimer;
+
+  function init() {
+    dino = {
+      x: 60,
+      y: GROUND_Y,
+      w: 28,
+      h: 36,
+      vy: 0,
+      jumping: false,
+      legFrame: 0
+    };
+
+    obstacles = [];
+    particles = [];
+    groundOffset = 0;
+    score = 0;
+    speed = 5;
+    frameCount = 0;
+    spawnTimer = 0;
+    gameRunning = false;
+    gameStarted = false;
+    gameOver = false;
+    scoreEl.textContent = '0';
+
+    try {
+      highScore = parseInt(localStorage.getItem('dinoHighScore')) || 0;
+      highScoreEl.textContent = highScore;
+    } catch(e) { highScore = 0; }
+
+    draw();
+  }
+
+  function startGame() {
+    if (gameOver || gameStarted) {
+      init();
+    }
+    gameStarted = true;
+    gameRunning = true;
+    gameOver = false;
+    startBtn.textContent = 'Running';
+    if (animationId) cancelAnimationFrame(animationId);
+    loop();
+  }
+
+  function jump() {
+    if (!gameRunning) return;
+    if (dino.y >= GROUND_Y - 1) {
+      dino.vy = JUMP_FORCE;
+      dino.jumping = true;
+    }
+  }
+
+  function spawnObstacle() {
+    const types = ['cactus-small', 'cactus-tall', 'cactus-group'];
+    const type = types[Math.floor(Math.random() * types.length)];
+    let w, h;
+    switch (type) {
+      case 'cactus-small': w = 16; h = 28; break;
+      case 'cactus-tall': w = 14; h = 40; break;
+      case 'cactus-group': w = 32; h = 28; break;
+      default: w = 16; h = 28;
+    }
+    obstacles.push({
+      x: W + 20,
+      y: GROUND_Y - h,
+      w, h, type
+    });
+  }
+
+  function spawnParticles() {
+    if (frameCount % 3 === 0) {
+      particles.push({
+        x: dino.x + 5,
+        y: GROUND_Y + 2,
+        vx: -Math.random() * 2 - 1,
+        vy: -Math.random() * 2,
+        life: 20 + Math.random() * 15,
+        maxLife: 35
+      });
+    }
+  }
+
+  function update() {
+    if (!gameRunning) return;
+    frameCount++;
+
+    // Speed up gradually
+    if (frameCount % 100 === 0 && speed < 15) {
+      speed += 0.3;
+    }
+
+    // Score
+    if (frameCount % 5 === 0) {
+      score++;
+      scoreEl.textContent = score;
+    }
+
+    // Ground scroll
+    groundOffset = (groundOffset + speed) % 20;
+
+    // Dino physics
+    dino.vy += GRAVITY;
+    dino.y += dino.vy;
+    if (dino.y >= GROUND_Y) {
+      dino.y = GROUND_Y;
+      dino.vy = 0;
+      dino.jumping = false;
+    }
+
+    // Leg animation
+    if (!dino.jumping) {
+      dino.legFrame = (dino.legFrame + 0.15) % 1;
+    }
+
+    // Spawn obstacles
+    spawnTimer += speed;
+    const spawnThreshold = Math.max(80, 160 - speed * 3);
+    if (spawnTimer > spawnThreshold) {
+      // Check last obstacle distance
+      let canSpawn = true;
+      for (const obs of obstacles) {
+        if (obs.x > W * 0.5) { canSpawn = false; break; }
+      }
+      if (canSpawn && Math.random() < 0.7) {
+        spawnObstacle();
+      }
+      spawnTimer = 0;
+    }
+
+    // Move obstacles
+    for (let i = obstacles.length - 1; i >= 0; i--) {
+      obstacles[i].x -= speed;
+      if (obstacles[i].x + obstacles[i].w < 0) {
+        obstacles.splice(i, 1);
+      }
+    }
+
+    // Collision detection
+    for (const obs of obstacles) {
+      // Simple AABB with small margin
+      const margin = 4;
+      if (
+        dino.x + margin < obs.x + obs.w - margin &&
+        dino.x + dino.w - margin > obs.x + margin &&
+        dino.y + margin < obs.y + obs.h - margin &&
+        dino.y + dino.h - margin > obs.y + margin
+      ) {
+        gameRunning = false;
+        gameOver = true;
+        if (score > highScore) {
+          highScore = score;
+          highScoreEl.textContent = highScore;
+          try { localStorage.setItem('dinoHighScore', String(highScore)); } catch(e) {}
+        }
+        startBtn.textContent = 'Game Over';
+        draw();
+        return;
+      }
+    }
+
+    // Particles
+    if (!dino.jumping) spawnParticles();
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life--;
+      if (p.life <= 0) particles.splice(i, 1);
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    // Sky gradient
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
+    skyGrad.addColorStop(0, '#0f3460');
+    skyGrad.addColorStop(1, '#1a1a2e');
+    ctx.fillStyle = skyGrad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Stars
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    const starPositions = [
+      [30, 20], [90, 40], [150, 15], [210, 50], [280, 25],
+      [340, 45], [400, 18], [460, 35], [130, 60], [370, 55]
+    ];
+    for (const [sx, sy] of starPositions) {
+      ctx.beginPath();
+      ctx.arc(sx, sy, 1.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Ground
+    ctx.fillStyle = '#16213e';
+    ctx.fillRect(0, GROUND_Y + 4, W, H - GROUND_Y);
+
+    // Ground line
+    ctx.strokeStyle = '#7c3aed';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, GROUND_Y);
+    for (let i = 0; i < W; i += 20) {
+      const x = i - groundOffset;
+      ctx.lineTo(x, GROUND_Y);
+      if (x > 0) {
+        ctx.lineTo(x + 10, GROUND_Y - 2);
+        ctx.lineTo(x + 10, GROUND_Y);
+      }
+    }
+    ctx.stroke();
+
+    // Ground dots
+    ctx.fillStyle = 'rgba(124,58,237,0.3)';
+    for (let i = 0; i < W; i += 40) {
+      const x = (i - groundOffset) % (W + 20);
+      ctx.beginPath();
+      ctx.arc(x, GROUND_Y + 12, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Obstacles (cacti)
+    for (const obs of obstacles) {
+      ctx.fillStyle = '#4ecca3';
+      const x = obs.x, y = obs.y, w = obs.w, h = obs.h;
+
+      if (obs.type === 'cactus-small') {
+        // Main body
+        ctx.fillRect(x + 3, y + 6, w - 6, h - 6);
+        // Arms
+        ctx.fillRect(x, y + 10, w, 4);
+        ctx.fillRect(x, y + 18, w, 4);
+      } else if (obs.type === 'cactus-tall') {
+        ctx.fillRect(x + 3, y, w - 6, h);
+        ctx.fillRect(x, y + 10, w, 4);
+      } else {
+        // Group of 3 small cacti
+        for (let j = 0; j < 3; j++) {
+          const ox = x + j * 11;
+          const oy = y + (j % 2) * 4;
+          ctx.fillRect(ox + 2, oy + 6, 7, h - 6);
+          ctx.fillRect(ox - 1, oy + 10, 12, 3);
+        }
+      }
+    }
+
+    // Dino
+    const dx = dino.x, dy = dino.y;
+
+    // Body
+    ctx.fillStyle = '#e0e0e0';
+
+    // Main body
+    ctx.beginPath();
+    ctx.roundRect(dx + 4, dy + 8, 20, 22, 4);
+    ctx.fill();
+
+    // Head
+    ctx.beginPath();
+    ctx.ellipse(dx + 22, dy + 8, 12, 10, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Jaw
+    ctx.fillRect(dx + 18, dy + 12, 16, 6);
+
+    // Eye
+    ctx.fillStyle = '#1a1a2e';
+    ctx.beginPath();
+    ctx.arc(dx + 26, dy + 6, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Pupil
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(dx + 27, dy + 5, 1, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Legs (animated)
+    ctx.fillStyle = '#e0e0e0';
+    if (dino.jumping) {
+      // Tucked legs
+      ctx.fillRect(dx + 6, dy + 28, 6, 6);
+      ctx.fillRect(dx + 16, dy + 28, 6, 6);
+    } else {
+      const legSwing = Math.sin(dino.legFrame * Math.PI * 2) * 4;
+      // Left leg
+      ctx.fillRect(dx + 6, dy + 28 + legSwing * 0.5, 6, 8 - legSwing * 0.3);
+      // Right leg
+      ctx.fillRect(dx + 16, dy + 28 - legSwing * 0.5, 6, 8 + legSwing * 0.3);
+    }
+
+    // Tail
+    ctx.fillStyle = '#ccc';
+    ctx.fillRect(dx, dy + 12, 6, 4);
+    ctx.fillRect(dx - 3, dy + 10, 5, 3);
+
+    // Particles
+    for (const p of particles) {
+      const alpha = p.life / p.maxLife;
+      ctx.fillStyle = `rgba(124,58,237,${alpha * 0.5})`;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Game over overlay
+    if (gameOver) {
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = '#e86a6a';
+      ctx.font = 'bold 32px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Game Over', W / 2, H / 2 - 15);
+      ctx.fillStyle = '#ccc';
+      ctx.font = '18px sans-serif';
+      ctx.fillText('Score: ' + score, W / 2, H / 2 + 20);
+      ctx.fillStyle = '#7f8c8d';
+      ctx.font = '14px sans-serif';
+      ctx.fillText('Press Space or tap to restart', W / 2, H / 2 + 50);
+    }
+
+    // Start prompt
+    if (!gameStarted) {
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = '#7c3aed';
+      ctx.font = 'bold 24px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Press Start or Space', W / 2, H / 2);
+      ctx.fillStyle = '#7f8c8d';
+      ctx.font = '16px sans-serif';
+      ctx.fillText('Jump over the cacti!', W / 2, H / 2 + 30);
+    }
+  }
+
+  // Keyboard
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' || e.key === ' ') {
+      e.preventDefault();
+      if (!gameRunning && gameOver) {
+        init();
+        startGame();
+      } else if (!gameStarted) {
+        startGame();
+      } else {
+        jump();
+      }
+    }
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (gameRunning) jump();
+    }
+  });
+
+  // Touch / click on canvas
+  canvas.addEventListener('click', () => {
+    if (!gameRunning && gameOver) {
+      init();
+      startGame();
+    } else if (!gameStarted) {
+      startGame();
+    } else {
+      jump();
+    }
+  });
+
+  canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    if (!gameRunning && gameOver) {
+      init();
+      startGame();
+    } else if (!gameStarted) {
+      startGame();
+    } else {
+      jump();
+    }
+  }, { passive: false });
+
+  startBtn.addEventListener('click', () => {
+    if (!gameRunning && gameOver) {
+      init();
+      startGame();
+    } else if (!gameStarted) {
+      startGame();
+    } else {
+      jump();
+    }
+  });
+
+  resetBtn.addEventListener('click', () => {
+    if (animationId) cancelAnimationFrame(animationId);
+    gameRunning = false;
+    gameStarted = false;
+    startBtn.textContent = 'Start Game';
+    init();
+  });
+
+  // roundRect polyfill
+  if (!CanvasRenderingContext2D.prototype.roundRect) {
+    CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+      if (r > w / 2) r = w / 2;
+      if (r > h / 2) r = h / 2;
+      this.moveTo(x + r, y);
+      this.lineTo(x + w - r, y);
+      this.quadraticCurveTo(x + w, y, x + w, y + r);
+      this.lineTo(x + w, y + h - r);
+      this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      this.lineTo(x + r, y + h);
+      this.quadraticCurveTo(x, y + h, x, y + h - r);
+      this.lineTo(x, y + r);
+      this.quadraticCurveTo(x, y, x + r, y);
+      return this;
+    };
+  }
+
+  init();
+
+  // Responsive
+  function resizeCanvas() {
+    const container = canvas.parentElement;
+    const w = container.clientWidth;
+    canvas.style.width = w + 'px';
+    canvas.style.height = (w * 3 / 5) + 'px';
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+})();
+</script>
+</body>
+</html>

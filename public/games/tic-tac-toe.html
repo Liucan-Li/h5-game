@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Tic-Tac-Toe</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #1a1a2e; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px;
+    -webkit-user-select: none; user-select: none;
+  }
+  .container { text-align: center; width: 100%; max-width: 360px; }
+  h1 { font-size: 2em; font-weight: 800; margin-bottom: 8px; }
+  h1 .x { color: #60a5fa; } h1 .o { color: #f87171; }
+  .turn-indicator {
+    font-size: 1em; margin-bottom: 16px; padding: 8px 16px;
+    background: #16213e; border-radius: 10px; display: inline-block;
+  }
+  .turn-indicator .highlight { font-weight: 800; }
+  .grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+    width: 100%; aspect-ratio: 1; max-width: 360px; margin: 0 auto;
+  }
+  .cell {
+    aspect-ratio: 1; background: #0f3460; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 3em; font-weight: 800; cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    border: 2px solid rgba(255,255,255,0.05);
+  }
+  .cell:hover { background: #16213e; }
+  .cell:active { transform: scale(0.95); }
+  .cell.x { color: #60a5fa; cursor: default; }
+  .cell.o { color: #f87171; cursor: default; }
+  .cell.win { background: #0a2a1e; border-color: #4ecca3; animation: winPulse 0.5s ease; }
+  @keyframes winPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+  .status { margin-top: 16px; font-size: 1.1em; min-height: 1.5em; color: #ccc; }
+  button {
+    background: linear-gradient(135deg, #60a5fa, #3b82f6); color: #fff;
+    border: none; padding: 10px 28px; border-radius: 8px; font-size: 1em;
+    font-weight: 700; cursor: pointer; margin-top: 12px; transition: transform 0.1s;
+  }
+  button:active { transform: scale(0.95); }
+  .score-row { display: flex; justify-content: center; gap: 24px; margin-bottom: 12px; }
+  .score-item { font-size: 0.9em; }
+  .score-item span { font-weight: 700; }
+  .score-item .x { color: #60a5fa; }
+  .score-item .o { color: #f87171; }
+  @media (max-width: 360px) {
+    .cell { font-size: 2.2em; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1><span class="x">X</span> — <span class="o">O</span></h1>
+  <div class="score-row">
+    <div class="score-item">You (<span class="x">X</span>): <span id="xScore">0</span></div>
+    <div class="score-item">AI (<span class="o">O</span>): <span id="oScore">0</span></div>
+    <div class="score-item">Draw: <span id="drawScore">0</span></div>
+  </div>
+  <div class="turn-indicator"><span id="turnText">Your turn</span></div>
+  <div class="grid" id="grid"></div>
+  <div class="status" id="statusText"></div>
+  <button id="resetBtn">New Game</button>
+</div>
+<script>
+(function() {
+  let board, currentPlayer, gameOver, xWins, oWins, draws;
+  let aiThinking = false;
+
+  const grid = document.getElementById('grid');
+  const turnText = document.getElementById('turnText');
+  const statusText = document.getElementById('statusText');
+  const xScoreEl = document.getElementById('xScore');
+  const oScoreEl = document.getElementById('oScore');
+  const drawScoreEl = document.getElementById('drawScore');
+
+  function init() {
+    board = Array(9).fill(null);
+    currentPlayer = 'X';
+    gameOver = false;
+    aiThinking = false;
+    xWins = xWins || 0;
+    oWins = oWins || 0;
+    draws = draws || 0;
+    render();
+    updateUI();
+  }
+
+  const WIN_COMBOS = [
+    [0,1,2],[3,4,5],[6,7,8],
+    [0,3,6],[1,4,7],[2,5,8],
+    [0,4,8],[2,4,6]
+  ];
+
+  function checkWinner(b) {
+    for (const combo of WIN_COMBOS) {
+      const [a, c, d] = combo;
+      if (b[a] && b[a] === b[c] && b[a] === b[d]) {
+        return { winner: b[a], combo };
+      }
+    }
+    return null;
+  }
+
+  function isFull(b) {
+    return b.every(c => c !== null);
+  }
+
+  function aiMove() {
+    if (gameOver || aiThinking) return;
+    aiThinking = true;
+
+    // Simple AI: find winning move, block player, or random
+    const b = board;
+
+    // AI win
+    for (let i = 0; i < 9; i++) {
+      if (b[i] === null) {
+        b[i] = 'O';
+        if (checkWinner(b)) { b[i] = null; makeMove(i); return; }
+        b[i] = null;
+      }
+    }
+
+    // Block player
+    for (let i = 0; i < 9; i++) {
+      if (b[i] === null) {
+        b[i] = 'X';
+        if (checkWinner(b)) { b[i] = null; makeMove(i); return; }
+        b[i] = null;
+      }
+    }
+
+    // Random
+    const empty = [];
+    for (let i = 0; i < 9; i++) {
+      if (b[i] === null) empty.push(i);
+    }
+    if (empty.length > 0) {
+      const idx = empty[Math.floor(Math.random() * empty.length)];
+      makeMove(idx);
+    }
+  }
+
+  function makeMove(index) {
+    if (board[index] !== null) return;
+    board[index] = currentPlayer;
+    render();
+
+    const result = checkWinner(board);
+    if (result) {
+      gameOver = true;
+      const combo = result.combo;
+      document.querySelectorAll('.cell').forEach((cell, i) => {
+        if (combo.includes(i)) cell.classList.add('win');
+      });
+      if (result.winner === 'X') {
+        xWins++;
+        xScoreEl.textContent = xWins;
+        statusText.textContent = 'You win!';
+        turnText.textContent = 'Game Over';
+      } else {
+        oWins++;
+        oScoreEl.textContent = oWins;
+        statusText.textContent = 'AI wins!';
+        turnText.textContent = 'Game Over';
+      }
+      aiThinking = false;
+      return;
+    }
+
+    if (isFull(board)) {
+      gameOver = true;
+      draws++;
+      drawScoreEl.textContent = draws;
+      statusText.textContent = 'It\'s a draw!';
+      turnText.textContent = 'Game Over';
+      aiThinking = false;
+      return;
+    }
+
+    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+    updateUI();
+    aiThinking = false;
+
+    if (currentPlayer === 'O') {
+      setTimeout(aiMove, 300);
+    }
+  }
+
+  function handleCellClick(index) {
+    if (gameOver || currentPlayer !== 'X' || aiThinking) return;
+    if (board[index] !== null) return;
+    makeMove(index);
+  }
+
+  function render() {
+    grid.innerHTML = '';
+    for (let i = 0; i < 9; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell' + (board[i] ? ' ' + board[i].toLowerCase() : '');
+      if (board[i]) cell.textContent = board[i];
+      cell.addEventListener('click', () => handleCellClick(i));
+      cell.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        handleCellClick(i);
+      }, { passive: false });
+      grid.appendChild(cell);
+    }
+  }
+
+  function updateUI() {
+    if (gameOver) return;
+    if (currentPlayer === 'X') {
+      turnText.textContent = 'Your turn (X)';
+      statusText.textContent = 'Click a cell to place X';
+    } else {
+      turnText.textContent = 'AI thinking...';
+      statusText.textContent = '';
+    }
+  }
+
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    if (aiThinking) { aiThinking = false; }
+    init();
+  });
+
+  // Init scores from localStorage
+  try {
+    xWins = parseInt(localStorage.getItem('tttXWins')) || 0;
+    oWins = parseInt(localStorage.getItem('tttOWins')) || 0;
+    draws = parseInt(localStorage.getItem('tttDraws')) || 0;
+    xScoreEl.textContent = xWins;
+    oScoreEl.textContent = oWins;
+    drawScoreEl.textContent = draws;
+  } catch(e) { xWins = 0; oWins = 0; draws = 0; }
+
+  init();
+})();
+</script>
+</body>
+</html>

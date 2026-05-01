@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Whack-a-Mole 打地鼠</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #1a1a1a;
+    color: #e0e0e0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+  }
+  .game-container {
+    max-width: 400px;
+    width: 100%;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+  header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background: #2a2a2a;
+    border-radius: 12px;
+    border: 1px solid #3a3a3a;
+  }
+  header h1 { font-size: 20px; font-weight: 700; color: #e8a040; }
+  .stats { display: flex; gap: 20px; font-size: 16px; }
+  .stats span { display: flex; align-items: center; gap: 5px; }
+  .stats .num { font-weight: 700; color: #fff; min-width: 30px; text-align: center; }
+  .stats .label { color: #999; font-size: 13px; }
+
+  .field {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    background: #2d251a;
+    border-radius: 20px;
+    border: 3px solid #4a3828;
+    overflow: hidden;
+  }
+  .field::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30%;
+    background: linear-gradient(to top, #3d2b1a, transparent);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    gap: 10px;
+    position: relative;
+    z-index: 1;
+  }
+  .hole {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .hole-bg {
+    width: 85%;
+    height: 30%;
+    background: radial-gradient(ellipse at center, #1a1008 0%, #2d1a0a 60%, transparent 100%);
+    border-radius: 50%;
+    position: absolute;
+    bottom: 5%;
+    z-index: 2;
+    border: 2px solid #4a3020;
+    box-shadow: inset 0 -4px 8px rgba(0,0,0,0.6);
+  }
+  .mole {
+    position: absolute;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%) translateY(100%);
+    width: 70%;
+    aspect-ratio: 1;
+    transition: transform 0.15s ease-out;
+    z-index: 1;
+    cursor: pointer;
+    touch-action: manipulation;
+    pointer-events: none;
+  }
+  .mole.active {
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+  }
+  .mole.whacked {
+    transform: translateX(-50%) translateY(120%);
+    transition: transform 0.08s ease-in;
+  }
+  .mole-body {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+  .mole-body svg { width: 100%; height: 100%; display: block; }
+  .mole-body .body-outer {
+    fill: #8B5E3C;
+    stroke: #5C3A1E;
+    stroke-width: 2;
+  }
+  .mole-body .body-inner {
+    fill: #A0704F;
+  }
+  .mole-body .eye {
+    fill: #1a1a1a;
+  }
+  .mole-body .eye-white {
+    fill: #fff;
+  }
+  .mole-body .nose {
+    fill: #D4756B;
+    rx: 2;
+  }
+  .mole-body .whisker {
+    stroke: #5C3A1E;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+  }
+
+  .controls {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+  }
+  .btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: transform 0.1s, background 0.2s;
+  }
+  .btn:active { transform: scale(0.96); }
+  .btn-start {
+    background: #4CAF50;
+    color: #fff;
+  }
+  .btn-start:hover { background: #45a049; }
+  .btn-start:disabled { background: #555; cursor: not-allowed; }
+  .btn-reset {
+    background: #e74c3c;
+    color: #fff;
+  }
+  .btn-reset:hover { background: #c0392b; }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border-radius: 17px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .overlay.show { opacity: 1; pointer-events: auto; }
+  .overlay h2 { font-size: 32px; color: #e8a040; margin-bottom: 10px; }
+  .overlay p { font-size: 18px; color: #ccc; margin-bottom: 20px; }
+  .overlay .btn { max-width: 180px; }
+
+  @media (max-width: 420px) {
+    .game-container { padding: 10px; }
+    .stats { gap: 12px; font-size: 14px; }
+    header h1 { font-size: 17px; }
+  }
+  @media (max-height: 650px) {
+    .field { max-height: 300px; }
+  }
+</style>
+</head>
+<body>
+<div class="game-container">
+  <header>
+    <h1>打地鼠</h1>
+    <div class="stats">
+      <span><span class="label">得分</span><span class="num" id="score">0</span></span>
+      <span><span class="label">时间</span><span class="num" id="timer">30</span><span class="label">秒</span></span>
+    </div>
+  </header>
+  <div class="field" id="field">
+    <div class="grid" id="grid"></div>
+    <div class="overlay" id="overlay">
+      <h2>游戏结束</h2>
+      <p>最终得分: <span id="finalScore">0</span></p>
+      <button class="btn btn-start" id="restartOverlayBtn">再来一局</button>
+    </div>
+  </div>
+  <div class="controls">
+    <button class="btn btn-start" id="startBtn">开始游戏</button>
+    <button class="btn btn-reset" id="resetBtn">重置</button>
+  </div>
+</div>
+<script>
+(function(){
+  'use strict';
+
+  const GRID_SIZE = 3;
+  const HOLE_COUNT = GRID_SIZE * GRID_SIZE;
+  const GAME_DURATION = 30;
+  const MOLE_MIN_INTERVAL = 600;
+  const MOLE_MAX_INTERVAL = 1500;
+  const MOLE_VISIBLE_TIME = 900;
+
+  let score = 0;
+  let timeLeft = GAME_DURATION;
+  let gameRunning = false;
+  let timerInterval = null;
+  let moleTimeouts = [];
+  let activeMoles = new Set();
+  let whackedMoles = new Set();
+
+  const gridEl = document.getElementById('grid');
+  const scoreEl = document.getElementById('score');
+  const timerEl = document.getElementById('timer');
+  const overlay = document.getElementById('overlay');
+  const finalScoreEl = document.getElementById('finalScore');
+  const startBtn = document.getElementById('startBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const restartOverlayBtn = document.getElementById('restartOverlayBtn');
+
+  function createMoleSVG() {
+    return `
+      <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+        <ellipse class="body-outer" cx="40" cy="50" rx="28" ry="30"/>
+        <ellipse class="body-inner" cx="40" cy="52" rx="20" ry="22"/>
+        <ellipse class="eye-white" cx="30" cy="40" rx="7" ry="8"/>
+        <ellipse class="eye-white" cx="50" cy="40" rx="7" ry="8"/>
+        <ellipse class="eye" cx="31" cy="41" rx="4" ry="5"/>
+        <ellipse class="eye" cx="49" cy="41" rx="4" ry="5"/>
+        <ellipse class="nose" cx="40" cy="50" rx="5" ry="3"/>
+        <line class="whisker" x1="18" y1="48" x2="33" y2="50"/>
+        <line class="whisker" x1="18" y1="54" x2="33" y2="52"/>
+        <line class="whisker" x1="62" y1="48" x2="47" y2="50"/>
+        <line class="whisker" x1="62" y1="54" x2="47" y2="52"/>
+      </svg>
+    `;
+  }
+
+  function buildGrid() {
+    gridEl.innerHTML = '';
+    for (let i = 0; i < HOLE_COUNT; i++) {
+      const hole = document.createElement('div');
+      hole.className = 'hole';
+      hole.dataset.index = i;
+
+      const mole = document.createElement('div');
+      mole.className = 'mole';
+      mole.dataset.index = i;
+      const body = document.createElement('div');
+      body.className = 'mole-body';
+      body.innerHTML = createMoleSVG();
+      mole.appendChild(body);
+
+      const holeBg = document.createElement('div');
+      holeBg.className = 'hole-bg';
+
+      hole.appendChild(mole);
+      hole.appendChild(holeBg);
+
+      hole.addEventListener('click', () => whackMole(i));
+      hole.addEventListener('touchstart', (e) => { e.preventDefault(); whackMole(i); });
+
+      gridEl.appendChild(hole);
+    }
+  }
+
+  function whackMole(index) {
+    if (!gameRunning) return;
+    if (!activeMoles.has(index)) return;
+    if (whackedMoles.has(index)) return;
+
+    whackedMoles.add(index);
+    activeMoles.delete(index);
+    score++;
+    scoreEl.textContent = score;
+
+    const hole = gridEl.children[index];
+    const mole = hole.querySelector('.mole');
+    mole.classList.remove('active');
+    mole.classList.add('whacked');
+
+    setTimeout(() => {
+      mole.classList.remove('whacked');
+    }, 150);
+  }
+
+  function showMole(index) {
+    if (!gameRunning) return;
+    if (activeMoles.has(index)) return;
+
+    const hole = gridEl.children[index];
+    const mole = hole.querySelector('.mole');
+    mole.classList.add('active');
+    mole.classList.remove('whacked');
+    activeMoles.add(index);
+
+    setTimeout(() => {
+      if (activeMoles.has(index)) {
+        const moleEl = gridEl.children[index].querySelector('.mole');
+        moleEl.classList.remove('active');
+        activeMoles.delete(index);
+        whackedMoles.delete(index);
+      }
+    }, MOLE_VISIBLE_TIME);
+  }
+
+  function scheduleMole() {
+    if (!gameRunning) return;
+
+    // Pick a random hole that's not already active
+    const available = [];
+    for (let i = 0; i < HOLE_COUNT; i++) {
+      if (!activeMoles.has(i)) available.push(i);
+    }
+    if (available.length > 0) {
+      const idx = available[Math.floor(Math.random() * available.length)];
+      // Maybe show 1 or 2 moles at once
+      showMole(idx);
+      if (Math.random() < 0.3 && available.length > 1) {
+        const idx2 = available.filter(i => i !== idx)[Math.floor(Math.random() * (available.length - 1))];
+        showMole(idx2);
+      }
+    }
+
+    const delay = MOLE_MIN_INTERVAL + Math.random() * (MOLE_MAX_INTERVAL - MOLE_MIN_INTERVAL);
+    const tid = setTimeout(() => {
+      scheduleMole();
+      moleTimeouts = moleTimeouts.filter(t => t !== tid);
+    }, delay);
+    moleTimeouts.push(tid);
+  }
+
+  function clearMoleTimeouts() {
+    moleTimeouts.forEach(t => clearTimeout(t));
+    moleTimeouts = [];
+  }
+
+  function hideAllMoles() {
+    for (let i = 0; i < HOLE_COUNT; i++) {
+      const hole = gridEl.children[i];
+      const mole = hole.querySelector('.mole');
+      mole.classList.remove('active', 'whacked');
+    }
+    activeMoles.clear();
+    whackedMoles.clear();
+  }
+
+  function updateTimer() {
+    timerEl.textContent = timeLeft;
+    if (timeLeft <= 0) {
+      endGame();
+    }
+  }
+
+  function startGame() {
+    if (gameRunning) return;
+
+    score = 0;
+    timeLeft = GAME_DURATION;
+    gameRunning = true;
+    scoreEl.textContent = '0';
+    timerEl.textContent = GAME_DURATION;
+    overlay.classList.remove('show');
+    startBtn.disabled = true;
+    hideAllMoles();
+    activeMoles.clear();
+    whackedMoles.clear();
+
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      timerEl.textContent = timeLeft;
+      if (timeLeft <= 0) {
+        endGame();
+      }
+    }, 1000);
+
+    scheduleMole();
+  }
+
+  function endGame() {
+    gameRunning = false;
+    clearMoleTimeouts();
+    clearInterval(timerInterval);
+    hideAllMoles();
+    startBtn.disabled = false;
+    finalScoreEl.textContent = score;
+    overlay.classList.add('show');
+  }
+
+  function resetGame() {
+    gameRunning = false;
+    clearMoleTimeouts();
+    clearInterval(timerInterval);
+    score = 0;
+    timeLeft = GAME_DURATION;
+    scoreEl.textContent = '0';
+    timerEl.textContent = GAME_DURATION;
+    startBtn.disabled = false;
+    overlay.classList.remove('show');
+    hideAllMoles();
+  }
+
+  startBtn.addEventListener('click', startGame);
+  startBtn.addEventListener('touchstart', (e) => { e.preventDefault(); if (!gameRunning) startGame(); });
+  resetBtn.addEventListener('click', resetGame);
+  resetBtn.addEventListener('touchstart', (e) => { e.preventDefault(); resetGame(); });
+  restartOverlayBtn.addEventListener('click', startGame);
+  restartOverlayBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startGame(); });
+
+  buildGrid();
+})();
+</script>
+</body>
+</html>

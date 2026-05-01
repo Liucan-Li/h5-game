@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Reaction Time Test</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #1a1a2e; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px;
+    -webkit-user-select: none; user-select: none;
+  }
+  .container { text-align: center; width: 100%; max-width: 400px; }
+  h1 { font-size: 2em; font-weight: 800; margin-bottom: 20px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .test-area {
+    width: 100%; aspect-ratio: 1; max-width: 400px; margin: 0 auto;
+    border-radius: 20px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    border: 2px solid rgba(255,255,255,0.1);
+    min-height: 250px;
+  }
+  .test-area.waiting { background: #991b1b; }
+  .test-area.waiting:active { transform: scale(0.98); }
+  .test-area.ready { background: #166534; }
+  .test-area.ready:active { transform: scale(0.98); }
+  .test-area.idle { background: #1e3a5f; }
+  .test-area.idle:active { transform: scale(0.98); }
+  .test-area.too-soon { background: #991b1b; }
+  .test-area .msg { font-size: 1.3em; font-weight: 600; padding: 20px; color: #fff; }
+  .test-area .sub-msg { font-size: 0.9em; color: rgba(255,255,255,0.7); margin-top: 8px; }
+  .stats { display: flex; gap: 12px; margin-top: 20px; justify-content: center; }
+  .stat-box { background: #16213e; padding: 12px 16px; border-radius: 12px; min-width: 85px; }
+  .stat-label { font-size: 0.65em; text-transform: uppercase; color: #7f8c8d; letter-spacing: 1px; margin-bottom: 4px; }
+  .stat-value { font-size: 1.5em; font-weight: 700; color: #fff; }
+  .attempts {
+    display: flex; gap: 6px; justify-content: center; margin-top: 16px;
+  }
+  .attempt-dot {
+    width: 32px; height: 32px; border-radius: 50%; background: #16213e;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7em; color: #7f8c8d; border: 2px solid #16213e;
+  }
+  .attempt-dot.done { border-color: #3b82f6; color: #3b82f6; }
+  .attempt-dot.best { border-color: #4ecca3; color: #4ecca3; background: #0a2a1e; }
+  button {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: #fff;
+    border: none; padding: 10px 28px; border-radius: 8px; font-size: 1em;
+    font-weight: 700; cursor: pointer; margin-top: 16px; transition: transform 0.1s;
+  }
+  button:active { transform: scale(0.95); }
+  button.secondary {
+    background: #16213e; color: #e0e0e0; margin-left: 8px;
+  }
+  .result { display: none; margin-top: 12px; }
+  .result.active { display: block; }
+  .result .avg { font-size: 1.8em; font-weight: 800; color: #3b82f6; }
+  .result .label { color: #7f8c8d; font-size: 0.85em; }
+  .best-row { color: #7f8c8d; font-size: 0.85em; margin-top: 10px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Reaction Test</h1>
+  <div class="test-area idle" id="testArea">
+    <div class="msg" id="msgText">Wait for green</div>
+    <div class="sub-msg" id="subMsg">Click to start</div>
+  </div>
+  <div class="stats">
+    <div class="stat-box"><div class="stat-label">Last</div><div class="stat-value" id="lastTime">—</div></div>
+    <div class="stat-box"><div class="stat-label">Avg</div><div class="stat-value" id="avgTime">—</div></div>
+  </div>
+  <div class="attempts" id="attemptDots">
+    <div class="attempt-dot">1</div>
+    <div class="attempt-dot">2</div>
+    <div class="attempt-dot">3</div>
+    <div class="attempt-dot">4</div>
+    <div class="attempt-dot">5</div>
+  </div>
+  <div>
+    <button id="resetBtn">Reset</button>
+  </div>
+  <div class="best-row">Personal best: <span id="bestTime">—</span></div>
+</div>
+<script>
+(function() {
+  const MAX_TRIALS = 5;
+  let state = 'idle'; // idle, waiting (red), ready (green), too-soon
+  let trials = [];
+  let timeoutId = null;
+  let startTime = 0;
+  let bestOverall = parseFloat(localStorage.getItem('reactionBest') || '0');
+
+  const testArea = document.getElementById('testArea');
+  const msgText = document.getElementById('msgText');
+  const subMsg = document.getElementById('subMsg');
+  const lastTimeEl = document.getElementById('lastTime');
+  const avgTimeEl = document.getElementById('avgTime');
+  const bestTimeEl = document.getElementById('bestTime');
+  const dots = document.querySelectorAll('.attempt-dot');
+
+  if (bestOverall > 0) bestTimeEl.textContent = bestOverall + 'ms';
+
+  function updateDots() {
+    dots.forEach((dot, i) => {
+      dot.className = 'attempt-dot';
+      if (i < trials.length) {
+        dot.classList.add('done');
+        dot.textContent = trials[i] + 'ms';
+        const min = trials.length > 0 ? Math.min(...trials) : 0;
+        if (trials[i] === min) dot.classList.add('best');
+      }
+    });
+  }
+
+  function updateStats() {
+    if (trials.length > 0) {
+      lastTimeEl.textContent = trials[trials.length - 1] + 'ms';
+    }
+    if (trials.length > 0) {
+      const avg = Math.round(trials.reduce((a, b) => a + b, 0) / trials.length);
+      avgTimeEl.textContent = avg + 'ms';
+    }
+    if (bestOverall > 0) {
+      bestTimeEl.textContent = bestOverall + 'ms';
+    }
+    updateDots();
+  }
+
+  function goToIdle() {
+    state = 'idle';
+    testArea.className = 'test-area idle';
+    msgText.textContent = 'Click to start';
+    subMsg.textContent = trials.length + '/' + MAX_TRIALS + ' attempts';
+  }
+
+  function startWaiting() {
+    state = 'waiting';
+    testArea.className = 'test-area waiting';
+    msgText.textContent = 'Wait...';
+    subMsg.textContent = 'Click when it turns green';
+
+    const delay = 1000 + Math.random() * 3000; // 1-4 seconds
+    timeoutId = setTimeout(() => {
+      state = 'ready';
+      testArea.className = 'test-area ready';
+      msgText.textContent = 'Click NOW!';
+      subMsg.textContent = '';
+      startTime = performance.now();
+      timeoutId = null;
+    }, delay);
+  }
+
+  function handleClick() {
+    if (state === 'idle') {
+      if (trials.length >= MAX_TRIALS) {
+        resetGame();
+        return;
+      }
+      startWaiting();
+    } else if (state === 'waiting') {
+      // Too soon!
+      if (timeoutId) { clearTimeout(timeoutId); timeoutId = null; }
+      state = 'too-soon';
+      testArea.className = 'test-area too-soon';
+      msgText.textContent = 'Too soon!';
+      subMsg.textContent = 'Click to try again';
+    } else if (state === 'ready') {
+      const reaction = Math.round(performance.now() - startTime);
+      trials.push(reaction);
+      if (bestOverall === 0 || reaction < bestOverall) {
+        bestOverall = reaction;
+        try { localStorage.setItem('reactionBest', String(bestOverall)); } catch(e) {}
+      }
+      updateStats();
+
+      if (trials.length >= MAX_TRIALS) {
+        const avg = Math.round(trials.reduce((a, b) => a + b, 0) / trials.length);
+        state = 'idle';
+        testArea.className = 'test-area idle';
+        msgText.textContent = 'All done!';
+        subMsg.textContent = avg + 'ms average — Click to reset';
+      } else {
+        goToIdle();
+      }
+    } else if (state === 'too-soon') {
+      startWaiting();
+    }
+  }
+
+  testArea.addEventListener('click', handleClick);
+  testArea.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    handleClick();
+  }, { passive: false });
+
+  function resetGame() {
+    if (timeoutId) { clearTimeout(timeoutId); timeoutId = null; }
+    trials = [];
+    lastTimeEl.textContent = '—';
+    avgTimeEl.textContent = '—';
+    goToIdle();
+    updateDots();
+    state = 'idle';
+  }
+
+  document.getElementById('resetBtn').addEventListener('click', resetGame);
+  updateStats();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+    <linearGradient id="birdGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f9ca24"/>
+      <stop offset="100%" stop-color="#f0932b"/>
+    </linearGradient>
+    <linearGradient id="pipeGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#00b894"/>
+      <stop offset="100%" stop-color="#55efc4"/>
+    </linearGradient>
+    <linearGradient id="pipeCapGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#00b894"/>
+      <stop offset="100%" stop-color="#00cec9"/>
+    </linearGradient>
+    <filter id="birdGlow">
+      <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#f9ca24" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)" rx="16"/>
+
+  <!-- Bird -->
+  <g transform="translate(150, 120)" filter="url(#birdGlow)">
+    <!-- Body -->
+    <ellipse cx="0" cy="0" rx="28" ry="20" fill="url(#birdGrad)"/>
+    <!-- Wing -->
+    <path d="M-5,-5 Q-20,-25 -30,-10 Q-15,-3 -5,-2" fill="#e17055" opacity="0.8"/>
+    <!-- Eye -->
+    <circle cx="12" cy="-6" r="6" fill="#fff"/>
+    <circle cx="14" cy="-6" r="3" fill="#2d3436"/>
+    <!-- Beak -->
+    <polygon points="25,-2 40,2 25,6" fill="#ff7675"/>
+    <!-- Tail -->
+    <polygon points="-25,0 -40,-10 -38,5" fill="#e17055" opacity="0.7"/>
+  </g>
+
+  <!-- Pipe top (top-left area) -->
+  <g transform="translate(280, 0)">
+    <rect x="0" y="0" width="24" height="80" rx="2" fill="url(#pipeGrad)"/>
+    <rect x="-4" y="75" width="32" height="12" rx="4" fill="url(#pipeCapGrad)"/>
+  </g>
+
+  <!-- Pipe bottom (top-left area) -->
+  <g transform="translate(280, 145)">
+    <rect x="0" y="0" width="24" height="85" rx="2" fill="url(#pipeGrad)"/>
+    <rect x="-4" y="-4" width="32" height="12" rx="4" fill="url(#pipeCapGrad)"/>
+  </g>
+
+  <!-- Pipe front (right side) -->
+  <g transform="translate(340, 0)">
+    <rect x="0" y="0" width="24" height="60" rx="2" fill="url(#pipeGrad)"/>
+    <rect x="-4" y="55" width="32" height="12" rx="4" fill="url(#pipeCapGrad)"/>
+  </g>
+  <g transform="translate(340, 170)">
+    <rect x="0" y="0" width="24" height="60" rx="2" fill="url(#pipeGrad)"/>
+    <rect x="-4" y="-4" width="32" height="12" rx="4" fill="url(#pipeCapGrad)"/>
+  </g>
+
+  <text x="200" y="285" font-family="Arial, sans-serif" font-size="14" fill="#f9ca24" text-anchor="middle" opacity="0.6">Flappy Bird</text>
+</svg>

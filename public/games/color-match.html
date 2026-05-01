@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Color Match 颜色辨辨辨</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #12121a;
+    color: #e0e0e0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+  }
+  .game-container {
+    max-width: 420px;
+    width: 100%;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background: #1e1e2e;
+    border-radius: 12px;
+    border: 1px solid #2e2e4e;
+  }
+  header h1 { font-size: 20px; font-weight: 700; color: #b080ff; }
+  .stats { display: flex; gap: 16px; font-size: 14px; }
+  .stats .num { color: #fff; font-weight: 700; }
+
+  .round-info {
+    font-size: 14px;
+    color: #888;
+  }
+
+  .stimulus {
+    width: 100%;
+    padding: 40px 20px;
+    background: #1a1a2a;
+    border-radius: 16px;
+    border: 2px solid #2e2e4e;
+    text-align: center;
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .stimulus-text {
+    font-size: 72px;
+    font-weight: 900;
+    line-height: 1.2;
+    transition: all 0.3s ease;
+  }
+  .stimulus-hint {
+    font-size: 13px;
+    color: #666;
+    margin-top: 8px;
+  }
+
+  .answers {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+  }
+  .answer-btn {
+    padding: 18px 10px;
+    border: 2px solid #2e2e4e;
+    border-radius: 12px;
+    background: #1e1e2e;
+    color: #aaa;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: all 0.15s ease;
+  }
+  .answer-btn:active {
+    transform: scale(0.95);
+    background: #2e2e4e;
+  }
+  .answer-btn.correct-glow {
+    border-color: #4CAF50;
+    background: rgba(76, 175, 80, 0.15);
+    color: #4CAF50;
+  }
+  .answer-btn.wrong-glow {
+    border-color: #e74c3c;
+    background: rgba(231, 76, 60, 0.15);
+    color: #e74c3c;
+  }
+
+  .result-section {
+    width: 100%;
+    padding: 20px;
+    background: #1a1a2a;
+    border-radius: 16px;
+    border: 2px solid #2e2e4e;
+    text-align: center;
+  }
+  .result-section h2 {
+    font-size: 28px;
+    color: #b080ff;
+    margin-bottom: 10px;
+  }
+  .result-detail {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin: 15px 0;
+  }
+  .result-item {
+    text-align: center;
+  }
+  .result-item .label {
+    font-size: 12px;
+    color: #888;
+  }
+  .result-item .value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .btn {
+    padding: 14px 36px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: transform 0.1s;
+  }
+  .btn:active { transform: scale(0.96); }
+  .btn-primary {
+    background: linear-gradient(135deg, #b080ff, #7c4cff);
+    color: #fff;
+  }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-secondary {
+    background: #2e2e4e;
+    color: #aaa;
+  }
+
+  .hidden { display: none; }
+
+  .feedback-text {
+    font-size: 16px;
+    font-weight: 700;
+    margin-top: 8px;
+    min-height: 24px;
+    text-align: center;
+  }
+  .feedback-correct { color: #4CAF50; }
+  .feedback-wrong { color: #e74c3c; }
+
+  .progress-bar {
+    width: 100%;
+    height: 6px;
+    background: #2e2e4e;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #7c4cff, #b080ff);
+    border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+
+  @media (max-width: 420px) {
+    .stimulus-text { font-size: 56px; }
+    .answer-btn { font-size: 17px; padding: 14px 8px; }
+  }
+  @media (max-height: 700px) {
+    .stimulus { padding: 25px 15px; min-height: 100px; }
+    .stimulus-text { font-size: 48px; }
+    .answer-btn { padding: 12px 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="game-container">
+  <header>
+    <h1>颜色辨辨辨</h1>
+    <div class="stats">
+      <span>轮次 <span class="num" id="roundDisplay">0</span>/10</span>
+      <span>得分 <span class="num" id="scoreDisplay">0</span></span>
+    </div>
+  </header>
+
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+  </div>
+
+  <div class="round-info" id="roundInfo">点击开始，选择文字的颜色而非含义</div>
+
+  <div class="stimulus" id="stimulus">
+    <div class="stimulus-text" id="stimulusText">开始</div>
+    <div class="stimulus-hint">选择文字的颜色</div>
+  </div>
+
+  <div class="feedback-text" id="feedback"></div>
+
+  <div class="answers" id="answers">
+    <button class="answer-btn" data-color="">-</button>
+    <button class="answer-btn" data-color="">-</button>
+    <button class="answer-btn" data-color="">-</button>
+    <button class="answer-btn" data-color="">-</button>
+  </div>
+
+  <button class="btn btn-primary" id="startBtn">开始游戏</button>
+  <button class="btn btn-secondary" id="resetBtn">重置</button>
+
+  <div class="result-section hidden" id="resultSection">
+    <h2>游戏结束</h2>
+    <div class="result-detail">
+      <div class="result-item">
+        <div class="label">正确</div>
+        <div class="value" id="finalCorrect">0/10</div>
+      </div>
+      <div class="result-item">
+        <div class="label">平均用时</div>
+        <div class="value" id="finalTime">0.0s</div>
+      </div>
+    </div>
+    <button class="btn btn-primary" id="playAgainBtn">再来一局</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  const COLORS = {
+    '红': '#e74c3c',
+    '蓝': '#3498db',
+    '绿': '#2ecc71',
+    '黄': '#f1c40f',
+    '紫': '#9b59b6'
+  };
+
+  const COLOR_NAMES = Object.keys(COLORS);
+  const TOTAL_ROUNDS = 10;
+
+  let currentRound = 0;
+  let correctCount = 0;
+  let totalTime = 0;
+  let roundStartTime = 0;
+  let isPlaying = false;
+  let isRoundActive = false;
+  let correctAnswer = '';
+  let roundResults = [];
+
+  const stimulusText = document.getElementById('stimulusText');
+  const stimulusEl = document.getElementById('stimulus');
+  const answersEl = document.getElementById('answers');
+  const answerBtns = answersEl.querySelectorAll('.answer-btn');
+  const roundDisplay = document.getElementById('roundDisplay');
+  const scoreDisplay = document.getElementById('scoreDisplay');
+  const feedbackEl = document.getElementById('feedback');
+  const startBtn = document.getElementById('startBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const playAgainBtn = document.getElementById('playAgainBtn');
+  const resultSection = document.getElementById('resultSection');
+  const finalCorrect = document.getElementById('finalCorrect');
+  const finalTime = document.getElementById('finalTime');
+  const progressFill = document.getElementById('progressFill');
+  const roundInfo = document.getElementById('roundInfo');
+
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function generateRound() {
+    // Pick a word (the Chinese text shown)
+    const wordName = COLOR_NAMES[Math.floor(Math.random() * COLOR_NAMES.length)];
+    // Pick a display color (must be different from word meaning)
+    let displayColorName;
+    do {
+      displayColorName = COLOR_NAMES[Math.floor(Math.random() * COLOR_NAMES.length)];
+    } while (displayColorName === wordName);
+    const displayColor = COLORS[displayColorName];
+
+    // Correct answer is the display color name
+    correctAnswer = displayColorName;
+
+    // Generate options (4 choices, one correct)
+    let options = [correctAnswer];
+    while (options.length < 4) {
+      const opt = COLOR_NAMES[Math.floor(Math.random() * COLOR_NAMES.length)];
+      if (!options.includes(opt)) options.push(opt);
+    }
+    options = shuffle(options);
+
+    // Set stimulus
+    stimulusText.textContent = wordName;
+    stimulusText.style.color = displayColor;
+
+    // Set answer buttons
+    answerBtns.forEach((btn, i) => {
+      btn.textContent = options[i];
+      btn.dataset.color = options[i];
+      btn.className = 'answer-btn';
+    });
+
+    return { wordName, displayColorName, options };
+  }
+
+  function startRound() {
+    if (!isPlaying || currentRound >= TOTAL_ROUNDS) return;
+
+    isRoundActive = true;
+    feedbackEl.textContent = '';
+    feedbackEl.className = 'feedback-text';
+    generateRound();
+    roundStartTime = performance.now();
+  }
+
+  function handleAnswer(e) {
+    if (!isRoundActive) return;
+    const btn = e.currentTarget;
+    const chosen = btn.dataset.color;
+
+    const reactionTime = (performance.now() - roundStartTime) / 1000;
+    totalTime += reactionTime;
+
+    const isCorrect = chosen === correctAnswer;
+    if (isCorrect) {
+      correctCount++;
+      feedbackEl.textContent = '正确!';
+      feedbackEl.className = 'feedback-text feedback-correct';
+      btn.classList.add('correct-glow');
+    } else {
+      feedbackEl.textContent = `错误! 正确答案是 ${correctAnswer}`;
+      feedbackEl.className = 'feedback-text feedback-wrong';
+      btn.classList.add('wrong-glow');
+      // Highlight correct answer
+      answerBtns.forEach(b => {
+        if (b.dataset.color === correctAnswer) b.classList.add('correct-glow');
+      });
+    }
+
+    roundResults.push({ correct: isCorrect, time: reactionTime });
+    currentRound++;
+    roundDisplay.textContent = currentRound;
+    scoreDisplay.textContent = correctCount;
+    progressFill.style.width = `${(currentRound / TOTAL_ROUNDS) * 100}%`;
+
+    isRoundActive = false;
+
+    if (currentRound >= TOTAL_ROUNDS) {
+      setTimeout(showResults, 800);
+    } else {
+      setTimeout(startRound, 1000);
+    }
+  }
+
+  function showResults() {
+    isPlaying = false;
+    const avgTime = totalTime / TOTAL_ROUNDS;
+    finalCorrect.textContent = `${correctCount}/${TOTAL_ROUNDS}`;
+    finalTime.textContent = `${avgTime.toFixed(1)}s`;
+    resultSection.classList.remove('hidden');
+    startBtn.classList.add('hidden');
+    roundInfo.textContent = '游戏结束！';
+  }
+
+  function startGame() {
+    currentRound = 0;
+    correctCount = 0;
+    totalTime = 0;
+    roundResults = [];
+    isPlaying = true;
+    resultSection.classList.add('hidden');
+    startBtn.classList.add('hidden');
+    roundDisplay.textContent = '0';
+    scoreDisplay.textContent = '0';
+    progressFill.style.width = '0%';
+    feedbackEl.textContent = '';
+
+    roundInfo.textContent = '选择文字的颜色，而非文字的含义';
+
+    setTimeout(startRound, 500);
+  }
+
+  function resetGame() {
+    isPlaying = false;
+    isRoundActive = false;
+    currentRound = 0;
+    correctCount = 0;
+    totalTime = 0;
+    roundResults = [];
+    resultSection.classList.add('hidden');
+    startBtn.classList.remove('hidden');
+    roundDisplay.textContent = '0';
+    scoreDisplay.textContent = '0';
+    progressFill.style.width = '0%';
+    stimulusText.textContent = '准备';
+    stimulusText.style.color = '#e0e0e0';
+    feedbackEl.textContent = '';
+    feedbackEl.className = 'feedback-text';
+    answerBtns.forEach(b => { b.className = 'answer-btn'; });
+    roundInfo.textContent = '点击开始，选择文字的颜色而非含义';
+  }
+
+  // Events
+  answerBtns.forEach(btn => {
+    btn.addEventListener('click', handleAnswer);
+    btn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      if (isRoundActive) handleAnswer(e);
+    });
+  });
+
+  startBtn.addEventListener('click', startGame);
+  startBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startGame(); });
+  resetBtn.addEventListener('click', resetGame);
+  resetBtn.addEventListener('touchstart', (e) => { e.preventDefault(); resetGame(); });
+  playAgainBtn.addEventListener('click', startGame);
+  playAgainBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startGame(); });
+
+  // Init display
+  stimulusText.textContent = '准备';
+  stimulusText.style.color = '#e0e0e0';
+})();
+</script>
+</body>
+</html>

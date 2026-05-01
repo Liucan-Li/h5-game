@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+    <linearGradient id="greenGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#55efc4"/>
+      <stop offset="100%" stop-color="#00b894"/>
+    </linearGradient>
+    <linearGradient id="yellowGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f9ca24"/>
+      <stop offset="100%" stop-color="#f0932b"/>
+    </linearGradient>
+    <linearGradient id="grayGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#636e72"/>
+      <stop offset="100%" stop-color="#2d3436"/>
+    </linearGradient>
+    <filter id="tileGlow">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#fff" flood-opacity="0.1"/>
+    </filter>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)" rx="16"/>
+
+  <g transform="translate(110, 35)">
+    <!-- Row 1: C O D E R -->
+    <rect x="0" y="0" width="34" height="34" rx="6" fill="url(#greenGrad)" filter="url(#tileGlow)"/>
+    <rect x="38" y="0" width="34" height="34" rx="6" fill="url(#yellowGrad)" filter="url(#tileGlow)"/>
+    <rect x="76" y="0" width="34" height="34" rx="6" fill="url(#grayGrad)" filter="url(#tileGlow)"/>
+    <rect x="114" y="0" width="34" height="34" rx="6" fill="url(#greenGrad)" filter="url(#tileGlow)"/>
+    <rect x="152" y="0" width="34" height="34" rx="6" fill="url(#greenGrad)" filter="url(#tileGlow)"/>
+
+    <text x="17" y="22" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle">C</text>
+    <text x="55" y="22" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle">O</text>
+    <text x="93" y="22" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle">D</text>
+    <text x="131" y="22" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle">E</text>
+    <text x="169" y="22" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle">R</text>
+
+    <!-- Row 2: W O R L D -->
+    <rect x="0" y="40" width="34" height="34" rx="6" fill="url(#yellowGrad)" filter="url(#tileGlow)"/>
+    <rect x="38" y="40" width="34" height="34" rx="6" fill="url(#greenGrad)" filter="url(#tileGlow)"/>
+    <rect x="76" y="40" width="34" height="34" rx="6" fill="url(#grayGrad)" filter="url(#tileGlow)"/>
+    <rect x="114" y="40" width="34" height="34" rx="6" fill="url(#greenGrad)" filter="url(#tileGlow)"/>
+    <rect x="152" y="40" width="34" height="34" rx="6" fill="url(#grayGrad)" filter="url(#tileGlow)"/>
+
+    <text x="17" y="62" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle">W</text>
+    <text x="55" y="62" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle">O</text>
+    <text x="93" y="62" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle">R</text>
+    <text x="131" y="62" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle">L</text>
+    <text x="169" y="62" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle">D</text>
+
+    <!-- Row 3: H E L L O -->
+    <rect x="0" y="80" width="34" height="34" rx="6" fill="url(#grayGrad)" filter="url(#tileGlow)"/>
+    <rect x="38" y="80" width="34" height="34" rx="6" fill="url(#greenGrad)" filter="url(#tileGlow)"/>
+    <rect x="76" y="80" width="34" height="34" rx="6" fill="url(#grayGrad)" filter="url(#tileGlow)"/>
+    <rect x="114" y="80" width="34" height="34" rx="6" fill="url(#grayGrad)" filter="url(#tileGlow)"/>
+    <rect x="152" y="80" width="34" height="34" rx="6" fill="url(#yellowGrad)" filter="url(#tileGlow)"/>
+
+    <text x="17" y="102" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle">H</text>
+    <text x="55" y="102" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle">E</text>
+    <text x="93" y="102" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle">L</text>
+    <text x="131" y="102" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle">L</text>
+    <text x="169" y="102" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle">O</text>
+
+    <!-- Row 4 -->
+    <rect x="0" y="120" width="34" height="34" rx="6" fill="#2d2d5e" filter="url(#tileGlow)"/>
+    <rect x="38" y="120" width="34" height="34" rx="6" fill="#2d2d5e" filter="url(#tileGlow)"/>
+    <rect x="76" y="120" width="34" height="34" rx="6" fill="#2d2d5e" filter="url(#tileGlow)"/>
+    <rect x="114" y="120" width="34" height="34" rx="6" fill="#2d2d5e" filter="url(#tileGlow)"/>
+    <rect x="152" y="120" width="34" height="34" rx="6" fill="#2d2d5e" filter="url(#tileGlow)"/>
+
+    <!-- Row 5 -->
+    <rect x="0" y="160" width="34" height="34" rx="6" fill="#2d2d5e" filter="url(#tileGlow)"/>
+    <rect x="38" y="160" width="34" height="34" rx="6" fill="#2d2d5e" filter="url(#tileGlow)"/>
+    <rect x="76" y="160" width="34" height="34" rx="6" fill="#2d2d5e" filter="url(#tileGlow)"/>
+    <rect x="114" y="160" width="34" height="34" rx="6" fill="#2d2d5e" filter="url(#tileGlow)"/>
+    <rect x="152" y="160" width="34" height="34" rx="6" fill="#2d2d5e" filter="url(#tileGlow)"/>
+
+    <!-- Row 6 -->
+    <rect x="0" y="200" width="34" height="34" rx="6" fill="#2d2d5e" filter="url(#tileGlow)"/>
+    <rect x="38" y="200" width="34" height="34" rx="6" fill="#2d2d5e" filter="url(#tileGlow)"/>
+    <rect x="76" y="200" width="34" height="34" rx="6" fill="#2d2d5e" filter="url(#tileGlow)"/>
+    <rect x="114" y="200" width="34" height="34" rx="6" fill="#2d2d5e" filter="url(#tileGlow)"/>
+    <rect x="152" y="200" width="34" height="34" rx="6" fill="#2d2d5e" filter="url(#tileGlow)"/>
+  </g>
+
+  <text x="200" y="285" font-family="Arial, sans-serif" font-size="14" fill="#55efc4" text-anchor="middle" opacity="0.6">Wordle</text>
+</svg>

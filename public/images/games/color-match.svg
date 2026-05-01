@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+    <filter id="swatchGlow">
+      <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#fff" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)" rx="16"/>
+
+  <!-- Color palette swatches -->
+  <g transform="translate(70, 55)" filter="url(#swatchGlow)">
+    <!-- Row 1 -->
+    <rect x="0" y="0" width="58" height="50" rx="10" fill="#ff6b6b"/>
+    <rect x="68" y="0" width="58" height="50" rx="10" fill="#f9ca24"/>
+    <rect x="136" y="0" width="58" height="50" rx="10" fill="#55efc4"/>
+    <rect x="204" y="0" width="58" height="50" rx="10" fill="#74b9ff"/>
+
+    <!-- Row 2 -->
+    <rect x="0" y="60" width="58" height="50" rx="10" fill="#a29bfe"/>
+    <rect x="68" y="60" width="58" height="50" rx="10" fill="#fd79a8"/>
+    <rect x="136" y="60" width="58" height="50" rx="10" fill="#00cec9"/>
+    <rect x="204" y="60" width="58" height="50" rx="10" fill="#e17055"/>
+
+    <!-- Row 3 -->
+    <rect x="0" y="120" width="58" height="50" rx="10" fill="#0984e3"/>
+    <rect x="68" y="120" width="58" height="50" rx="10" fill="#00b894"/>
+    <rect x="136" y="120" width="58" height="50" rx="10" fill="#d63031"/>
+    <rect x="204" y="120" width="58" height="50" rx="10" fill="#6c5ce7"/>
+  </g>
+
+  <!-- Target match indicator -->
+  <g transform="translate(200, 235)">
+    <circle cx="-30" cy="0" r="16" fill="#ff6b6b" filter="url(#swatchGlow)"/>
+    <text x="-30" y="5" font-family="Arial, sans-serif" font-size="14" fill="#fff" text-anchor="middle" dominant-baseline="middle">=</text>
+    <circle cx="0" cy="0" r="16" fill="#ff6b6b" filter="url(#swatchGlow)"/>
+    <!-- Checkmark -->
+    <polyline points="-6,2 -2,6 8,-4" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <text x="200" y="285" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" opacity="0.6">Color Match</text>
+</svg>

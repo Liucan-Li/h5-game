@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+    <linearGradient id="snakeHead" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#00b894"/>
+      <stop offset="100%" stop-color="#00cec9"/>
+    </linearGradient>
+    <linearGradient id="snakeBody" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#00b894"/>
+      <stop offset="100%" stop-color="#55efc4"/>
+    </linearGradient>
+    <filter id="glow">
+      <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#00b894" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)" rx="16"/>
+
+  <!-- Food -->
+  <circle cx="260" cy="80" r="8" fill="#ff6b6b" filter="url(#glow)"/>
+
+  <!-- Snake body segments (S-curve) -->
+  <g filter="url(#glow)">
+    <!-- Head -->
+    <rect x="85" y="125" width="18" height="18" rx="5" fill="url(#snakeHead)"/>
+    <circle cx="97" cy="133" r="2.5" fill="#fff"/>
+    <circle cx="91" cy="133" r="2.5" fill="#fff"/>
+
+    <!-- Body segments forming a curve -->
+    <rect x="105" y="125" width="18" height="18" rx="4" fill="#00b894" opacity="0.9"/>
+    <rect x="125" y="125" width="18" height="18" rx="4" fill="#00b894" opacity="0.85"/>
+    <rect x="145" y="125" width="18" height="18" rx="4" fill="#00b894" opacity="0.8"/>
+    <rect x="165" y="125" width="18" height="18" rx="4" fill="#00b894" opacity="0.75"/>
+    <rect x="185" y="125" width="18" height="18" rx="4" fill="#00b894" opacity="0.7"/>
+    <rect x="205" y="125" width="18" height="18" rx="4" fill="#00b894" opacity="0.65"/>
+    <rect x="225" y="125" width="18" height="18" rx="4" fill="#00b894" opacity="0.6"/>
+
+    <!-- Curve down -->
+    <rect x="243" y="125" width="18" height="18" rx="4" fill="#00b894" opacity="0.55"/>
+    <rect x="243" y="145" width="18" height="18" rx="4" fill="#00b894" opacity="0.5"/>
+    <rect x="243" y="165" width="18" height="18" rx="4" fill="#00b894" opacity="0.45"/>
+
+    <!-- Curve left -->
+    <rect x="225" y="165" width="18" height="18" rx="4" fill="#00b894" opacity="0.4"/>
+    <rect x="207" y="165" width="18" height="18" rx="4" fill="#00b894" opacity="0.35"/>
+    <rect x="189" y="165" width="18" height="18" rx="4" fill="#00b894" opacity="0.3"/>
+    <rect x="171" y="165" width="18" height="18" rx="4" fill="#00b894" opacity="0.25"/>
+  </g>
+
+  <text x="200" y="270" font-family="Arial, sans-serif" font-size="14" fill="#00b894" text-anchor="middle" opacity="0.6">Snake</text>
+</svg>

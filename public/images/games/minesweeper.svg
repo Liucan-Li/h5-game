@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+    <linearGradient id="mineGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2d3436"/>
+      <stop offset="100%" stop-color="#636e72"/>
+    </linearGradient>
+    <linearGradient id="spikeGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff7675"/>
+      <stop offset="100%" stop-color="#d63031"/>
+    </linearGradient>
+    <linearGradient id="revealedGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#dfe6e9"/>
+      <stop offset="100%" stop-color="#b2bec3"/>
+    </linearGradient>
+    <filter id="mineGlow">
+      <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#d63031" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)" rx="16"/>
+
+  <!-- Grid tiles -->
+  <g transform="translate(110, 45)">
+    <!-- Row 0 -->
+    <rect x="0" y="0" width="32" height="32" rx="3" fill="url(#revealedGrad)" opacity="0.9"/>
+    <rect x="36" y="0" width="32" height="32" rx="3" fill="url(#revealedGrad)" opacity="0.85"/>
+    <rect x="72" y="0" width="32" height="32" rx="3" fill="url(#revealedGrad)" opacity="0.9"/>
+    <rect x="108" y="0" width="32" height="32" rx="3" fill="url(#revealedGrad)" opacity="0.85"/>
+    <rect x="144" y="0" width="32" height="32" rx="3" fill="url(#revealedGrad)" opacity="0.9"/>
+
+    <!-- Row 1 -->
+    <rect x="0" y="36" width="32" height="32" rx="3" fill="url(#revealedGrad)" opacity="0.85"/>
+    <rect x="36" y="36" width="32" height="32" rx="3" fill="url(#revealedGrad)" opacity="0.9"/>
+    <rect x="72" y="36" width="32" height="32" rx="3" fill="url(#revealedGrad)" opacity="0.85"/>
+    <rect x="108" y="36" width="32" height="32" rx="3" fill="url(#revealedGrad)" opacity="0.9"/>
+    <rect x="144" y="36" width="32" height="32" rx="3" fill="url(#revealedGrad)" opacity="0.85"/>
+
+    <!-- Row 2 -->
+    <rect x="0" y="72" width="32" height="32" rx="3" fill="url(#revealedGrad)" opacity="0.9"/>
+    <rect x="36" y="72" width="32" height="32" rx="3" fill="url(#revealedGrad)" opacity="0.85"/>
+    <rect x="72" y="72" width="32" height="32" rx="3" fill="#636e72" opacity="0.5"/>
+    <rect x="108" y="72" width="32" height="32" rx="3" fill="url(#revealedGrad)" opacity="0.9"/>
+    <rect x="144" y="72" width="32" height="32" rx="3" fill="url(#revealedGrad)" opacity="0.85"/>
+
+    <!-- Row 3 -->
+    <rect x="0" y="108" width="32" height="32" rx="3" fill="url(#revealedGrad)" opacity="0.85"/>
+    <rect x="36" y="108" width="32" height="32" rx="3" fill="url(#revealedGrad)" opacity="0.9"/>
+    <rect x="72" y="108" width="32" height="32" rx="3" fill="url(#revealedGrad)" opacity="0.85"/>
+    <rect x="108" y="108" width="32" height="32" rx="3" fill="url(#revealedGrad)" opacity="0.85"/>
+    <rect x="144" y="108" width="32" height="32" rx="3" fill="url(#revealedGrad)" opacity="0.9"/>
+
+    <!-- Row 4 -->
+    <rect x="0" y="144" width="32" height="32" rx="3" fill="url(#revealedGrad)" opacity="0.9"/>
+    <rect x="36" y="144" width="32" height="32" rx="3" fill="url(#revealedGrad)" opacity="0.85"/>
+    <rect x="72" y="144" width="32" height="32" rx="3" fill="url(#revealedGrad)" opacity="0.9"/>
+    <rect x="108" y="144" width="32" height="32" rx="3" fill="url(#revealedGrad)" opacity="0.85"/>
+    <rect x="144" y="144" width="32" height="32" rx="3" fill="url(#revealedGrad)" opacity="0.9"/>
+  </g>
+
+  <!-- Mine icon (center tile) -->
+  <g transform="translate(200, 150)" filter="url(#mineGlow)">
+    <circle cx="0" cy="0" r="14" fill="url(#mineGrad)"/>
+    <!-- Spikes -->
+    <g stroke="url(#spikeGrad)" stroke-width="2.5" stroke-linecap="round">
+      <line x1="0" y1="-14" x2="0" y2="-22"/>
+      <line x1="0" y1="14" x2="0" y2="22"/>
+      <line x1="-14" y1="0" x2="-22" y2="0"/>
+      <line x1="14" y1="0" x2="22" y2="0"/>
+      <line x1="-10" y1="-10" x2="-16" y2="-16"/>
+      <line x1="10" y1="-10" x2="16" y2="-16"/>
+      <line x1="-10" y1="10" x2="-16" y2="16"/>
+      <line x1="10" y1="10" x2="16" y2="16"/>
+    </g>
+    <!-- Highlight -->
+    <circle cx="-4" cy="-4" r="4" fill="#fff" opacity="0.3"/>
+  </g>
+
+  <!-- Flag on top-left tile -->
+  <g transform="translate(125, 60)">
+    <line x1="0" y1="-8" x2="0" y2="10" stroke="#d63031" stroke-width="2"/>
+    <polygon points="0,-8 14,-3 0,2" fill="#d63031"/>
+  </g>
+
+  <text x="200" y="285" font-family="Arial, sans-serif" font-size="14" fill="#ff7675" text-anchor="middle" opacity="0.6">Minesweeper</text>
+</svg>

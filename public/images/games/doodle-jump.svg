@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+    <linearGradient id="playerGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#74b9ff"/>
+      <stop offset="100%" stop-color="#0984e3"/>
+    </linearGradient>
+    <linearGradient id="platformGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#55efc4"/>
+      <stop offset="100%" stop-color="#00b894"/>
+    </linearGradient>
+    <linearGradient id="platformGrad2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f9ca24"/>
+      <stop offset="100%" stop-color="#f0932b"/>
+    </linearGradient>
+    <filter id="playerGlow">
+      <feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="#74b9ff" flood-opacity="0.5"/>
+    </filter>
+    <filter id="platGlow">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#55efc4" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)" rx="16"/>
+
+  <!-- Player (doodle character) -->
+  <g transform="translate(200, 85)" filter="url(#playerGlow)">
+    <!-- Body -->
+    <ellipse cx="0" cy="5" rx="12" ry="15" fill="url(#playerGrad)"/>
+    <!-- Head -->
+    <circle cx="0" cy="-12" r="10" fill="url(#playerGrad)"/>
+    <!-- Eyes -->
+    <circle cx="-4" cy="-14" r="2.5" fill="#fff"/>
+    <circle cx="4" cy="-14" r="2.5" fill="#fff"/>
+    <!-- Smile -->
+    <path d="M-4,-9 Q0,-6 4,-9" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- Cape -->
+    <path d="M-12,5 Q-20,20 -10,30 Q0,22 12,5" fill="#0984e3" opacity="0.5"/>
+  </g>
+
+  <!-- Platforms -->
+  <g>
+    <!-- Platform 1 (player is near this) -->
+    <rect x="150" y="110" width="80" height="10" rx="5" fill="url(#platformGrad)" filter="url(#platGlow)"/>
+
+    <!-- Platform 2 -->
+    <rect x="90" y="160" width="70" height="10" rx="5" fill="url(#platformGrad2)" filter="url(#platGlow)"/>
+
+    <!-- Platform 3 -->
+    <rect x="240" y="140" width="60" height="10" rx="5" fill="#a29bfe" filter="url(#platGlow)"/>
+
+    <!-- Platform 4 -->
+    <rect x="50" y="200" width="60" height="10" rx="5" fill="url(#platformGrad)" filter="url(#platGlow)"/>
+
+    <!-- Platform 5 -->
+    <rect x="140" y="230" width="55" height="10" rx="5" fill="url(#platformGrad2)" filter="url(#platGlow)"/>
+
+    <!-- Platform 6 -->
+    <rect x="270" y="200" width="65" height="10" rx="5" fill="url(#platformGrad)" filter="url(#platGlow)"/>
+
+    <!-- Platform 7 -->
+    <rect x="180" y="260" width="50" height="10" rx="5" fill="url(#platformGrad)" filter="url(#platGlow)"/>
+
+    <!-- Platform 8 -->
+    <rect x="310" y="260" width="50" height="10" rx="5" fill="url(#platformGrad2)" filter="url(#platGlow)"/>
+  </g>
+
+  <text x="200" y="285" font-family="Arial, sans-serif" font-size="14" fill="#74b9ff" text-anchor="middle" opacity="0.6">Doodle Jump</text>
+</svg>

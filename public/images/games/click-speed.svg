@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+    <linearGradient id="fingerGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fd79a8"/>
+      <stop offset="100%" stop-color="#e84393"/>
+    </linearGradient>
+    <linearGradient id="rippleGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fd79a8"/>
+      <stop offset="100%" stop-color="#e84393"/>
+    </linearGradient>
+    <filter id="glow">
+      <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#fd79a8" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)" rx="16"/>
+
+  <!-- Click ripples -->
+  <circle cx="200" cy="150" r="60" fill="none" stroke="#fd79a8" stroke-width="1.5" opacity="0.15"/>
+  <circle cx="200" cy="150" r="85" fill="none" stroke="#fd79a8" stroke-width="1" opacity="0.1"/>
+  <circle cx="200" cy="150" r="110" fill="none" stroke="#fd79a8" stroke-width="0.8" opacity="0.06"/>
+
+  <!-- Tap zone indicator -->
+  <circle cx="200" cy="170" r="50" fill="none" stroke="#fd79a8" stroke-width="2" opacity="0.2" filter="url(#glow)"/>
+
+  <!-- Hand/finger icon -->
+  <g transform="translate(200, 145)" filter="url(#glow)">
+    <!-- Palm -->
+    <rect x="-18" y="0" width="36" height="45" rx="12" fill="url(#fingerGrad)"/>
+
+    <!-- Fingers -->
+    <rect x="-16" y="-35" width="10" height="40" rx="5" fill="url(#fingerGrad)"/>
+    <rect x="-4" y="-38" width="10" height="43" rx="5" fill="url(#fingerGrad)"/>
+    <rect x="7" y="-35" width="10" height="40" rx="5" fill="url(#fingerGrad)"/>
+
+    <!-- Finger tap highlight -->
+    <circle cx="1" cy="-42" r="6" fill="#fff" opacity="0.6"/>
+  </g>
+
+  <!-- Click effects -->
+  <g transform="translate(225, 110)">
+    <line x1="0" y1="0" x2="15" y2="-15" stroke="#fd79a8" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+    <line x1="0" y1="0" x2="25" y2="-5" stroke="#fd79a8" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+  </g>
+
+  <text x="200" y="275" font-family="Arial, sans-serif" font-size="14" fill="#fd79a8" text-anchor="middle" opacity="0.6">Click Speed</text>
+</svg>

@@ -1,0 +1,145 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+    <linearGradient id="cellGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2d2d5e"/>
+      <stop offset="100%" stop-color="#1e1e4e"/>
+    </linearGradient>
+    <linearGradient id="highlightGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6c5ce7"/>
+      <stop offset="100%" stop-color="#a29bfe"/>
+    </linearGradient>
+    <filter id="cellHover">
+      <feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#6c5ce7" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)" rx="16"/>
+
+  <g transform="translate(82, 25)">
+    <!-- Board background -->
+    <rect x="0" y="0" width="236" height="236" rx="8" fill="none" stroke="#ffffff" stroke-opacity="0.08" stroke-width="1"/>
+
+    <!-- 9x9 Grid cells -->
+    <g>
+      <!-- Row 1 -->
+      <text x="13" y="32" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7">5</text>
+      <text x="39" y="32" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7">3</text>
+      <text x="66" y="32" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="92" y="32" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="118" y="32" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7">7</text>
+      <text x="144" y="32" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="170" y="32" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="197" y="32" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="223" y="32" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+
+      <!-- Row 2 -->
+      <text x="13" y="58" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7">6</text>
+      <text x="39" y="58" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="66" y="58" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7">1</text>
+      <text x="92" y="58" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7">9</text>
+      <text x="118" y="58" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7">5</text>
+      <text x="144" y="58" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="170" y="58" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="197" y="58" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="223" y="58" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+
+      <!-- Row 3 -->
+      <text x="13" y="85" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7">8</text>
+      <text x="39" y="85" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="66" y="85" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7">2</text>
+      <text x="92" y="85" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="118" y="85" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7">6</text>
+      <text x="144" y="85" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="170" y="85" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="197" y="85" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="223" y="85" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+
+      <!-- Row 4 -->
+      <text x="13" y="111" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7">4</text>
+      <text x="39" y="111" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="66" y="111" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7">8</text>
+      <text x="92" y="111" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="118" y="111" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7">3</text>
+      <text x="144" y="111" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="170" y="111" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="197" y="111" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="223" y="111" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+
+      <!-- Row 5 -->
+      <text x="13" y="137" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7">7</text>
+      <text x="39" y="137" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="66" y="137" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7">6</text>
+      <text x="92" y="137" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7">1</text>
+      <text x="118" y="137" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7">9</text>
+      <text x="144" y="137" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7">2</text>
+      <text x="170" y="137" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="197" y="137" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="223" y="137" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+
+      <!-- Row 6 -->
+      <text x="13" y="163" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="39" y="163" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="66" y="163" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="92" y="163" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7">5</text>
+      <text x="118" y="163" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="144" y="163" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7">7</text>
+      <text x="170" y="163" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7">8</text>
+      <text x="197" y="163" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7">4</text>
+      <text x="223" y="163" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+
+      <!-- Row 7 -->
+      <text x="13" y="189" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="39" y="189" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="66" y="189" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="92" y="189" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7">4</text>
+      <text x="118" y="189" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7">1</text>
+      <text x="144" y="189" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7">9</text>
+      <text x="170" y="189" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="197" y="189" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="223" y="189" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7">5</text>
+
+      <!-- Row 8 -->
+      <text x="13" y="215" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="39" y="215" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="66" y="215" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="92" y="215" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7">8</text>
+      <text x="118" y="215" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="144" y="215" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7">2</text>
+      <text x="170" y="215" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="197" y="215" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="223" y="215" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+
+      <!-- Row 9 -->
+      <text x="13" y="231" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="39" y="231" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="66" y="231" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="92" y="231" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="118" y="231" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="144" y="231" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="170" y="231" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="197" y="231" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+      <text x="223" y="231" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" dominant-baseline="middle" opacity="0.7"/>
+    </g>
+
+    <!-- 3x3 box borders -->
+    <g stroke="#ffffff" stroke-width="2" opacity="0.2" fill="none">
+      <rect x="0" y="0" width="78" height="78" rx="2"/>
+      <rect x="78" y="0" width="80" height="78" rx="2"/>
+      <rect x="158" y="0" width="78" height="78" rx="2"/>
+      <rect x="0" y="78" width="78" height="80" rx="2"/>
+      <rect x="78" y="78" width="80" height="80" rx="2"/>
+      <rect x="158" y="78" width="78" height="80" rx="2"/>
+      <rect x="0" y="158" width="78" height="78" rx="2"/>
+      <rect x="78" y="158" width="80" height="78" rx="2"/>
+      <rect x="158" y="158" width="78" height="78" rx="2"/>
+    </g>
+
+    <!-- Active cell highlight -->
+    <rect x="155" y="75" width="28" height="28" rx="3" fill="url(#highlightGrad)" opacity="0.2" filter="url(#cellHover)"/>
+  </g>
+
+  <text x="200" y="285" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" opacity="0.6">Sudoku</text>
+</svg>

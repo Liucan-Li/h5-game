@@ -1,0 +1,58 @@
+[
+  {
+    "id": "action",
+    "slug": "action",
+    "name": "动作",
+    "icon": "⚡",
+    "description": "考验反应速度的动作游戏"
+  },
+  {
+    "id": "puzzle",
+    "slug": "puzzle",
+    "name": "益智",
+    "icon": "🧩",
+    "description": "锻炼大脑的益智解谜游戏"
+  },
+  {
+    "id": "arcade",
+    "slug": "arcade",
+    "name": "街机",
+    "icon": "🎮",
+    "description": "经典街机风格游戏"
+  },
+  {
+    "id": "sports",
+    "slug": "sports",
+    "name": "体育",
+    "icon": "⚽",
+    "description": "体育竞技类游戏"
+  },
+  {
+    "id": "racing",
+    "slug": "racing",
+    "name": "赛车",
+    "icon": "🏎️",
+    "description": "速度与激情的赛车游戏"
+  },
+  {
+    "id": "casual",
+    "slug": "casual",
+    "name": "休闲",
+    "icon": "🌸",
+    "description": "轻松愉快的休闲小游戏"
+  },
+  {
+    "id": "strategy",
+    "slug": "strategy",
+    "name": "策略",
+    "icon": "🧠",
+    "description": "需要策略思考的游戏"
+  },
+  {
+    "id": "adventure",
+    "slug": "adventure",
+    "name": "冒险",
+    "icon": "🗺️",
+    "description": "充满冒险的游戏世界"
+  }
+]

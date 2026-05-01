@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Click Speed Test</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #1a1a2e; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px;
+    -webkit-user-select: none; user-select: none;
+  }
+  .container {
+    text-align: center; width: 100%; max-width: 400px;
+    display: flex; flex-direction: column; align-items: center; gap: 20px;
+  }
+  h1 { font-size: 2em; font-weight: 800; background: linear-gradient(135deg, #f97316, #ef4444); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .timer-ring {
+    width: 120px; height: 120px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.5em; font-weight: 800; position: relative;
+    background: conic-gradient(#f97316 0deg, #16213e 0deg);
+  }
+  .timer-ring::before {
+    content: ''; position: absolute; inset: 6px; border-radius: 50%; background: #1a1a2e;
+  }
+  .timer-text { position: relative; z-index: 1; color: #fff; }
+  .timer-ring.ready { background: conic-gradient(#4ecca3 0deg, #16213e 360deg); }
+  .timer-ring.playing { background: conic-gradient(#f97316 var(--progress), #16213e var(--progress)); }
+  .timer-ring.done { background: conic-gradient(#ef4444 0deg, #16213e 360deg); }
+  .stats { display: flex; gap: 24px; }
+  .stat-box { background: #16213e; padding: 12px 20px; border-radius: 12px; min-width: 100px; }
+  .stat-label { font-size: 0.7em; text-transform: uppercase; color: #7f8c8d; letter-spacing: 1px; margin-bottom: 4px; }
+  .stat-value { font-size: 1.8em; font-weight: 700; color: #fff; }
+  .click-area {
+    width: 100%; padding: 40px 20px; border-radius: 16px; cursor: pointer;
+    font-size: 1.4em; font-weight: 700; border: 2px solid #333;
+    transition: all 0.15s; min-height: 120px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  }
+  .click-area.ready { background: #16213e; border-color: #4ecca3; color: #4ecca3; }
+  .click-area.ready:hover { background: #1a3a5c; }
+  .click-area.playing { background: #0f3460; border-color: #f97316; color: #fff; }
+  .click-area.playing:active { transform: scale(0.98); }
+  .click-area.done { background: #1a1a2e; border-color: #ef4444; color: #ef4444; }
+  .click-count { font-size: 2.5em; font-weight: 800; }
+  button.action {
+    background: linear-gradient(135deg, #f97316, #ef4444); color: #fff;
+    border: none; padding: 12px 32px; border-radius: 10px; font-size: 1.1em;
+    font-weight: 700; cursor: pointer; transition: transform 0.1s;
+  }
+  button.action:active { transform: scale(0.95); }
+  .result { display: none; flex-direction: column; align-items: center; gap: 10px; }
+  .result.active { display: flex; }
+  .result h2 { color: #f97316; }
+  .result .big { font-size: 3em; font-weight: 800; color: #fff; }
+  .history { margin-top: 10px; color: #7f8c8d; font-size: 0.85em; }
+  .history span { color: #e0e0e0; }
+  @media (max-width: 420px) {
+    h1 { font-size: 1.6em; }
+    .stat-value { font-size: 1.4em; }
+    .click-count { font-size: 2em; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Click Speed Test</h1>
+  <div class="timer-ring ready" id="timerRing">
+    <span class="timer-text" id="timerText">10</span>
+  </div>
+  <div class="stats">
+    <div class="stat-box"><div class="stat-label">Clicks</div><div class="stat-value" id="clickCount">0</div></div>
+    <div class="stat-box"><div class="stat-label">CPS</div><div class="stat-value" id="cpsDisplay">0.0</div></div>
+  </div>
+  <div class="click-area ready" id="clickArea">
+    <span id="clickAreaText">Click here to start!</span>
+  </div>
+  <div class="result" id="resultBox">
+    <h2>Results</h2>
+    <div class="big"><span id="resultCps">0.0</span> CPS</div>
+    <div><span id="resultClicks">0</span> clicks in 10 seconds</div>
+  </div>
+  <button class="action" id="restartBtn">Try Again</button>
+  <div class="history">Best: <span id="bestCps">0.0</span> CPS</div>
+</div>
+<script>
+(function() {
+  const DURATION = 10;
+  let state = 'idle'; // idle, playing, done
+  let clicks = 0;
+  let timeLeft = DURATION;
+  let timerInterval = null;
+  let bestCps = parseFloat(localStorage.getItem('clickSpeedBest') || '0');
+
+  const timerRing = document.getElementById('timerRing');
+  const timerText = document.getElementById('timerText');
+  const clickCount = document.getElementById('clickCount');
+  const cpsDisplay = document.getElementById('cpsDisplay');
+  const clickArea = document.getElementById('clickArea');
+  const clickAreaText = document.getElementById('clickAreaText');
+  const resultBox = document.getElementById('resultBox');
+  const resultCps = document.getElementById('resultCps');
+  const resultClicks = document.getElementById('resultClicks');
+  const bestCpsEl = document.getElementById('bestCps');
+
+  bestCpsEl.textContent = bestCps.toFixed(1);
+
+  function updateUI() {
+    clickCount.textContent = clicks;
+    const cps = clicks > 0 && timeLeft < DURATION ? (clicks / (DURATION - timeLeft)).toFixed(1) : '0.0';
+    cpsDisplay.textContent = cps;
+
+    const elapsed = DURATION - timeLeft;
+    const progress = (elapsed / DURATION) * 360;
+    timerRing.style.setProperty('--progress', progress + 'deg');
+
+    timerText.textContent = timeLeft;
+  }
+
+  function startGame() {
+    state = 'playing';
+    clicks = 0;
+    timeLeft = DURATION;
+    resultBox.classList.remove('active');
+    clickArea.className = 'click-area playing';
+    clickAreaText.textContent = 'Click as fast as you can!';
+    timerRing.className = 'timer-ring playing';
+    updateUI();
+
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      updateUI();
+      if (timeLeft <= 0) {
+        endGame();
+      }
+    }, 1000);
+  }
+
+  function endGame() {
+    state = 'done';
+    clearInterval(timerInterval);
+    timerInterval = null;
+    clickArea.className = 'click-area done';
+    clickAreaText.textContent = 'Time\'s up!';
+    timerRing.className = 'timer-ring done';
+
+    const finalCps = (clicks / DURATION);
+    resultCps.textContent = finalCps.toFixed(1);
+    resultClicks.textContent = clicks;
+    resultBox.classList.add('active');
+    cpsDisplay.textContent = finalCps.toFixed(1);
+
+    if (finalCps > bestCps) {
+      bestCps = finalCps;
+      bestCpsEl.textContent = bestCps.toFixed(1);
+      try { localStorage.setItem('clickSpeedBest', String(bestCps)); } catch(e) {}
+    }
+  }
+
+  function handleClick() {
+    if (state === 'idle') {
+      startGame();
+      clicks++;
+      updateUI();
+    } else if (state === 'playing') {
+      clicks++;
+      updateUI();
+    }
+  }
+
+  clickArea.addEventListener('click', handleClick);
+  clickArea.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    handleClick();
+  }, { passive: false });
+
+  document.getElementById('restartBtn').addEventListener('click', () => {
+    if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+    state = 'idle';
+    clicks = 0;
+    timeLeft = DURATION;
+    resultBox.classList.remove('active');
+    clickArea.className = 'click-area ready';
+    clickAreaText.textContent = 'Click here to start!';
+    timerRing.className = 'timer-ring ready';
+    updateUI();
+  });
+
+  // Prevent context menu on long press
+  clickArea.addEventListener('contextmenu', (e) => e.preventDefault());
+})();
+</script>
+</body>
+</html>

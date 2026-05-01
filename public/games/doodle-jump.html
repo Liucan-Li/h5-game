@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Doodle Jump 跳跳乐</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0f0f1a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .game-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+  }
+  header {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    background: #1a1a2e;
+    border-radius: 12px;
+    border: 1px solid #2a2a4a;
+  }
+  header h1 { font-size: 18px; font-weight: 700; color: #7c7cff; }
+  .stats { display: flex; gap: 16px; font-size: 14px; color: #aaa; }
+  .stats .num { color: #fff; font-weight: 700; }
+
+  canvas {
+    display: block;
+    background: linear-gradient(180deg, #0f0f2a 0%, #1a1a3a 40%, #2a1a1a 100%);
+    border-radius: 12px;
+    border: 2px solid #2a2a4a;
+    width: 100%;
+    max-width: 400px;
+    aspect-ratio: 3 / 5;
+    touch-action: none;
+  }
+
+  .controls {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    max-width: 400px;
+  }
+  .btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: transform 0.1s;
+  }
+  .btn:active { transform: scale(0.96); }
+  .btn-start {
+    background: #4CAF50;
+    color: #fff;
+  }
+  .btn-start:hover { background: #45a049; }
+  .btn-reset {
+    background: #e74c3c;
+    color: #fff;
+  }
+  .btn-reset:hover { background: #c0392b; }
+
+  .mobile-controls {
+    display: none;
+    width: 100%;
+    max-width: 400px;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .mobile-btn {
+    flex: 1;
+    padding: 14px;
+    border: 2px solid #3a3a5a;
+    border-radius: 12px;
+    background: #1a1a2e;
+    color: #7c7cff;
+    font-size: 28px;
+    text-align: center;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mobile-btn:active {
+    background: #2a2a4a;
+    border-color: #7c7cff;
+  }
+
+  @media (hover: none) and (pointer: coarse) {
+    .mobile-controls { display: flex; }
+  }
+  @media (max-width: 420px) {
+    .game-wrapper { padding: 5px; }
+    header h1 { font-size: 15px; }
+    .stats { font-size: 12px; gap: 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="game-wrapper">
+  <header>
+    <h1>跳跳乐</h1>
+    <div class="stats">
+      <span>分数 <span class="num" id="score">0</span></span>
+      <span>高度 <span class="num" id="height">0</span></span>
+    </div>
+  </header>
+  <canvas id="gameCanvas" width="360" height="600"></canvas>
+  <div class="controls">
+    <button class="btn btn-start" id="startBtn">开始</button>
+    <button class="btn btn-reset" id="resetBtn">重置</button>
+  </div>
+  <div class="mobile-controls" id="mobileControls">
+    <div class="mobile-btn" id="leftBtn">◀</div>
+    <div class="mobile-btn" id="rightBtn">▶</div>
+  </div>
+</div>
+<script>
+(function(){
+  'use strict';
+
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const scoreEl = document.getElementById('score');
+  const heightEl = document.getElementById('height');
+  const startBtn = document.getElementById('startBtn');
+  const resetBtn = document.getElementById('resetBtn');
+
+  const W = 360;
+  const H = 600;
+  canvas.width = W;
+  canvas.height = H;
+
+  // Game state
+  const PLAYER_W = 24;
+  const PLAYER_H = 28;
+  const GRAVITY = 0.5;
+  const JUMP_VEL = -11;
+  const MOVE_SPEED = 4.5;
+  const PLATFORM_W = 60;
+  const PLATFORM_H = 10;
+  const INITIAL_PLATFORMS = 12;
+  const CAMERA_SMOOTH = 0.15;
+
+  let gameRunning = false;
+  let gameOver = false;
+  let score = 0;
+  let maxHeight = 0;
+
+  // Player
+  const player = {
+    x: W / 2 - PLAYER_W / 2,
+    y: 0,
+    w: PLAYER_W,
+    h: PLAYER_H,
+    vx: 0,
+    vy: 0,
+    onGround: false,
+    facing: 1 // 1 right, -1 left
+  };
+
+  let platforms = [];
+  let cameraY = 0;
+  let targetCameraY = 0;
+  let moveLeft = false;
+  let moveRight = false;
+
+  // Stars background
+  const stars = [];
+  for (let i = 0; i < 80; i++) {
+    stars.push({
+      x: Math.random() * W,
+      y: Math.random() * H * 3,
+      r: Math.random() * 1.5 + 0.5,
+      a: Math.random() * 0.7 + 0.3
+    });
+  }
+
+  function randomPlatformY(exclude = []) {
+    let y;
+    do {
+      y = Math.random() * H * 2;
+    } while (exclude.some(e => Math.abs(y - e) < 80));
+    return y;
+  }
+
+  function generatePlatforms(count) {
+    const startY = count > INITIAL_PLATFORMS ? -200 : H - 40;
+    const newPlatforms = [];
+    for (let i = 0; i < count; i++) {
+      const y = i === 0 ? startY : startY - i * (H / count) - Math.random() * 30;
+      const x = Math.random() * (W - PLATFORM_W - 20) + 10;
+      const moving = count > INITIAL_PLATFORMS && Math.random() < 0.15;
+      newPlatforms.push({
+        x, y,
+        w: PLATFORM_W,
+        h: PLATFORM_H,
+        moving,
+        moveDir: 1,
+        moveSpeed: 1 + Math.random(),
+        moveRange: 40 + Math.random() * 40
+      });
+    }
+    return newPlatforms;
+  }
+
+  function initGame() {
+    player.x = W / 2 - PLAYER_W / 2;
+    player.y = 0;
+    player.vx = 0;
+    player.vy = 0;
+    player.onGround = false;
+    score = 0;
+    maxHeight = 0;
+    cameraY = 0;
+    targetCameraY = 0;
+    gameOver = false;
+    gameRunning = false;
+    moveLeft = false;
+    moveRight = false;
+    platforms = generatePlatforms(INITIAL_PLATFORMS);
+    // Place player on first platform
+    if (platforms.length > 0) {
+      player.x = platforms[0].x + platforms[0].w / 2 - PLAYER_W / 2;
+      player.y = platforms[0].y - PLAYER_H;
+      player.vy = 0;
+    }
+    scoreEl.textContent = '0';
+    heightEl.textContent = '0';
+  }
+
+  function startGame() {
+    if (gameRunning) return;
+    initGame();
+    gameRunning = true;
+    startBtn.textContent = '游戏中...';
+    startBtn.disabled = true;
+  }
+
+  function resetGame() {
+    gameRunning = false;
+    startBtn.textContent = '开始';
+    startBtn.disabled = false;
+    initGame();
+  }
+
+  function platformCollision(px, py) {
+    for (const p of platforms) {
+      if (
+        px + PLAYER_W > p.x &&
+        px < p.x + p.w &&
+        py + PLAYER_H >= p.y &&
+        py + PLAYER_H <= p.y + p.h + player.vy + 2
+      ) {
+        return p;
+      }
+    }
+    return null;
+  }
+
+  function update() {
+    if (!gameRunning || gameOver) return;
+
+    // Horizontal movement
+    if (moveLeft) player.vx = -MOVE_SPEED;
+    else if (moveRight) player.vx = MOVE_SPEED;
+    else player.vx *= 0.8;
+
+    // Gravity
+    player.vy += GRAVITY;
+    if (player.vy > 15) player.vy = 15;
+
+    // Move horizontally
+    player.x += player.vx;
+    if (player.x < 0) player.x = 0;
+    if (player.x > W - PLAYER_W) player.x = W - PLAYER_W;
+
+    // Face direction
+    if (player.vx > 0.5) player.facing = 1;
+    else if (player.vx < -0.5) player.facing = -1;
+
+    // Move vertically
+    player.y += player.vy;
+
+    // Platform collision
+    player.onGround = false;
+    const plat = platformCollision(player.x, player.y);
+    if (plat) {
+      player.y = plat.y - PLAYER_H;
+      player.vy = JUMP_VEL;
+      player.onGround = true;
+    }
+
+    // Update moving platforms
+    for (const p of platforms) {
+      if (p.moving) {
+        p.x += p.moveDir * p.moveSpeed;
+        if (p.x > W - p.w || p.x < 0) {
+          p.moveDir *= -1;
+        }
+      }
+    }
+
+    // Track height
+    if (player.y < maxHeight) {
+      maxHeight = player.y;
+      score = Math.floor(Math.abs(maxHeight) / 5);
+      scoreEl.textContent = score;
+      heightEl.textContent = Math.floor(Math.abs(maxHeight) / 10);
+    }
+
+    // Camera follows player
+    targetCameraY = player.y - H * 0.4;
+    cameraY += (targetCameraY - cameraY) * CAMERA_SMOOTH;
+
+    // Generate new platforms ahead
+    const highestPlatY = Math.min(...platforms.map(p => p.y));
+    if (highestPlatY > player.y - H) {
+      const newPlats = generatePlatforms(3).map(p => ({
+        ...p,
+        y: p.y - H * 0.5 + Math.random() * -50
+      }));
+      platforms.push(...newPlats);
+    }
+
+    // Remove off-screen platforms
+    platforms = platforms.filter(p => p.y < cameraY + H + 50 && p.y > cameraY - 100);
+
+    // Create platforms above when player goes up
+    const topPlat = Math.min(...platforms.map(p => p.y));
+    if (topPlat > cameraY - 50) {
+      for (let i = 0; i < 2; i++) {
+        platforms.push({
+          x: Math.random() * (W - PLATFORM_W - 20) + 10,
+          y: cameraY - 50 - i * 80 - Math.random() * 30,
+          w: PLATFORM_W,
+          h: PLATFORM_H,
+          moving: Math.random() < 0.15,
+          moveDir: 1,
+          moveSpeed: 1 + Math.random(),
+          moveRange: 40 + Math.random() * 40
+        });
+      }
+    }
+
+    // Falling off screen
+    if (player.y > cameraY + H + 50) {
+      gameOver = true;
+      gameRunning = false;
+      startBtn.textContent = '再来一局';
+      startBtn.disabled = false;
+    }
+  }
+
+  function drawBackground() {
+    // Background gradient
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, '#0f0f2a');
+    grad.addColorStop(0.5, '#1a1a3a');
+    grad.addColorStop(1, '#2a1a1a');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Stars
+    ctx.save();
+    for (const s of stars) {
+      const sy = ((s.y - cameraY * 0.1) % (H * 3));
+      ctx.globalAlpha = s.a;
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(s.x, sy, s.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function drawPlatforms() {
+    for (const p of platforms) {
+      const px = p.x;
+      const py = p.y - cameraY;
+      if (py < -20 || py > H + 20) continue;
+
+      // Platform glow
+      ctx.shadowColor = p.moving ? '#7c7cff' : '#4a4a6a';
+      ctx.shadowBlur = 8;
+
+      // Platform body
+      const gradient = ctx.createLinearGradient(px, py, px, py + p.h);
+      if (p.moving) {
+        gradient.addColorStop(0, '#7c7cff');
+        gradient.addColorStop(1, '#4a4aff');
+      } else {
+        gradient.addColorStop(0, '#4a4a6a');
+        gradient.addColorStop(1, '#2a2a4a');
+      }
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.roundRect(px, py, p.w, p.h, 4);
+      ctx.fill();
+
+      ctx.shadowBlur = 0;
+
+      // Platform highlight
+      ctx.fillStyle = 'rgba(255,255,255,0.1)';
+      ctx.beginPath();
+      ctx.roundRect(px + 4, py + 2, p.w - 8, 3, 2);
+      ctx.fill();
+    }
+  }
+
+  function drawPlayer() {
+    const px = player.x;
+    const py = player.y - cameraY;
+
+    ctx.save();
+
+    // Shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.beginPath();
+    ctx.ellipse(px + PLAYER_W / 2, py + PLAYER_H, PLAYER_W / 2 + 2, 4, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Body
+    ctx.shadowColor = '#7cff7c';
+    ctx.shadowBlur = 12;
+
+    const bodyGrad = ctx.createLinearGradient(px, py, px, py + PLAYER_H);
+    bodyGrad.addColorStop(0, '#7cff7c');
+    bodyGrad.addColorStop(1, '#4caf50');
+    ctx.fillStyle = bodyGrad;
+    ctx.beginPath();
+    ctx.roundRect(px + 2, py + 6, PLAYER_W - 4, PLAYER_H - 6, 6);
+    ctx.fill();
+
+    ctx.shadowBlur = 0;
+
+    // Head
+    ctx.fillStyle = '#7cff7c';
+    ctx.beginPath();
+    ctx.arc(px + PLAYER_W / 2, py + 7, 10, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Eyes
+    const eyeOff = player.facing > 0 ? 2 : -2;
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(px + PLAYER_W / 2 - 4 + eyeOff, py + 5, 3, 0, Math.PI * 2);
+    ctx.arc(px + PLAYER_W / 2 + 4 + eyeOff, py + 5, 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#111';
+    ctx.beginPath();
+    ctx.arc(px + PLAYER_W / 2 - 4 + eyeOff, py + 5, 1.5, 0, Math.PI * 2);
+    ctx.arc(px + PLAYER_W / 2 + 4 + eyeOff, py + 5, 1.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Hat
+    ctx.fillStyle = '#ff7c7c';
+    ctx.beginPath();
+    ctx.roundRect(px + PLAYER_W / 2 - 9, py - 2, 18, 6, 3);
+    ctx.fill();
+    ctx.fillStyle = '#ff5252';
+    ctx.fillRect(px + PLAYER_W / 2 - 11, py + 4, 22, 3);
+
+    ctx.restore();
+  }
+
+  function drawGameOver() {
+    ctx.fillStyle = 'rgba(0,0,0,0.7)';
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.fillStyle = '#ff7c7c';
+    ctx.font = 'bold 36px system-ui, -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('游戏结束', W / 2, H / 2 - 30);
+
+    ctx.fillStyle = '#ddd';
+    ctx.font = '20px system-ui, -apple-system, sans-serif';
+    ctx.fillText(`最终分数: ${score}`, W / 2, H / 2 + 20);
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    drawBackground();
+    drawPlatforms();
+    drawPlayer();
+
+    if (gameOver) {
+      drawGameOver();
+    }
+
+    // UI height indicator
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.font = '12px system-ui, -apple-system, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(`高度 ${Math.floor(Math.abs(maxHeight) / 10)}`, 10, 20);
+  }
+
+  function gameLoop() {
+    update();
+    draw();
+    requestAnimationFrame(gameLoop);
+  }
+
+  // Input handlers
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') moveLeft = true;
+    if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') moveRight = true;
+    if (e.key === ' ' || e.key === 'Space') {
+      e.preventDefault();
+      if (!gameRunning && !gameOver) startGame();
+    }
+  });
+
+  document.addEventListener('keyup', (e) => {
+    if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') moveLeft = false;
+    if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') moveRight = false;
+  });
+
+  // Mobile controls
+  const leftBtn = document.getElementById('leftBtn');
+  const rightBtn = document.getElementById('rightBtn');
+
+  function setupTouchButton(el, key) {
+    const start = (e) => {
+      e.preventDefault();
+      if (key === 'left') moveLeft = true;
+      if (key === 'right') moveRight = true;
+    };
+    const end = (e) => {
+      e.preventDefault();
+      if (key === 'left') moveLeft = false;
+      if (key === 'right') moveRight = false;
+    };
+
+    el.addEventListener('touchstart', start);
+    el.addEventListener('touchend', end);
+    el.addEventListener('touchcancel', end);
+    el.addEventListener('mousedown', start);
+    el.addEventListener('mouseup', end);
+    el.addEventListener('mouseleave', end);
+  }
+
+  setupTouchButton(leftBtn, 'left');
+  setupTouchButton(rightBtn, 'right');
+
+  // Canvas touch for mobile (tap = start)
+  canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const rect = canvas.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    if (x < rect.width / 2) moveLeft = true;
+    else moveRight = true;
+  });
+  canvas.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    moveLeft = false;
+    moveRight = false;
+  });
+  canvas.addEventListener('touchcancel', (e) => {
+    moveLeft = false;
+    moveRight = false;
+  });
+
+  // Buttons
+  startBtn.addEventListener('click', startGame);
+  startBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startGame(); });
+  resetBtn.addEventListener('click', resetGame);
+  resetBtn.addEventListener('touchstart', (e) => { e.preventDefault(); resetGame(); });
+
+  // Init
+  initGame();
+  gameLoop();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Wordle 猜词游戏</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #121213;
+    color: #d7dadc;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+  }
+  .game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 500px;
+    width: 100%;
+    padding: 10px;
+    height: 100vh;
+    height: 100dvh;
+    justify-content: space-between;
+  }
+  header {
+    text-align: center;
+    padding: 8px 0;
+    width: 100%;
+    border-bottom: 1px solid #3a3a3c;
+    position: relative;
+  }
+  header h1 { font-size: 28px; font-weight: 700; letter-spacing: 2px; }
+  .btn-reset {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: 1px solid #3a3a3c;
+    color: #d7dadc;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    touch-action: manipulation;
+  }
+  .btn-reset:active { background: #3a3a3c; }
+  .grid-section {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+  #grid {
+    display: grid;
+    grid-template-rows: repeat(6, 1fr);
+    gap: 5px;
+    width: 100%;
+    max-width: 350px;
+    aspect-ratio: 5 / 6;
+    padding: 5px;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+  }
+  .cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(24px, 6vw, 36px);
+    font-weight: 700;
+    color: #d7dadc;
+    border: 2px solid #3a3a3c;
+    border-radius: 4px;
+    aspect-ratio: 1;
+    transition: all 0.15s ease;
+    text-transform: uppercase;
+  }
+  .cell.filled { border-color: #565758; animation: pop 0.1s ease; }
+  .cell.correct { background: #6aaa64; border-color: #6aaa64; color: #fff; animation: flipIn 0.4s ease; }
+  .cell.present { background: #c9b458; border-color: #c9b458; color: #fff; animation: flipIn 0.4s ease; }
+  .cell.absent { background: #3a3a3c; border-color: #3a3a3c; color: #fff; animation: flipIn 0.4s ease; }
+  .cell.shake { animation: shake 0.3s ease; }
+  @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+  @keyframes flipIn {
+    0% { transform: rotateX(0deg); }
+    50% { transform: rotateX(90deg); }
+    100% { transform: rotateX(0deg); }
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+  .keyboard-section {
+    width: 100%;
+    padding: 5px 0 10px;
+  }
+  #keyboard {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  .kb-row {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+  }
+  .kb-key {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 50px;
+    min-width: 28px;
+    padding: 0 6px;
+    background: #818384;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: background 0.1s;
+    flex: 1;
+    text-transform: uppercase;
+  }
+  .kb-key:active { opacity: 0.8; }
+  .kb-key.wide { flex: 1.5; font-size: 11px; }
+  .kb-key.correct { background: #6aaa64; }
+  .kb-key.present { background: #c9b458; }
+  .kb-key.absent { background: #3a3a3c; }
+  #message {
+    position: fixed;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #d7dadc;
+    color: #121213;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    z-index: 100;
+  }
+  #message.show { opacity: 1; }
+  @media (max-height: 650px) {
+    header h1 { font-size: 22px; }
+    .kb-key { height: 40px; font-size: 11px; }
+    .cell { font-size: clamp(18px, 5vw, 28px); }
+  }
+  @media (max-height: 550px) {
+    .kb-key { height: 35px; font-size: 10px; }
+    .cell { font-size: clamp(14px, 4vw, 22px); }
+    #grid { gap: 3px; }
+    .row { gap: 3px; }
+    .kb-row { gap: 3px; }
+    #keyboard { gap: 4px; }
+  }
+</style>
+</head>
+<body>
+<div class="game-container">
+  <header>
+    <h1>猜词游戏</h1>
+    <button class="btn-reset" id="resetBtn">新游戏</button>
+  </header>
+  <div class="grid-section">
+    <div id="grid"></div>
+  </div>
+  <div class="keyboard-section">
+    <div id="keyboard"></div>
+  </div>
+</div>
+<div id="message"></div>
+<script>
+(function(){
+  'use strict';
+
+  const WORD_LIST = [
+    'apple', 'brain', 'crane', 'dance', 'eagle',
+    'flame', 'grape', 'house', 'input', 'juice',
+    'knife', 'lemon', 'mango', 'noble', 'ocean',
+    'piano', 'queen', 'river', 'snake', 'tiger'
+  ];
+
+  const MAX_ATTEMPTS = 6;
+  const WORD_LENGTH = 5;
+
+  const KEYBOARD_ROWS = [
+    ['q','w','e','r','t','y','u','i','o','p'],
+    ['a','s','d','f','g','h','j','k','l'],
+    ['Enter','z','x','c','v','b','n','m','Back']
+  ];
+
+  let targetWord = '';
+  let currentRow = 0;
+  let currentCol = 0;
+  let guesses = [];
+  let gameOver = false;
+  let keyStatus = {};
+
+  const gridEl = document.getElementById('grid');
+  const keyboardEl = document.getElementById('keyboard');
+  const messageEl = document.getElementById('message');
+  const resetBtn = document.getElementById('resetBtn');
+
+  function pickRandomWord() {
+    return WORD_LIST[Math.floor(Math.random() * WORD_LIST.length)];
+  }
+
+  function buildGrid() {
+    gridEl.innerHTML = '';
+    for (let r = 0; r < MAX_ATTEMPTS; r++) {
+      const row = document.createElement('div');
+      row.className = 'row';
+      for (let c = 0; c < WORD_LENGTH; c++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.dataset.row = r;
+        cell.dataset.col = c;
+        row.appendChild(cell);
+      }
+      gridEl.appendChild(row);
+    }
+  }
+
+  function buildKeyboard() {
+    keyboardEl.innerHTML = '';
+    KEYBOARD_ROWS.forEach(keys => {
+      const row = document.createElement('div');
+      row.className = 'kb-row';
+      keys.forEach(key => {
+        const btn = document.createElement('button');
+        btn.className = 'kb-key' + (key === 'Enter' || key === 'Back' ? ' wide' : '');
+        btn.dataset.key = key;
+        btn.textContent = key === 'Back' ? '⌫' : key;
+        btn.addEventListener('click', () => handleKeyPress(key));
+        btn.addEventListener('touchstart', (e) => { e.preventDefault(); handleKeyPress(key); });
+        row.appendChild(btn);
+      });
+      keyboardEl.appendChild(row);
+    });
+  }
+
+  function updateKeyboard() {
+    const keys = keyboardEl.querySelectorAll('.kb-key');
+    keys.forEach(k => {
+      const letter = k.dataset.key;
+      if (letter === 'Enter' || letter === 'Back') return;
+      const status = keyStatus[letter];
+      if (status === 'correct') { k.className = 'kb-key correct wide'.includes('wide') ? 'kb-key correct' : 'kb-key correct'; }
+      else if (status === 'present') k.classList.add('present');
+      else if (status === 'absent') k.classList.add('absent');
+    });
+    // Re-apply special classes
+    keys.forEach(k => {
+      const letter = k.dataset.key;
+      if (letter === 'Enter' || letter === 'Back') {
+        k.className = 'kb-key wide';
+        return;
+      }
+      const status = keyStatus[letter];
+      if (status === 'correct') { k.className = 'kb-key correct'; }
+      else if (status === 'present') { k.className = 'kb-key present'; }
+      else if (status === 'absent') { k.className = 'kb-key absent'; }
+      else { k.className = 'kb-key'; }
+    });
+    // Fix wide keys
+    keys.forEach(k => {
+      const letter = k.dataset.key;
+      if (letter === 'Enter' || letter === 'Back') {
+        k.classList.add('wide');
+      }
+    });
+  }
+
+  function showMessage(msg, duration = 1500) {
+    messageEl.textContent = msg;
+    messageEl.classList.add('show');
+    clearTimeout(messageEl._timer);
+    messageEl._timer = setTimeout(() => messageEl.classList.remove('show'), duration);
+  }
+
+  function getCell(row, col) {
+    return gridEl.querySelector(`.row:nth-child(${row + 1}) .cell:nth-child(${col + 1})`);
+  }
+
+  function addLetter(letter) {
+    if (gameOver) return;
+    if (currentRow >= MAX_ATTEMPTS) return;
+    if (currentCol >= WORD_LENGTH) return;
+    const cell = getCell(currentRow, currentCol);
+    cell.textContent = letter;
+    cell.classList.add('filled');
+    currentCol++;
+  }
+
+  function removeLetter() {
+    if (gameOver) return;
+    if (currentCol <= 0) return;
+    currentCol--;
+    const cell = getCell(currentRow, currentCol);
+    cell.textContent = '';
+    cell.classList.remove('filled');
+  }
+
+  function submitGuess() {
+    if (gameOver) return;
+    if (currentCol < WORD_LENGTH) {
+      showMessage('单词长度不足');
+      const row = gridEl.querySelector(`.row:nth-child(${currentRow + 1})`);
+      row.querySelectorAll('.cell').forEach(c => c.classList.add('shake'));
+      setTimeout(() => row.querySelectorAll('.cell').forEach(c => c.classList.remove('shake')), 300);
+      return;
+    }
+
+    const guess = [];
+    for (let c = 0; c < WORD_LENGTH; c++) {
+      guess.push(getCell(currentRow, c).textContent.toLowerCase());
+    }
+    const guessStr = guess.join('');
+
+    if (!WORD_LIST.includes(guessStr) && guessStr !== targetWord) {
+      showMessage('不在词库中');
+      const row = gridEl.querySelector(`.row:nth-child(${currentRow + 1})`);
+      row.querySelectorAll('.cell').forEach(c => c.classList.add('shake'));
+      setTimeout(() => row.querySelectorAll('.cell').forEach(c => c.classList.remove('shake')), 300);
+      return;
+    }
+
+    // Evaluate guess
+    const targetLetters = targetWord.split('');
+    const guessLetters = guess.slice();
+    const result = Array(WORD_LENGTH).fill('absent');
+    const used = Array(WORD_LENGTH).fill(false);
+
+    // First pass: correct
+    for (let i = 0; i < WORD_LENGTH; i++) {
+      if (guessLetters[i] === targetLetters[i]) {
+        result[i] = 'correct';
+        used[i] = true;
+      }
+    }
+    // Second pass: present
+    for (let i = 0; i < WORD_LENGTH; i++) {
+      if (result[i] === 'correct') continue;
+      for (let j = 0; j < WORD_LENGTH; j++) {
+        if (!used[j] && guessLetters[i] === targetLetters[j]) {
+          result[i] = 'present';
+          used[j] = true;
+          break;
+        }
+      }
+    }
+
+    // Animate cells
+    const cells = gridEl.querySelectorAll(`.row:nth-child(${currentRow + 1}) .cell`);
+    cells.forEach((cell, i) => {
+      setTimeout(() => {
+        cell.classList.remove('filled');
+        cell.classList.add(result[i]);
+        cell.textContent = guessLetters[i].toUpperCase();
+        // Update key status
+        const letter = guessLetters[i];
+        const currentStatus = keyStatus[letter];
+        if (result[i] === 'correct') {
+          keyStatus[letter] = 'correct';
+        } else if (result[i] === 'present' && currentStatus !== 'correct') {
+          keyStatus[letter] = 'present';
+        } else if (result[i] === 'absent' && !currentStatus) {
+          keyStatus[letter] = 'absent';
+        }
+      }, i * 200);
+    });
+
+    setTimeout(() => {
+      updateKeyboard();
+    }, WORD_LENGTH * 200);
+
+    const win = result.every(r => r === 'correct');
+    if (win) {
+      gameOver = true;
+      setTimeout(() => {
+        showMessage(`恭喜你！用了 ${currentRow + 1} 次猜中`, 3000);
+      }, WORD_LENGTH * 200 + 200);
+    } else if (currentRow >= MAX_ATTEMPTS - 1) {
+      gameOver = true;
+      setTimeout(() => {
+        showMessage(`游戏结束！答案是 ${targetWord.toUpperCase()}`, 3000);
+      }, WORD_LENGTH * 200 + 200);
+    } else {
+      currentRow++;
+      currentCol = 0;
+    }
+  }
+
+  function handleKeyPress(key) {
+    if (gameOver) return;
+    if (key === 'Enter') {
+      submitGuess();
+    } else if (key === 'Back' || key === 'Backspace') {
+      removeLetter();
+    } else if (/^[a-zA-Z]$/.test(key)) {
+      addLetter(key.toLowerCase());
+    }
+  }
+
+  function resetGame() {
+    targetWord = pickRandomWord();
+    currentRow = 0;
+    currentCol = 0;
+    gameOver = false;
+    keyStatus = {};
+    messageEl.classList.remove('show');
+    buildGrid();
+    updateKeyboard();
+  }
+
+  // Keyboard input
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      handleKeyPress('Enter');
+    } else if (e.key === 'Backspace') {
+      handleKeyPress('Back');
+    } else if (/^[a-zA-Z]$/.test(e.key)) {
+      handleKeyPress(e.key);
+    }
+  });
+
+  resetBtn.addEventListener('click', resetGame);
+  resetBtn.addEventListener('touchstart', (e) => { e.preventDefault(); resetGame(); });
+
+  // Init
+  buildKeyboard();
+  resetGame();
+})();
+</script>
+</body>
+</html>
