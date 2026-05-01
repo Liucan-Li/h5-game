@@ -32,24 +32,23 @@ export default async function CategoryPage({ params }: Props) {
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
       {/* Breadcrumb */}
-      <nav className="mb-6 flex items-center gap-2 text-sm text-[var(--muted)]">
-        <Link href="/" className="hover:text-white transition-colors">
-          首页
-        </Link>
-        <span>/</span>
-        <span className="text-white">{category.name}</span>
+      <nav className="mb-6 flex items-center gap-2 text-xs text-[var(--text-muted)]">
+        <Link href="/" className="transition-colors hover:text-white">首页</Link>
+        <span className="text-[var(--border-default)]">/</span>
+        <span className="text-[var(--text-secondary)]">{category.name}</span>
       </nav>
 
-      <div className="mb-6">
-        <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--accent)]/10 text-xl">
+      {/* Category header */}
+      <div className="mb-8">
+        <div className="flex items-center gap-4">
+          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--accent-1)]/15 to-[var(--accent-2)]/15 text-2xl">
             {category.icon}
           </span>
           <div>
-            <h1 className="text-2xl font-bold text-white">
+            <h1 className="text-2xl font-bold text-white sm:text-3xl">
               {category.name}游戏
             </h1>
-            <p className="text-sm text-[var(--muted)]">{category.description}</p>
+            <p className="mt-1 text-sm text-[var(--text-muted)]">{category.description}</p>
           </div>
         </div>
       </div>

@@ -30,36 +30,33 @@ export default async function GamePage({ params }: Props) {
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
       {/* Breadcrumb */}
-      <nav className="mb-4 flex items-center gap-2 text-sm text-[var(--muted)]">
-        <Link href="/" className="hover:text-white transition-colors">
-          首页
-        </Link>
-        <span>/</span>
+      <nav className="mb-6 flex items-center gap-2 text-xs text-[var(--text-muted)]">
+        <Link href="/" className="transition-colors hover:text-white">首页</Link>
+        <span className="text-[var(--border-default)]">/</span>
+        <Link href="/games" className="transition-colors hover:text-white">游戏</Link>
+        <span className="text-[var(--border-default)]">/</span>
         {category && (
           <>
-            <Link
-              href={`/categories/${category.slug}`}
-              className="hover:text-white transition-colors"
-            >
+            <Link href={`/categories/${category.slug}`} className="transition-colors hover:text-white">
               {category.name}
             </Link>
-            <span>/</span>
+            <span className="text-[var(--border-default)]">/</span>
           </>
         )}
-        <span className="text-white">{game.title}</span>
+        <span className="text-[var(--text-secondary)]">{game.title}</span>
       </nav>
 
-      {/* Game Title & Info */}
-      <div className="mb-4">
-        <h1 className="text-2xl font-bold text-white">{game.title}</h1>
-        <p className="mt-2 text-sm text-[var(--muted)] leading-relaxed">
+      {/* Game Header */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-white sm:text-3xl">{game.title}</h1>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--text-secondary)]">
           {game.description}
         </p>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
+        <div className="mt-4 flex flex-wrap items-center gap-2">
           {category && (
             <Link
               href={`/categories/${category.slug}`}
-              className="inline-flex items-center gap-1 rounded-full border border-[var(--border)] px-3 py-1 text-xs text-[var(--muted)] hover:border-[var(--accent)] hover:text-white transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-default)] bg-white/[0.03] px-3.5 py-1.5 text-xs font-medium text-[var(--text-muted)] transition-all hover:border-[var(--accent-1)]/30 hover:text-white"
             >
               <span>{category.icon}</span>
               <span>{category.name}</span>
@@ -68,7 +65,7 @@ export default async function GamePage({ params }: Props) {
           {game.tags.map((tag) => (
             <span
               key={tag}
-              className="rounded-full bg-[var(--accent)]/10 px-3 py-1 text-xs text-[var(--accent)]"
+              className="rounded-xl bg-gradient-to-r from-[var(--accent-1)]/10 to-[var(--accent-2)]/10 px-3 py-1.5 text-xs font-medium text-[var(--accent-2)]"
             >
               {tag}
             </span>
@@ -77,7 +74,7 @@ export default async function GamePage({ params }: Props) {
       </div>
 
       {/* Game Play Area */}
-      <div className="mb-10">
+      <div className="mb-12">
         <GameIframe game={game} />
       </div>
 

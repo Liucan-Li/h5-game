@@ -1,60 +1,165 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0f0f1a;
-  --foreground: #e8e8f0;
-  --card-bg: #1a1a2e;
-  --card-hover: #222240;
-  --accent: #6c63ff;
-  --accent-hover: #5a52e0;
-  --accent-glow: rgba(108, 99, 255, 0.3);
-  --muted: #8888a0;
-  --border: #2a2a45;
+  --bg-primary: #0a0a14;
+  --bg-secondary: #12122a;
+  --bg-card: #1a1a35;
+  --bg-card-hover: #222248;
+  --bg-glass: rgba(26, 26, 53, 0.6);
+  --bg-glass-hover: rgba(34, 34, 72, 0.8);
+  --text-primary: #f0f0ff;
+  --text-secondary: #9494b8;
+  --text-muted: #6b6b8d;
+  --accent-1: #6c63ff;
+  --accent-2: #a855f7;
+  --accent-3: #ec4899;
+  --accent-gradient: linear-gradient(135deg, #6c63ff, #a855f7, #ec4899);
+  --accent-glow: rgba(108, 99, 255, 0.25);
+  --border-subtle: rgba(108, 99, 255, 0.1);
+  --border-default: rgba(255, 255, 255, 0.06);
+  --border-hover: rgba(108, 99, 255, 0.3);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.4);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card-bg);
-  --color-card-hover: var(--card-hover);
-  --color-accent: var(--accent);
-  --color-accent-hover: var(--accent-hover);
-  --color-muted: var(--muted);
-  --color-border: var(--border);
+  --color-background: var(--bg-primary);
+  --color-foreground: var(--text-primary);
+  --color-card: var(--bg-card);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-default) transparent;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
+/* ── Glass Utility ── */
+.glass {
+  background: var(--bg-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-default);
 }
-::-webkit-scrollbar-track {
-  background: var(--background);
+.glass:hover {
+  background: var(--bg-glass-hover);
+  border-color: var(--border-hover);
 }
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--muted);
+.glass-strong {
+  background: rgba(26, 26, 53, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-default);
 }
 
-/* Game iframe */
+/* ── Text Gradient ── */
+.text-gradient {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Animated Gradient Background ── */
+.hero-gradient {
+  background: radial-gradient(ellipse 80% 60% at 50% -20%, rgba(108, 99, 255, 0.15) 0%, transparent 60%),
+              radial-gradient(ellipse 60% 50% at 80% 40%, rgba(168, 85, 247, 0.08) 0%, transparent 50%),
+              radial-gradient(ellipse 50% 40% at 20% 60%, rgba(236, 72, 153, 0.06) 0%, transparent 50%);
+}
+
+/* ── Gradient Border ── */
+.gradient-border {
+  position: relative;
+}
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, var(--border-hover), var(--border-default), var(--border-hover));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ── Glow Effects ── */
+.glow-accent {
+  box-shadow: 0 0 20px var(--accent-glow);
+}
+.glow-accent:hover {
+  box-shadow: 0 0 30px var(--accent-glow);
+}
+
+/* ── Animations ── */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes float-delayed {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-float { animation: float 4s ease-in-out infinite; }
+.animate-float-delayed { animation: float-delayed 4.5s ease-in-out infinite 1s; }
+.animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+.animate-fade-in-up { animation: fade-in-up 0.5s ease-out; }
+.animate-scale-in { animation: scale-in 0.3s ease-out; }
+
+/* ── Card Hover Effect ── */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg), 0 0 30px var(--accent-glow);
+}
+
+/* ── Shimmer Loading ── */
+.shimmer {
+  background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-card-hover) 50%, var(--bg-card) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ── Game Iframe ── */
 .game-iframe-container {
   position: relative;
   width: 100%;
   background: #000;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
+  box-shadow: var(--shadow-lg);
 }
-
 .game-iframe-container iframe {
   display: block;
   width: 100%;
@@ -62,19 +167,11 @@ body {
   border: none;
 }
 
-/* Loading shimmer for game cards */
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
 }
-
-.shimmer {
-  background: linear-gradient(
-    90deg,
-    var(--card-bg) 25%,
-    var(--card-hover) 50%,
-    var(--card-bg) 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.1); }

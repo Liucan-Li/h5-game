@@ -1,44 +1,63 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import SearchBar from "./SearchBar"
 import CategoryNav from "./CategoryNav"
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20)
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [])
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--background)]/80 backdrop-blur-lg">
+    <header
+      className={`sticky top-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "glass-strong shadow-lg shadow-black/20"
+          : "bg-transparent"
+      }`}
+    >
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6">
-        <Link href="/" className="flex items-center gap-2 shrink-0">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--accent)] text-sm font-bold text-white">
+        {/* Logo */}
+        <Link href="/" className="group flex items-center gap-2.5 shrink-0">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--accent-1)] to-[var(--accent-2)] text-sm font-bold text-white shadow-lg shadow-[var(--accent-glow)] transition-transform duration-300 group-hover:scale-105">
             H5
           </span>
-          <span className="hidden text-lg font-bold sm:block">游戏平台</span>
+          <span className="hidden text-base font-semibold sm:block">
+            <span className="text-gradient">游戏平台</span>
+          </span>
         </Link>
 
+        {/* Search - desktop */}
         <div className="hidden md:block flex-1 max-w-md">
           <SearchBar />
         </div>
 
+        {/* Nav - desktop */}
         <nav className="hidden md:flex items-center gap-1">
-          <Link
-            href="/"
-            className="rounded-lg px-3 py-2 text-sm text-[var(--muted)] hover:bg-[var(--card-bg)] hover:text-white transition-colors"
-          >
-            首页
-          </Link>
-          <Link
-            href="/games"
-            className="rounded-lg px-3 py-2 text-sm text-[var(--muted)] hover:bg-[var(--card-bg)] hover:text-white transition-colors"
-          >
-            全部游戏
-          </Link>
+          {[
+            { href: "/", label: "首页" },
+            { href: "/games", label: "全部游戏" },
+          ].map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="relative rounded-xl px-4 py-2 text-sm font-medium text-[var(--text-secondary)] transition-all duration-200 hover:bg-white/[0.04] hover:text-white"
+            >
+              {link.label}
+            </Link>
+          ))}
         </nav>
 
+        {/* Mobile menu button */}
         <button
-          className="ml-auto flex h-9 w-9 items-center justify-center rounded-lg text-[var(--muted)] hover:bg-[var(--card-bg)] hover:text-white md:hidden"
+          className="ml-auto flex h-10 w-10 items-center justify-center rounded-xl text-[var(--text-muted)] transition-colors hover:bg-white/[0.04] hover:text-white md:hidden"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="菜单"
         >
@@ -54,29 +73,26 @@ export default function Header() {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="border-t border-[var(--border)] px-4 pb-4 md:hidden">
-          <div className="py-3">
+        <div className="border-t border-[var(--border-default)] bg-[var(--bg-secondary)] px-4 pb-5 pt-3 md:hidden">
+          <div className="mb-4">
             <SearchBar />
           </div>
-          <nav className="flex flex-col gap-1">
-            <Link
-              href="/"
-              className="rounded-lg px-3 py-2 text-sm text-[var(--muted)] hover:bg-[var(--card-bg)] hover:text-white"
-              onClick={() => setMenuOpen(false)}
-            >
-              首页
-            </Link>
-            <Link
-              href="/games"
-              className="rounded-lg px-3 py-2 text-sm text-[var(--muted)] hover:bg-[var(--card-bg)] hover:text-white"
-              onClick={() => setMenuOpen(false)}
-            >
-              全部游戏
-            </Link>
+          <nav className="mb-4 flex flex-col gap-1">
+            {[
+              { href: "/", label: "首页" },
+              { href: "/games", label: "全部游戏" },
+            ].map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMenuOpen(false)}
+                className="rounded-xl px-4 py-2.5 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-white/[0.04] hover:text-white"
+              >
+                {link.label}
+              </Link>
+            ))}
           </nav>
-          <div className="mt-2">
-            <CategoryNav onSelect={() => setMenuOpen(false)} />
-          </div>
+          <CategoryNav onSelect={() => setMenuOpen(false)} />
         </div>
       )}
     </header>

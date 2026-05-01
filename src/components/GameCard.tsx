@@ -9,29 +9,48 @@ export default function GameCard({ game }: Props) {
   return (
     <Link
       href={`/games/${game.slug}`}
-      className="group flex flex-col overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card-bg)] transition-all hover:border-[var(--accent)] hover:shadow-lg hover:shadow-[var(--accent-glow)] hover:-translate-y-0.5"
+      className="group relative flex flex-col overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--bg-card)] card-hover"
     >
-      <div className="relative aspect-[4/3] overflow-hidden bg-[var(--card-hover)]">
+      {/* Gradient overlay on hover */}
+      <div className="pointer-events-none absolute inset-0 z-10 rounded-[inherit] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        style={{ background: "linear-gradient(180deg, transparent 40%, rgba(108,99,255,0.08) 100%)" }}
+      />
+
+      {/* Thumbnail */}
+      <div className="relative aspect-[4/3] overflow-hidden bg-[var(--bg-secondary)]">
         <img
           src={game.thumbnail}
           alt={game.title}
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          className="h-full w-full object-cover transition-all duration-500 group-hover:scale-110"
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[var(--card-bg)]/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-card)] via-transparent to-transparent" />
+
+        {/* Play icon on hover */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-all duration-300 group-hover:opacity-100">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--accent-1)]/90 shadow-lg shadow-[var(--accent-glow)] transition-transform duration-300 group-hover:scale-110">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+              <polygon points="8,5 19,12 8,19" />
+            </svg>
+          </div>
+        </div>
       </div>
-      <div className="flex flex-1 flex-col gap-1.5 p-3">
-        <h3 className="text-sm font-semibold text-white truncate">
+
+      {/* Info */}
+      <div className="relative z-20 flex flex-1 flex-col gap-1.5 p-4">
+        <h3 className="truncate text-sm font-semibold text-white transition-colors group-hover:text-[var(--accent-2)]">
           {game.title}
         </h3>
-        <p className="line-clamp-2 text-xs leading-relaxed text-[var(--muted)]">
+        <p className="line-clamp-2 text-xs leading-relaxed text-[var(--text-muted)]">
           {game.description}
         </p>
-        <div className="mt-auto flex flex-wrap gap-1.5 pt-1.5">
+
+        {/* Tags */}
+        <div className="mt-auto flex flex-wrap gap-1.5 pt-2">
           {game.tags.slice(0, 2).map((tag) => (
             <span
               key={tag}
-              className="rounded-md bg-[var(--accent)]/10 px-2 py-0.5 text-[10px] text-[var(--accent)]"
+              className="rounded-full bg-gradient-to-r from-[var(--accent-1)]/10 to-[var(--accent-2)]/10 px-2.5 py-0.5 text-[10px] font-medium text-[var(--accent-2)]"
             >
               {tag}
             </span>
