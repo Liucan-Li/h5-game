@@ -18,7 +18,7 @@ export default function SearchForm() {
     <form onSubmit={handleSubmit}>
       <div className="relative">
         <svg
-          className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted)]"
+          className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-muted)]"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -32,7 +32,7 @@ export default function SearchForm() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="搜索游戏..."
-          className="w-full rounded-lg border border-[var(--border)] bg-[var(--card-bg)] py-2.5 pl-10 pr-4 text-sm text-white placeholder-[var(--muted)] outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]"
+          className="w-full rounded-xl border border-[var(--border-default)] bg-[var(--bg-card)] py-2.5 pl-10 pr-4 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none transition-all focus:border-[var(--accent-1)] focus:shadow-sm focus:shadow-[var(--accent-glow)]"
         />
       </div>
     </form>

@@ -80,9 +80,9 @@ export default function SearchBar() {
             onFocus={() => { setFocused(true); if (query.trim()) setOpen(true) }}
             onBlur={() => setFocused(false)}
             placeholder="搜索游戏..."
-            className="w-full bg-transparent px-3 py-2.5 text-sm text-white placeholder-[var(--text-muted)] outline-none"
+            className="w-full bg-transparent px-3 py-2.5 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none"
           />
-          <kbd className="mr-3 hidden shrink-0 rounded-md border border-[var(--border-default)] bg-white/[0.03] px-1.5 py-0.5 text-[10px] text-[var(--text-muted)] md:inline-block">
+          <kbd className="mr-3 hidden shrink-0 rounded-md border border-[var(--border-default)] bg-black/[0.03] px-1.5 py-0.5 text-[10px] text-[var(--text-muted)] md:inline-block">
             ⌘K
           </kbd>
         </div>
@@ -98,7 +98,7 @@ export default function SearchBar() {
             <button
               key={item.slug}
               onClick={() => handleSelect(item.slug)}
-              className="flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm text-[var(--text-secondary)] transition-colors hover:bg-white/[0.04] hover:text-white"
+              className="flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm text-[var(--text-secondary)] transition-colors hover:bg-black/[0.04] hover:text-[var(--text-primary)]"
             >
               <div className="h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-[var(--bg-card)]">
                 <img src={item.thumbnail} alt="" className="h-full w-full object-cover" />

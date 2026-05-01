@@ -38,7 +38,7 @@ export default function GameCard({ game }: Props) {
 
       {/* Info */}
       <div className="relative z-20 flex flex-1 flex-col gap-1.5 p-4">
-        <h3 className="truncate text-sm font-semibold text-white transition-colors group-hover:text-[var(--accent-2)]">
+        <h3 className="truncate text-sm font-semibold text-[var(--text-primary)] transition-colors group-hover:text-[var(--accent-2)]">
           {game.title}
         </h3>
         <p className="line-clamp-2 text-xs leading-relaxed text-[var(--text-muted)]">

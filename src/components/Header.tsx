@@ -48,7 +48,7 @@ export default function Header() {
             <Link
               key={link.href}
               href={link.href}
-              className="relative rounded-xl px-4 py-2 text-sm font-medium text-[var(--text-secondary)] transition-all duration-200 hover:bg-white/[0.04] hover:text-white"
+              className="relative rounded-xl px-4 py-2 text-sm font-medium text-[var(--text-secondary)] transition-all duration-200 hover:bg-black/[0.04] hover:text-[var(--text-primary)]"
             >
               {link.label}
             </Link>
@@ -57,7 +57,7 @@ export default function Header() {
 
         {/* Mobile menu button */}
         <button
-          className="ml-auto flex h-10 w-10 items-center justify-center rounded-xl text-[var(--text-muted)] transition-colors hover:bg-white/[0.04] hover:text-white md:hidden"
+          className="ml-auto flex h-10 w-10 items-center justify-center rounded-xl text-[var(--text-muted)] transition-colors hover:bg-black/[0.04] hover:text-[var(--text-primary)] md:hidden"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="菜单"
         >
@@ -86,7 +86,7 @@ export default function Header() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setMenuOpen(false)}
-                className="rounded-xl px-4 py-2.5 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-white/[0.04] hover:text-white"
+                className="rounded-xl px-4 py-2.5 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-black/[0.04] hover:text-[var(--text-primary)]"
               >
                 {link.label}
               </Link>

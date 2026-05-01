@@ -20,7 +20,7 @@ export default async function GamesPage({
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white sm:text-3xl">
+        <h1 className="text-2xl font-bold text-[var(--text-primary)] sm:text-3xl">
           {q ? (
             <>
               搜索: "<span className="text-gradient">{q}</span>"

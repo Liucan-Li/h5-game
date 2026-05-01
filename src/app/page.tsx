@@ -28,7 +28,7 @@ export default function HomePage() {
           </div>
 
           <h1 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-            <span className="text-white">发现你的</span>
+            <span className="text-[var(--text-primary)]">发现你的</span>
             <br />
             <span className="text-gradient">下一款最爱游戏</span>
           </h1>

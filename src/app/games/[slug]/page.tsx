@@ -31,13 +31,13 @@ export default async function GamePage({ params }: Props) {
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
       {/* Breadcrumb */}
       <nav className="mb-6 flex items-center gap-2 text-xs text-[var(--text-muted)]">
-        <Link href="/" className="transition-colors hover:text-white">首页</Link>
+        <Link href="/" className="transition-colors hover:text-[var(--text-primary)]">首页</Link>
         <span className="text-[var(--border-default)]">/</span>
-        <Link href="/games" className="transition-colors hover:text-white">游戏</Link>
+        <Link href="/games" className="transition-colors hover:text-[var(--text-primary)]">游戏</Link>
         <span className="text-[var(--border-default)]">/</span>
         {category && (
           <>
-            <Link href={`/categories/${category.slug}`} className="transition-colors hover:text-white">
+            <Link href={`/categories/${category.slug}`} className="transition-colors hover:text-[var(--text-primary)]">
               {category.name}
             </Link>
             <span className="text-[var(--border-default)]">/</span>
@@ -48,7 +48,7 @@ export default async function GamePage({ params }: Props) {
 
       {/* Game Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white sm:text-3xl">{game.title}</h1>
+        <h1 className="text-2xl font-bold text-[var(--text-primary)] sm:text-3xl">{game.title}</h1>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--text-secondary)]">
           {game.description}
         </p>
@@ -56,7 +56,7 @@ export default async function GamePage({ params }: Props) {
           {category && (
             <Link
               href={`/categories/${category.slug}`}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-default)] bg-white/[0.03] px-3.5 py-1.5 text-xs font-medium text-[var(--text-muted)] transition-all hover:border-[var(--accent-1)]/30 hover:text-white"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-default)] bg-white/[0.03] px-3.5 py-1.5 text-xs font-medium text-[var(--text-muted)] transition-all hover:border-[var(--accent-1)]/30 hover:text-[var(--accent-1)]"
             >
               <span>{category.icon}</span>
               <span>{category.name}</span>

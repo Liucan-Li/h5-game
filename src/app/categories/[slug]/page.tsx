@@ -33,7 +33,7 @@ export default async function CategoryPage({ params }: Props) {
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
       {/* Breadcrumb */}
       <nav className="mb-6 flex items-center gap-2 text-xs text-[var(--text-muted)]">
-        <Link href="/" className="transition-colors hover:text-white">首页</Link>
+        <Link href="/" className="transition-colors hover:text-[var(--text-primary)]">首页</Link>
         <span className="text-[var(--border-default)]">/</span>
         <span className="text-[var(--text-secondary)]">{category.name}</span>
       </nav>
@@ -45,7 +45,7 @@ export default async function CategoryPage({ params }: Props) {
             {category.icon}
           </span>
           <div>
-            <h1 className="text-2xl font-bold text-white sm:text-3xl">
+            <h1 className="text-2xl font-bold text-[var(--text-primary)] sm:text-3xl">
               {category.name}游戏
             </h1>
             <p className="mt-1 text-sm text-[var(--text-muted)]">{category.description}</p>
