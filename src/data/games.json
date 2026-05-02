@@ -404,5 +404,19 @@
     "width": 450,
     "height": 500,
     "createdAt": "2025-05-02"
+  },
+  {
+    "id": "30",
+    "slug": "contra",
+    "title": "魂斗罗",
+    "description": "经典像素风格横版射击游戏。消灭敌人、收集武器、挑战 Boss，还原童年回忆！",
+    "url": "/games/contra.html",
+    "thumbnail": "/images/games/contra.svg",
+    "category": "action",
+    "tags": ["射击", "动作", "经典", "冒险"],
+    "featured": true,
+    "width": 820,
+    "height": 520,
+    "createdAt": "2025-05-02"
   }
 ]

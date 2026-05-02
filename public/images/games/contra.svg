@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f0f23"/>
+      <stop offset="100%" stop-color="#1a0520"/>
+    </linearGradient>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff4400"/><stop offset="100%" stop-color="#ff8800"/>
+    </linearGradient>
+    <linearGradient id="bossGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff6600"/><stop offset="100%" stop-color="#ff3300"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)" rx="16"/>
+  <!-- Ground -->
+  <rect x="0" y="240" width="400" height="60" fill="#1a1228"/>
+  <rect x="0" y="238" width="400" height="3" fill="#ff330033"/>
+  <!-- Mountains background -->
+  <polygon points="0,240 60,140 120,240" fill="#1a0a30"/>
+  <polygon points="80,240 180,120 280,240" fill="#110820"/>
+  <polygon points="200,240 320,150 400,240" fill="#1a0a30"/>
+  <!-- Buildings -->
+  <rect x="30" y="180" width="40" height="60" fill="#110820"/>
+  <rect x="100" y="160" width="35" height="80" fill="#110820"/>
+  <rect x="300" y="170" width="45" height="70" fill="#110820"/>
+  <rect x="350" y="190" width="30" height="50" fill="#110820"/>
+  <!-- Windows -->
+  <g fill="#ffee4422">
+    <rect x="35" y="190" width="6" height="8"/><rect x="49" y="190" width="6" height="8"/>
+    <rect x="35" y="210" width="6" height="8"/><rect x="49" y="210" width="6" height="8"/>
+    <rect x="105" y="170" width="6" height="8"/><rect x="119" y="170" width="6" height="8"/>
+  </g>
+  <!-- Player (pixel style) -->
+  <g transform="translate(60, 210)">
+    <rect x="0" y="0" width="16" height="22" rx="2" fill="#cc3322"/>
+    <rect x="2" y="0" width="12" height="10" rx="2" fill="#ffcc88"/>
+    <rect x="16" y="6" width="8" height="4" fill="#888899"/>
+    <rect x="22" y="7" width="4" height="2" fill="#aaaacc"/>
+    <rect x="2" y="20" width="6" height="6" fill="#cc3322"/>
+    <rect x="8" y="20" width="6" height="6" fill="#cc3322"/>
+  </g>
+  <!-- Gunfire flash -->
+  <g fill="#ffff44">
+    <rect x="82" y="214" width="3" height="6"/>
+    <rect x="84" y="215" width="2" height="4"/>
+  </g>
+  <!-- Enemies -->
+  <g transform="translate(180, 212)">
+    <rect x="0" y="0" width="14" height="10" rx="2" fill="#ccaa88"/>
+    <rect x="3" y="3" width="3" height="3" fill="#ff2200"/>
+    <rect x="0" y="10" width="14" height="10" rx="2" fill="#dd2244"/>
+    <rect x="2" y="12" width="4" height="6" fill="#000"/>
+    <rect x="8" y="12" width="4" height="6" fill="#000"/>
+  </g>
+  <!-- Boss -->
+  <g transform="translate(310, 180)">
+    <rect x="0" y="0" width="40" height="50" rx="3" fill="url(#bossGrad)"/>
+    <rect x="4" y="4" width="32" height="18" rx="2" fill="#ff4400"/>
+    <rect x="6" y="6" width="10" height="8" rx="2" fill="#000"/>
+    <rect x="22" y="6" width="10" height="8" rx="2" fill="#000"/>
+    <rect x="8" y="8" width="6" height="4" rx="1" fill="#ff0000"/>
+    <rect x="24" y="8" width="6" height="4" rx="1" fill="#ff0000"/>
+  </g>
+  <!-- Enemy bullet -->
+  <circle cx="260" cy="220" r="3" fill="#ff4444"/>
+  <circle cx="270" cy="218" r="2" fill="#ff8888"/>
+  <!-- Scanline effect -->
+  <g opacity="0.08">
+    <line x1="0" y1="5" x2="400" y2="5" stroke="#000" stroke-width="1"/>
+    <line x1="0" y1="11" x2="400" y2="11" stroke="#000" stroke-width="1"/>
+    <line x1="0" y1="17" x2="400" y2="17" stroke="#000" stroke-width="1"/>
+    <line x1="0" y1="23" x2="400" y2="23" stroke="#000" stroke-width="1"/>
+  </g>
+  <!-- Title -->
+  <text x="200" y="280" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="15" fill="#ff3300" text-anchor="middle" font-weight="bold" letter-spacing="3">魂斗罗</text>
+  <text x="200" y="294" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="9" fill="#ff6633" text-anchor="middle" opacity="0.5">CONTRA-X</text>
+</svg>
