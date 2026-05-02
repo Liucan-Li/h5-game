@@ -27,7 +27,7 @@ export default function GameGrid({ games, title }: Props) {
     <section>
       {title && (
         <div className="mb-5 flex items-center gap-3">
-          <h2 className="text-lg font-bold text-white">{title}</h2>
+          <h2 className="text-lg font-bold text-[var(--text-primary)]">{title}</h2>
           <div className="h-px flex-1 bg-gradient-to-r from-[var(--border-default)] to-transparent" />
         </div>
       )}

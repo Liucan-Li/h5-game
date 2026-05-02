@@ -54,7 +54,7 @@ export default function HomePage() {
       {/* ── Categories ── */}
       <section className="mx-auto max-w-7xl px-4 pb-12 sm:px-6">
         <div className="mb-6 flex items-center gap-3">
-          <h2 className="text-lg font-bold text-white">游戏分类</h2>
+          <h2 className="text-lg font-bold text-[var(--text-primary)]">游戏分类</h2>
           <div className="h-px flex-1 bg-gradient-to-r from-[var(--border-default)] to-transparent" />
         </div>
 
@@ -73,7 +73,7 @@ export default function HomePage() {
                   {cat.icon}
                 </span>
                 <div>
-                  <p className="text-sm font-semibold text-white">{cat.name}</p>
+                  <p className="text-sm font-semibold text-[var(--text-primary)]">{cat.name}</p>
                   <p className="text-xs text-[var(--text-muted)]">{cat.description}</p>
                 </div>
               </div>
