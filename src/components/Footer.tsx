@@ -7,9 +7,6 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
         <div className="flex flex-col items-center gap-6 sm:flex-row sm:justify-between">
           <div className="flex items-center gap-3">
-            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--accent-1)] to-[var(--accent-2)] text-xs font-bold text-white shadow-sm">
-              H5
-            </span>
             <span className="text-sm font-medium text-[var(--text-secondary)]">
               乐游
             </span>
