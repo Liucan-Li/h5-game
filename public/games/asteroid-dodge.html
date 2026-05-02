@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>躲避陨石</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #f5f6fa;
+  color: #2d2d44;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  overflow: hidden;
+}
+.game-wrapper {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  padding: 20px;
+  max-width: 480px;
+  width: 100%;
+  margin: 16px;
+}
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.game-title { font-size: 20px; font-weight: 700; }
+.stats-bar {
+  display: flex;
+  gap: 16px;
+  font-size: 14px;
+  color: #5a5a7a;
+}
+.stat-item span { color: #2d2d44; font-weight: 600; }
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #0a0e1a;
+  border-radius: 12px;
+  cursor: default;
+  touch-action: none;
+}
+.overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgba(10,14,26,0.88);
+  backdrop-filter: blur(4px);
+  border-radius: 12px;
+  z-index: 10;
+}
+.overlay h2 { font-size: 28px; color: #fff; margin-bottom: 8px; }
+.overlay p { font-size: 15px; color: #8899bb; margin-bottom: 4px; }
+.overlay .high-score { font-size: 14px; color: #ffd93d; margin-top: 4px; }
+.btn {
+  padding: 12px 36px;
+  font-size: 18px;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  background: #4361ee;
+  color: #fff;
+  transition: transform 0.12s, box-shadow 0.12s;
+  touch-action: manipulation;
+  margin-top: 16px;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(67,97,238,0.4); }
+.btn:active { transform: scale(0.97); }
+.btn-secondary { background: #e8e9f0; color: #2d2d44; }
+.canvas-wrap { position: relative; }
+</style>
+</head>
+<body>
+<div class="game-wrapper">
+  <div class="game-header">
+    <div class="game-title">躲避陨石</div>
+    <div class="stats-bar">
+      <div class="stat-item">生存 <span id="scoreDisplay">0</span>s</div>
+      <div class="stat-item">最高 <span id="highDisplay">0</span>s</div>
+    </div>
+  </div>
+  <div class="canvas-wrap" id="canvasWrap">
+    <canvas id="gameCanvas" width="440" height="640"></canvas>
+    <div class="overlay" id="startOverlay">
+      <h2>躲避陨石</h2>
+      <p>← → 或 A/D 移动飞船</p>
+      <p>躲避从天而降的陨石！</p>
+      <button class="btn" id="startBtn">开始游戏</button>
+    </div>
+    <div class="overlay" id="endOverlay" style="display:none;">
+      <h2>飞船坠毁</h2>
+      <p style="font-size:32px;font-weight:700;color:#ffd93d;margin:8px 0;" id="finalScore">0s</p>
+      <p id="highScoreText">最高纪录: 0s</p>
+      <button class="btn" id="replayBtn">再来一局</button>
+    </div>
+  </div>
+</div>
+<script>
+(function() {
+  'use strict';
+
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = 440, H = 640;
+
+  const scoreDisplay = document.getElementById('scoreDisplay');
+  const highDisplay = document.getElementById('highDisplay');
+  const startOverlay = document.getElementById('startOverlay');
+  const endOverlay = document.getElementById('endOverlay');
+  const finalScore = document.getElementById('finalScore');
+  const highScoreText = document.getElementById('highScoreText');
+  const startBtn = document.getElementById('startBtn');
+  const replayBtn = document.getElementById('replayBtn');
+
+  let state = 'menu'; // menu | playing | dead | ended
+  let score = 0; // survival time in ms
+  let highScore = 0;
+  let player = { x: W / 2, y: H - 60, width: 24, height: 32 };
+  let asteroids = [];
+  let particles = [];
+  let stars = [];
+  let spawnTimer = 0;
+  let spawnInterval = 800;
+  let baseSpeed = 2;
+  let animFrameId = null;
+  let keys = {};
+
+  // Stars background
+  for (let i = 0; i < 80; i++) {
+    stars.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: Math.random() * 1.8 + 0.5,
+      a: Math.random()
+    });
+  }
+
+  function loadHighScore() {
+    try {
+      const val = localStorage.getItem('asteroidDodge_highScore');
+      if (val) highScore = parseInt(val, 10) || 0;
+      highDisplay.textContent = highScore;
+    } catch(e) {}
+  }
+  function saveHighScore() {
+    try { localStorage.setItem('asteroidDodge_highScore', String(highScore)); } catch(e) {}
+  }
+  loadHighScore();
+
+  function rand(min, max) { return Math.random() * (max - min) + min; }
+  function randInt(min, max) { return Math.floor(rand(min, max + 1)); }
+
+  // --- Player ---
+  function drawPlayer() {
+    ctx.save();
+    ctx.translate(player.x, player.y);
+    // Ship: triangle pointing up
+    ctx.beginPath();
+    ctx.moveTo(0, -player.height / 2);
+    ctx.lineTo(-player.width / 2, player.height / 2);
+    ctx.lineTo(player.width / 2, player.height / 2);
+    ctx.closePath();
+    ctx.fillStyle = '#4361ee';
+    ctx.fill();
+    ctx.strokeStyle = '#6c7fff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Cockpit glow
+    ctx.beginPath();
+    ctx.arc(0, -2, 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#8ab4ff';
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // --- Asteroids ---
+  function createAsteroid(fromSide) {
+    const diff = Math.floor(score / 5000);
+    const radius = fromSide ? rand(8, 18) : rand(12, 35 - Math.min(diff * 1.5, 15));
+    const speed = baseSpeed + rand(0.5, 1.8) + diff * 0.15;
+    let x, y, vx = 0, vy;
+
+    if (fromSide) {
+      const side = Math.random() > 0.5;
+      x = side ? -radius : W + radius;
+      y = rand(H * 0.1, H * 0.4);
+      const angle = side ? rand(-0.3, 0.3) : rand(Math.PI - 0.3, Math.PI + 0.3);
+      vx = Math.cos(angle) * speed * 1.5;
+      vy = Math.sin(angle) * speed * 1.5 + 0.5;
+    } else {
+      x = rand(radius + 5, W - radius - 5);
+      y = -radius;
+      vy = speed;
+    }
+
+    // Jaggedness for visual variety
+    const points = randInt(7, 12);
+    const offsets = [];
+    for (let i = 0; i < points; i++) {
+      offsets.push(rand(0.7, 1.3) * radius);
+    }
+
+    return { x, y, vx, vy, radius, speed, points, offsets, rot: 0, rotSpeed: rand(-0.03, 0.03) };
+  }
+
+  function drawAsteroid(a) {
+    ctx.save();
+    ctx.translate(a.x, a.y);
+    ctx.rotate(a.rot);
+    ctx.beginPath();
+    const step = (Math.PI * 2) / a.points;
+    for (let i = 0; i <= a.points; i++) {
+      const angle = step * i;
+      const r = a.offsets[i % a.offsets.length];
+      const px = Math.cos(angle) * r;
+      const py = Math.sin(angle) * r;
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fillStyle = '#2a3a5c';
+    ctx.fill();
+    ctx.strokeStyle = '#4a6a9c';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Surface detail
+    ctx.globalAlpha = 0.3;
+    ctx.fillStyle = '#3d5a80';
+    for (let i = 0; i < 3; i++) {
+      const cx = rand(-a.radius * 0.4, a.radius * 0.4);
+      const cy = rand(-a.radius * 0.4, a.radius * 0.4);
+      const cr = rand(2, a.radius * 0.25);
+      ctx.beginPath(); ctx.arc(cx, cy, cr, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  // --- Particles ---
+  function spawnExplosion(x, y, count) {
+    count = count || 40;
+    for (let i = 0; i < count; i++) {
+      const angle = rand(0, Math.PI * 2);
+      const speed = rand(1, 6);
+      const colors = ['#4361ee', '#6c7fff', '#8ab4ff', '#ffd93d', '#fff'];
+      particles.push({
+        x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        radius: rand(2, 6),
+        life: 1,
+        decay: rand(0.015, 0.04),
+        color: colors[randInt(0, colors.length - 1)]
+      });
+    }
+  }
+
+  function spawnTrail(x, y) {
+    particles.push({
+      x, y,
+      vx: rand(-0.3, 0.3),
+      vy: rand(-0.5, 0.2),
+      radius: rand(1, 3),
+      life: 1,
+      decay: rand(0.03, 0.07),
+      color: '#4361ee'
+    });
+  }
+
+  // --- Collision ---
+  function checkCollision(a) {
+    const dx = player.x - a.x;
+    const dy = player.y - a.y;
+    const dist = Math.hypot(dx, dy);
+    return dist < a.radius + player.width * 0.4;
+  }
+
+  // --- Game loop ---
+  function update(dt) {
+    if (state !== 'playing') return;
+
+    // Player movement
+    const moveSpeed = 260; // px/s
+    if (keys['ArrowLeft'] || keys['KeyA']) player.x -= moveSpeed * (dt / 1000);
+    if (keys['ArrowRight'] || keys['KeyD']) player.x += moveSpeed * (dt / 1000);
+    player.x = Math.max(player.width / 2, Math.min(W - player.width / 2, player.x));
+
+    // Ship trail
+    if (Math.random() < 0.3) spawnTrail(player.x, player.y + player.height / 2);
+
+    // Score
+    score += dt;
+
+    // Spawn asteroids
+    const diff = Math.floor(score / 5000);
+    spawnInterval = Math.max(250, 800 - diff * 40);
+    baseSpeed = Math.min(5, 2 + diff * 0.25);
+    spawnTimer += dt;
+    if (spawnTimer >= spawnInterval) {
+      spawnTimer = 0;
+      asteroids.push(createAsteroid(false));
+      // Side asteroids occasionally
+      if (diff > 1 && Math.random() < 0.2 + diff * 0.03) {
+        asteroids.push(createAsteroid(true));
+      }
+    }
+
+    // Move asteroids
+    for (const a of asteroids) {
+      a.x += a.vx;
+      a.y += a.vy;
+      a.rot += a.rotSpeed;
+    }
+
+    // Collision check
+    for (const a of asteroids) {
+      if (checkCollision(a)) {
+        spawnExplosion(player.x, player.y, 55);
+        state = 'dead';
+        break;
+      }
+    }
+
+    // Remove off-screen asteroids
+    const margin = 50;
+    asteroids = asteroids.filter(a =>
+      a.x > -margin && a.x < W + margin &&
+      a.y < H + margin && a.y > -margin
+    );
+
+    // Particles
+    for (const p of particles) {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life -= p.decay;
+    }
+    particles = particles.filter(p => p.life > 0);
+
+    // Update score display
+    const seconds = Math.floor(score / 1000);
+    scoreDisplay.textContent = seconds;
+
+    // Death animation timer
+    if (state === 'dead') {
+      // Let particles animate for a bit then end
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= p.decay;
+      }
+      particles = particles.filter(p => p.life > 0);
+      if (particles.length === 0) {
+        endGame();
+      }
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    // Background - dark space
+    const grad = ctx.createRadialGradient(W / 2, H / 2, 50, W / 2, H / 2, 350);
+    grad.addColorStop(0, '#141828');
+    grad.addColorStop(1, '#0a0e1a');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Stars
+    for (const s of stars) {
+      ctx.globalAlpha = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(Date.now() / 2000 + s.a));
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = '#fff';
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // Asteroids
+    for (const a of asteroids) drawAsteroid(a);
+
+    // Player
+    if (state === 'playing') {
+      drawPlayer();
+    }
+
+    // Particles
+    for (const p of particles) {
+      ctx.globalAlpha = Math.max(0, p.life);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius * p.life, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // Difficulty indicator
+    if (state === 'playing') {
+      const diff = Math.floor(score / 5000) + 1;
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.font = '12px sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText('难度 Lv.' + diff, W - 10, 20);
+    }
+  }
+
+  function gameLoop(timestamp) {
+    if (!gameLoop.lastTime) gameLoop.lastTime = timestamp;
+    const dt = Math.min(timestamp - gameLoop.lastTime, 50);
+    gameLoop.lastTime = timestamp;
+
+    if (state === 'playing') {
+      update(dt);
+      draw();
+      animFrameId = requestAnimationFrame(gameLoop);
+    } else if (state === 'dead') {
+      // Continue animating particles
+      update(dt);
+      draw();
+      if (state === 'dead') {
+        animFrameId = requestAnimationFrame(gameLoop);
+      }
+    }
+  }
+  gameLoop.lastTime = 0;
+
+  function endGame() {
+    state = 'ended';
+    const seconds = Math.floor(score / 1000);
+    finalScore.textContent = seconds + 's';
+    if (seconds > highScore) {
+      highScore = seconds;
+      saveHighScore();
+    }
+    highScoreText.textContent = '最高纪录: ' + highScore + 's';
+    highDisplay.textContent = highScore;
+    endOverlay.style.display = 'flex';
+    if (animFrameId) { cancelAnimationFrame(animFrameId); animFrameId = null; }
+  }
+
+  function startGame() {
+    state = 'playing';
+    score = 0;
+    asteroids = [];
+    particles = [];
+    player.x = W / 2;
+    spawnTimer = 0;
+    spawnInterval = 800;
+    baseSpeed = 2;
+    startOverlay.style.display = 'none';
+    endOverlay.style.display = 'none';
+    gameLoop.lastTime = 0;
+    scoreDisplay.textContent = '0';
+
+    if (animFrameId) cancelAnimationFrame(animFrameId);
+    animFrameId = requestAnimationFrame(gameLoop);
+  }
+
+  // --- Input ---
+  document.addEventListener('keydown', function(e) {
+    keys[e.code] = true;
+    if (e.code === 'Space' || e.key === 'Enter') {
+      if (state === 'menu') startGame();
+      else if (state === 'ended') startGame();
+    }
+  });
+  document.addEventListener('keyup', function(e) {
+    keys[e.code] = false;
+  });
+
+  // Touch / mouse for movement
+  let touchX = null;
+  canvas.addEventListener('mousemove', function(e) {
+    if (state !== 'playing') return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = W / rect.width;
+    touchX = (e.clientX - rect.left) * scaleX;
+  });
+  canvas.addEventListener('touchmove', function(e) {
+    if (state !== 'playing') return;
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = W / rect.width;
+    touchX = (e.touches[0].clientX - rect.left) * scaleX;
+    player.x = Math.max(player.width / 2, Math.min(W - player.width / 2, touchX));
+  }, { passive: false });
+  canvas.addEventListener('touchstart', function(e) {
+    if (state !== 'playing') return;
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = W / rect.width;
+    touchX = (e.touches[0].clientX - rect.left) * scaleX;
+    player.x = Math.max(player.width / 2, Math.min(W - player.width / 2, touchX));
+  }, { passive: false });
+
+  startBtn.addEventListener('click', startGame);
+  startBtn.addEventListener('touchend', function(e) { e.preventDefault(); startGame(); });
+  replayBtn.addEventListener('click', startGame);
+  replayBtn.addEventListener('touchend', function(e) { e.preventDefault(); startGame(); });
+
+  // Mouse-based movement loop for smooth tracking
+  function mouseFollow() {
+    if (state === 'playing' && touchX !== null) {
+      // Smooth follow
+      const diff = touchX - player.x;
+      player.x += diff * 0.3;
+      player.x = Math.max(player.width / 2, Math.min(W - player.width / 2, player.x));
+    }
+    requestAnimationFrame(mouseFollow);
+  }
+  // Start the mouse follow loop
+  requestAnimationFrame(mouseFollow);
+
+  // Initial draw
+  draw();
+})();
+</script>
+</body>
+</html>

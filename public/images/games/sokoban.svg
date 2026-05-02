@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+    <linearGradient id="boxGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8B6914"/><stop offset="100%" stop-color="#6B4F10"/>
+    </linearGradient>
+    <linearGradient id="targetGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e74c3c"/><stop offset="100%" stop-color="#c0392b"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)" rx="16"/>
+  <!-- Sokoban level preview -->
+  <g transform="translate(100, 40)">
+    <!-- Floor tiles -->
+    <rect x="0" y="0" width="200" height="200" fill="#2d2d5e" rx="4"/>
+    <!-- Walls -->
+    <rect x="0" y="0" width="40" height="40" fill="#4a4a7a" stroke="#6c63ff" stroke-width="1"/>
+    <rect x="40" y="0" width="40" height="40" fill="#4a4a7a" stroke="#6c63ff" stroke-width="1"/>
+    <rect x="80" y="0" width="40" height="40" fill="#4a4a7a" stroke="#6c63ff" stroke-width="1"/>
+    <rect x="0" y="40" width="40" height="40" fill="#4a4a7a" stroke="#6c63ff" stroke-width="1"/>
+    <rect x="160" y="0" width="40" height="40" fill="#4a4a7a" stroke="#6c63ff" stroke-width="1"/>
+    <rect x="0" y="160" width="40" height="40" fill="#4a4a7a" stroke="#6c63ff" stroke-width="1"/>
+    <rect x="160" y="160" width="40" height="40" fill="#4a4a7a" stroke="#6c63ff" stroke-width="1"/>
+    <!-- Player -->
+    <g transform="translate(42, 82)">
+      <circle cx="18" cy="18" r="14" fill="#6c63ff"/>
+      <circle cx="18" cy="12" r="5" fill="#fff" opacity="0.3"/>
+    </g>
+    <!-- Boxes -->
+    <rect x="82" y="42" width="35" height="35" rx="3" fill="url(#boxGrad)" stroke="#a0791e" stroke-width="1"/>
+    <rect x="82" y="42" width="35" height="35" rx="3" fill="none" stroke="#d4a029" stroke-width="0.5" opacity="0.3"/>
+    <line x1="86" y1="46" x2="100" y2="60" stroke="#d4a029" stroke-width="1" opacity="0.3"/>
+    <line x1="100" y1="46" x2="86" y2="60" stroke="#d4a029" stroke-width="1" opacity="0.3"/>
+    <rect x="82" y="82" width="35" height="35" rx="3" fill="url(#boxGrad)" stroke="#a0791e" stroke-width="1"/>
+    <rect x="122" y="122" width="35" height="35" rx="3" fill="url(#boxGrad)" stroke="#a0791e" stroke-width="1"/>
+    <!-- Target markers -->
+    <circle cx="160" cy="140" r="5" fill="none" stroke="url(#targetGrad)" stroke-width="2"/>
+    <circle cx="82" cy="130" r="5" fill="none" stroke="url(#targetGrad)" stroke-width="2"/>
+  </g>
+  <text x="200" y="270" font-family="Arial,sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" opacity="0.6">推箱子</text>
+</svg>

@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+    <radialGradient id="blackStone" cx="40%" cy="35%">
+      <stop offset="0%" stop-color="#555"/><stop offset="100%" stop-color="#111"/>
+    </radialGradient>
+    <radialGradient id="whiteStone" cx="40%" cy="35%">
+      <stop offset="0%" stop-color="#fff"/><stop offset="100%" stop-color="#ccc"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)" rx="16"/>
+  <!-- Board -->
+  <g transform="translate(50, 25)">
+    <rect x="0" y="0" width="300" height="250" rx="4" fill="#d4a565"/>
+    <!-- Grid lines -->
+    <g stroke="#8B6914" stroke-width="0.8">
+      <line x1="15" y1="15" x2="285" y2="15"/>
+      <line x1="15" y1="47" x2="285" y2="47"/>
+      <line x1="15" y1="79" x2="285" y2="79"/>
+      <line x1="15" y1="111" x2="285" y2="111"/>
+      <line x1="15" y1="143" x2="285" y2="143"/>
+      <line x1="15" y1="175" x2="285" y2="175"/>
+      <line x1="15" y1="207" x2="285" y2="207"/>
+      <line x1="15" y1="239" x2="285" y2="239"/>
+      <line x1="15" y1="15" x2="15" y2="239"/>
+      <line x1="47" y1="15" x2="47" y2="239"/>
+      <line x1="79" y1="15" x2="79" y2="239"/>
+      <line x1="111" y1="15" x2="111" y2="239"/>
+      <line x1="143" y1="15" x2="143" y2="239"/>
+      <line x1="175" y1="15" x2="175" y2="239"/>
+      <line x1="207" y1="15" x2="207" y2="239"/>
+      <line x1="239" y1="15" x2="239" y2="239"/>
+      <line x1="271" y1="15" x2="271" y2="239"/>
+      <line x1="285" y1="15" x2="285" y2="239"/>
+    </g>
+    <!-- Star points -->
+    <g fill="#8B6914">
+      <circle cx="79" cy="79" r="3"/><circle cx="143" cy="79" r="3"/><circle cx="207" cy="79" r="3"/>
+      <circle cx="79" cy="143" r="3"/><circle cx="143" cy="143" r="3"/><circle cx="207" cy="143" r="3"/>
+      <circle cx="79" cy="207" r="3"/><circle cx="143" cy="207" r="3"/><circle cx="207" cy="207" r="3"/>
+    </g>
+    <!-- Stones -->
+    <circle cx="79" cy="79" r="12" fill="url(#blackStone)"/>
+    <circle cx="111" cy="47" r="12" fill="url(#whiteStone)"/>
+    <circle cx="111" cy="111" r="12" fill="url(#blackStone)"/>
+    <circle cx="143" cy="79" r="12" fill="url(#whiteStone)"/>
+    <circle cx="143" cy="143" r="12" fill="url(#blackStone)"/>
+    <circle cx="175" cy="111" r="12" fill="url(#whiteStone)"/>
+    <circle cx="207" cy="79" r="12" fill="url(#blackStone)"/>
+    <circle cx="79" cy="111" r="12" fill="url(#whiteStone)"/>
+    <!-- Winning line -->
+    <line x1="71" y1="79" x2="215" y2="79" stroke="#e74c3c" stroke-width="2" opacity="0.6"/>
+  </g>
+  <text x="200" y="285" font-family="Arial,sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" opacity="0.6">五子棋</text>
+</svg>

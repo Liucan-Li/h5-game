@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>黑白棋</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;user-select:none;-webkit-tap-highlight-color:transparent;}
+body{background:#f5f6fa;color:#2d2d44;font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;display:flex;justify-content:center;align-items:center;min-height:100dvh;overflow:hidden;}
+.container{display:flex;flex-direction:column;align-items:center;gap:12px;padding:12px;}
+h1{font-size:22px;font-weight:700;color:#2d2d44;letter-spacing:2px;}
+#gameCanvas{border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.12);touch-action:none;cursor:pointer;max-width:96vw;}
+.info-bar{display:flex;align-items:center;gap:24px;font-size:16px;font-weight:600;}
+.info-bar .score{display:flex;align-items:center;gap:8px;}
+.info-bar .score .dot{display:inline-block;width:16px;height:16px;border-radius:50%;}
+.dot.black{background:radial-gradient(circle at 35% 35%,#555,#111);box-shadow:1px 1px 2px rgba(0,0,0,0.4);}
+.dot.white{background:radial-gradient(circle at 35% 35%,#fff,#ccc);box-shadow:1px 1px 2px rgba(0,0,0,0.25);}
+#turnIndicator{font-weight:600;padding:4px 16px;border-radius:20px;background:#e8e8f0;font-size:14px;min-width:100px;text-align:center;}
+button{background:#4a6cf7;color:#fff;border:none;border-radius:20px;padding:8px 24px;font-size:15px;font-weight:600;cursor:pointer;transition:background 0.2s;}
+button:hover{background:#3b5de7;}
+button:active{transform:scale(0.97);}
+#gameOverMsg{font-size:16px;font-weight:700;color:#e74c3c;min-height:24px;}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>黑白棋</h1>
+<canvas id="gameCanvas"></canvas>
+<div class="info-bar">
+  <span class="score"><span class="dot black"></span> <span id="blackScore">2</span></span>
+  <span id="turnIndicator">黑棋回合</span>
+  <span class="score"><span class="dot white"></span> <span id="whiteScore">2</span></span>
+</div>
+<div id="gameOverMsg"></div>
+<button id="rematchBtn">重新开始</button>
+</div>
+<script>
+(function(){
+  'use strict';
+
+  const SIZE = 8;
+  const EMPTY = 0, BLACK = 1, WHITE = 2;
+
+  // --- Game state ---
+  let board = Array(SIZE).fill().map(() => Array(SIZE).fill(EMPTY));
+  let currentPlayer = BLACK;
+  let gameOver = false;
+  let passCount = 0; // two consecutive passes = game over
+  let validMoves = [];
+
+  // --- Canvas setup ---
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const size = Math.min(window.innerWidth * 0.96, window.innerHeight * 0.72, 480);
+  const CELL = size / SIZE;
+  const STONE_RADIUS = CELL * 0.38;
+  canvas.width = size;
+  canvas.height = size;
+
+  // --- DOM refs ---
+  const turnEl = document.getElementById('turnIndicator');
+  const blackScoreEl = document.getElementById('blackScore');
+  const whiteScoreEl = document.getElementById('whiteScore');
+  const gameOverMsgEl = document.getElementById('gameOverMsg');
+
+  // --- Directions (8) ---
+  const DIRS = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+
+  // --- Init board ---
+  function initBoard() {
+    board = Array(SIZE).fill().map(() => Array(SIZE).fill(EMPTY));
+    board[3][3] = WHITE;
+    board[3][4] = BLACK;
+    board[4][3] = BLACK;
+    board[4][4] = WHITE;
+    currentPlayer = BLACK;
+    gameOver = false;
+    passCount = 0;
+    gameOverMsgEl.textContent = '';
+  }
+
+  // --- Valid moves ---
+  function getValidMoves(player) {
+    const moves = [];
+    for (let r = 0; r < SIZE; r++) {
+      for (let c = 0; c < SIZE; c++) {
+        if (board[r][c] !== EMPTY) continue;
+        if (wouldFlip(r, c, player).length > 0) {
+          moves.push([r, c]);
+        }
+      }
+    }
+    return moves;
+  }
+
+  function wouldFlip(row, col, player) {
+    const opponent = player === BLACK ? WHITE : BLACK;
+    const toFlip = [];
+    for (const [dr, dc] of DIRS) {
+      const pieces = [];
+      let nr = row + dr, nc = col + dc;
+      while (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && board[nr][nc] === opponent) {
+        pieces.push([nr, nc]);
+        nr += dr;
+        nc += dc;
+      }
+      if (pieces.length > 0 && nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && board[nr][nc] === player) {
+        toFlip.push(...pieces);
+      }
+    }
+    return toFlip;
+  }
+
+  // --- Place stone ---
+  function placeStone(row, col) {
+    if (gameOver) return false;
+    if (board[row][col] !== EMPTY) return false;
+
+    const toFlip = wouldFlip(row, col, currentPlayer);
+    if (toFlip.length === 0) return false;
+
+    board[row][col] = currentPlayer;
+    toFlip.forEach(([r, c]) => {
+      board[r][c] = currentPlayer;
+    });
+
+    passCount = 0;
+    currentPlayer = currentPlayer === BLACK ? WHITE : BLACK;
+    updateValidMoves();
+    updateUI();
+    draw();
+
+    // Check game over
+    if (validMoves.length === 0) {
+      // Current player has no moves, pass
+      passCount++;
+      currentPlayer = currentPlayer === BLACK ? WHITE : BLACK;
+      updateValidMoves();
+
+      if (validMoves.length === 0 || passCount >= 2) {
+        endGame();
+        return true;
+      }
+
+      // If it's now AI turn after passing
+      if (currentPlayer === WHITE && !gameOver) {
+        setTimeout(aiMove, 100);
+      }
+      updateUI();
+      draw();
+      return true;
+    }
+
+    // If it's now AI turn
+    if (currentPlayer === WHITE && !gameOver) {
+      setTimeout(aiMove, 100);
+    }
+
+    return true;
+  }
+
+  function updateValidMoves() {
+    validMoves = getValidMoves(currentPlayer);
+  }
+
+  function endGame() {
+    gameOver = true;
+    const b = countColor(BLACK);
+    const w = countColor(WHITE);
+    if (b > w) gameOverMsgEl.textContent = '黑棋胜！';
+    else if (w > b) gameOverMsgEl.textContent = '白棋胜！';
+    else gameOverMsgEl.textContent = '平局！';
+    turnEl.textContent = '游戏结束';
+    draw();
+    updateUI();
+  }
+
+  function countColor(player) {
+    let c = 0;
+    for (let r = 0; r < SIZE; r++)
+      for (let col = 0; col < SIZE; col++)
+        if (board[r][col] === player) c++;
+    return c;
+  }
+
+  // --- AI ---
+  function aiMove() {
+    if (gameOver || currentPlayer !== WHITE) return;
+
+    updateValidMoves();
+    if (validMoves.length === 0) {
+      // Pass
+      passCount++;
+      currentPlayer = BLACK;
+      updateValidMoves();
+      if (passCount >= 2) { endGame(); updateUI(); draw(); return; }
+      updateUI();
+      draw();
+      return;
+    }
+
+    // Evaluate each move
+    let bestScore = -Infinity;
+    let bestMove = validMoves[0];
+
+    const cornerWeight = 30;
+    const edgeWeight = 5;
+    const badWeight = -8;
+
+    for (const [r, c] of validMoves) {
+      // Simulate the move
+      const flipped = wouldFlip(r, c, WHITE);
+      const tempBoard = board.map(row => [...row]);
+      tempBoard[r][c] = WHITE;
+      flipped.forEach(([fr, fc]) => { tempBoard[fr][fc] = WHITE; });
+
+      // Score: piece count + positional weights
+      let score = 0;
+      for (let row = 0; row < SIZE; row++) {
+        for (let col = 0; col < SIZE; col++) {
+          if (tempBoard[row][col] !== WHITE) continue;
+          // Corners = most valuable
+          if ((row === 0 || row === 7) && (col === 0 || col === 7)) {
+            score += cornerWeight;
+          }
+          // Edges (non-corner)
+          else if (row === 0 || row === 7 || col === 0 || col === 7) {
+            score += edgeWeight;
+          }
+          // Squares adjacent to corners (dangerous for opponent)
+          else if (
+            (row <= 1 && col <= 1) ||
+            (row <= 1 && col >= 6) ||
+            (row >= 6 && col <= 1) ||
+            (row >= 6 && col >= 6)
+          ) {
+            score += badWeight;
+          }
+          // Center
+          else {
+            score += 1;
+          }
+        }
+      }
+
+      // Bonus for taking corners directly
+      if ((r === 0 || r === 7) && (c === 0 || c === 7)) {
+        score += 100;
+      }
+      // Bonus for flipping many pieces
+      score += flipped.length * 2;
+
+      // Mobility: prefer moves that leave opponent fewer options
+      const opponent = BLACK;
+      const oppMoves = [];
+      for (let row = 0; row < SIZE; row++) {
+        for (let col = 0; col < SIZE; col++) {
+          if (tempBoard[row][col] !== EMPTY) continue;
+          const oppBoard = tempBoard.map(rr => [...rr]);
+          const f = (() => {
+            const opp = opponent;
+            const board2 = oppBoard;
+            const pieces = [];
+            for (const [dr, dc] of DIRS) {
+              const pcs = [];
+              let nr = row + dr, nc = col + dc;
+              while (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && board2[nr][nc] === (opp === BLACK ? WHITE : BLACK)) {
+                pcs.push([nr, nc]);
+                nr += dr; nc += dc;
+              }
+              if (pcs.length > 0 && nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && board2[nr][nc] === opp) {
+                pieces.push(...pcs);
+              }
+            }
+            return pieces;
+          })();
+          if (f.length > 0) oppMoves.push([row, col]);
+        }
+      }
+      score -= oppMoves.length * 1.5;
+
+      // Avoid edges adjacent to corners unless we have the corner
+      if ((r === 0 && (c === 1 || c === 6)) ||
+          (r === 7 && (c === 1 || c === 6)) ||
+          (c === 0 && (r === 1 || r === 6)) ||
+          (c === 7 && (r === 1 || r === 6))) {
+        // Check if we already own the adjacent corner
+        const cr = r === 0 ? 0 : 7;
+        const cc = c === 0 ? 0 : 7;
+        if (board[cr][cc] !== WHITE) {
+          score -= 40;
+        }
+      }
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestMove = [r, c];
+      }
+    }
+
+    placeStone(bestMove[0], bestMove[1]);
+  }
+
+  // --- Draw ---
+  function draw() {
+    const w = canvas.width, h = canvas.height;
+
+    // Background
+    ctx.fillStyle = '#2d8a4e';
+    ctx.fillRect(0, 0, w, h);
+
+    // Grid
+    ctx.strokeStyle = '#1a6a38';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= SIZE; i++) {
+      const p = i * CELL;
+      ctx.beginPath();
+      ctx.moveTo(p, 0);
+      ctx.lineTo(p, h);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0, p);
+      ctx.lineTo(w, p);
+      ctx.stroke();
+    }
+
+    // Valid move indicators
+    const opponent = currentPlayer === BLACK ? WHITE : BLACK;
+    const showValidMoves = !gameOver && currentPlayer === BLACK;
+    if (showValidMoves) {
+      ctx.fillStyle = 'rgba(255,255,255,0.25)';
+      for (const [r, c] of validMoves) {
+        const x = c * CELL + CELL / 2;
+        const y = r * CELL + CELL / 2;
+        ctx.beginPath();
+        ctx.arc(x, y, 6, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // Stones
+    for (let r = 0; r < SIZE; r++) {
+      for (let c = 0; c < SIZE; c++) {
+        if (board[r][c] === EMPTY) continue;
+        const x = c * CELL + CELL / 2;
+        const y = r * CELL + CELL / 2;
+        const grad = ctx.createRadialGradient(x - STONE_RADIUS*0.3, y - STONE_RADIUS*0.3, STONE_RADIUS*0.1, x, y, STONE_RADIUS);
+        if (board[r][c] === BLACK) {
+          grad.addColorStop(0, '#555');
+          grad.addColorStop(0.6, '#222');
+          grad.addColorStop(1, '#000');
+          ctx.shadowColor = 'rgba(0,0,0,0.35)';
+        } else {
+          grad.addColorStop(0, '#fff');
+          grad.addColorStop(0.6, '#eee');
+          grad.addColorStop(1, '#ccc');
+          ctx.shadowColor = 'rgba(0,0,0,0.15)';
+        }
+        ctx.shadowBlur = 3;
+        ctx.beginPath();
+        ctx.arc(x, y, STONE_RADIUS, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+    }
+  }
+
+  // --- UI ---
+  function updateUI() {
+    blackScoreEl.textContent = countColor(BLACK);
+    whiteScoreEl.textContent = countColor(WHITE);
+    if (!gameOver) {
+      turnEl.textContent = currentPlayer === BLACK ? '黑棋回合' : '白棋回合(思考中...)';
+    }
+  }
+
+  // --- Events ---
+  function handleClick(e) {
+    if (gameOver || currentPlayer !== BLACK) return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    let x, y;
+    if (e.touches) {
+      x = (e.touches[0].clientX - rect.left) * scaleX;
+      y = (e.touches[0].clientY - rect.top) * scaleY;
+    } else {
+      x = (e.clientX - rect.left) * scaleX;
+      y = (e.clientY - rect.top) * scaleY;
+    }
+    const col = Math.floor(x / CELL);
+    const row = Math.floor(y / CELL);
+    if (row < 0 || row >= SIZE || col < 0 || col >= SIZE) return;
+
+    // Check if valid move
+    const isValid = validMoves.some(([r, c]) => r === row && c === col);
+    if (!isValid) return;
+
+    placeStone(row, col);
+  }
+
+  canvas.addEventListener('click', handleClick);
+  canvas.addEventListener('touchstart', handleClick, { passive: true });
+  document.getElementById('rematchBtn').addEventListener('click', resetGame);
+
+  // --- Resize ---
+  function resizeCanvas() {
+    const newSize = Math.min(window.innerWidth * 0.96, window.innerHeight * 0.72, 480);
+    if (Math.abs(newSize - canvas.width) > 2) {
+      canvas.width = newSize;
+      canvas.height = newSize;
+      draw();
+    }
+  }
+  window.addEventListener('resize', resizeCanvas);
+
+  // --- Reset ---
+  function resetGame() {
+    initBoard();
+    passCount = 0;
+    gameOver = false;
+    updateValidMoves();
+    updateUI();
+    draw();
+  }
+
+  // --- Init ---
+  initBoard();
+  updateValidMoves();
+  updateUI();
+  draw();
+})();
+</script>
+</body>
+</html>

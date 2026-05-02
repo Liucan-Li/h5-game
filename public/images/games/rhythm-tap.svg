@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+    <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff6b6b"/><stop offset="100%" stop-color="#ee5a24"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6c63ff"/><stop offset="100%" stop-color="#0652DD"/>
+    </linearGradient>
+    <linearGradient id="g3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2ed573"/><stop offset="100%" stop-color="#05c46b"/>
+    </linearGradient>
+    <linearGradient id="g4" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffa502"/><stop offset="100%" stop-color="#e67e22"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)" rx="16"/>
+  <!-- 4 lanes -->
+  <g transform="translate(75, 30)">
+    <!-- Lanes -->
+    <line x1="0" y1="0" x2="0" y2="200" stroke="#2d2d5e" stroke-width="1"/>
+    <line x1="62" y1="0" x2="62" y2="200" stroke="#2d2d5e" stroke-width="1"/>
+    <line x1="124" y1="0" x2="124" y2="200" stroke="#2d2d5e" stroke-width="1"/>
+    <line x1="186" y1="0" x2="186" y2="200" stroke="#2d2d5e" stroke-width="1"/>
+    <line x1="248" y1="0" x2="248" y2="200" stroke="#2d2d5e" stroke-width="1"/>
+    <!-- Target line -->
+    <line x1="0" y1="190" x2="248" y2="190" stroke="#6c63ff" stroke-width="3" opacity="0.8"/>
+    <!-- PERFECT zone -->
+    <rect x="0" y="182" width="248" height="16" fill="#6c63ff" opacity="0.15"/>
+    <!-- Falling notes -->
+    <circle cx="31" cy="30" r="12" fill="url(#g1)"/>
+    <circle cx="93" cy="80" r="12" fill="url(#g2)"/>
+    <circle cx="155" cy="45" r="12" fill="url(#g3)"/>
+    <circle cx="217" cy="110" r="12" fill="url(#g4)"/>
+    <circle cx="31" cy="150" r="12" fill="url(#g1)" opacity="0.7"/>
+    <circle cx="93" cy="160" r="12" fill="url(#g2)" opacity="0.6"/>
+    <!-- Combo display -->
+    <text x="124" y="175" font-family="Arial,sans-serif" font-size="11" fill="#a29bfe" text-anchor="middle" opacity="0.5">连击: 11</text>
+  </g>
+  <!-- PERFECT / GOOD labels -->
+  <text x="200" y="250" font-family="Arial,sans-serif" font-size="13" fill="#2ed573" text-anchor="middle" opacity="0.8">PERFECT</text>
+  <text x="200" y="272" font-family="Arial,sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" opacity="0.5">节奏敲击</text>
+</svg>

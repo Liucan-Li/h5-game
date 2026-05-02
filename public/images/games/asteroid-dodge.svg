@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f0f23"/>
+      <stop offset="100%" stop-color="#1a1a3e"/>
+    </linearGradient>
+    <linearGradient id="shipGrad" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#6c63ff"/><stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+    <radialGradient id="ast1"><stop offset="0%" stop-color="#ff6b6b"/><stop offset="100%" stop-color="#c0392b"/></radialGradient>
+    <radialGradient id="ast2"><stop offset="0%" stop-color="#f39c12"/><stop offset="100%" stop-color="#d35400"/></radialGradient>
+    <radialGradient id="ast3"><stop offset="0%" stop-color="#95a5a6"/><stop offset="100%" stop-color="#7f8c8d"/></radialGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)" rx="16"/>
+  <!-- Stars -->
+  <g fill="#fff" opacity="0.3">
+    <circle cx="50" cy="30" r="1"/><circle cx="150" cy="60" r="1.5"/>
+    <circle cx="250" cy="20" r="1"/><circle cx="350" cy="50" r="1"/>
+    <circle cx="80" cy="90" r="1"/><circle cx="320" cy="80" r="1.5"/>
+    <circle cx="30" cy="150" r="1"/><circle cx="370" cy="140" r="1"/>
+  </g>
+  <!-- Asteroids -->
+  <circle cx="80" cy="50" r="18" fill="url(#ast1)" opacity="0.8"/>
+  <circle cx="80" cy="50" r="10" fill="none" stroke="#ff6b6b" stroke-width="0.5" opacity="0.3"/>
+  <circle cx="320" cy="80" r="25" fill="url(#ast2)" opacity="0.7"/>
+  <circle cx="200" cy="40" r="14" fill="url(#ast3)" opacity="0.8"/>
+  <circle cx="100" cy="130" r="12" fill="url(#ast1)" opacity="0.6"/>
+  <circle cx="280" cy="140" r="16" fill="url(#ast3)" opacity="0.6"/>
+  <!-- Small asteroids -->
+  <circle cx="150" cy="100" r="6" fill="url(#ast2)" opacity="0.7"/>
+  <circle cx="330" cy="120" r="5" fill="url(#ast1)" opacity="0.5"/>
+  <!-- Ship (bottom) -->
+  <g transform="translate(200, 230)">
+    <polygon points="0,-20 -14,12 0,4 14,12" fill="url(#shipGrad)" filter="url(#glow)"/>
+    <polygon points="0,-14 -7,6 0,2 7,6" fill="#a29bfe" opacity="0.4"/>
+  </g>
+  <filter id="glow"><feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#6c63ff" flood-opacity="0.6"/></filter>
+  <text x="200" y="282" font-family="Arial,sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" opacity="0.6">躲避陨石</text>
+</svg>

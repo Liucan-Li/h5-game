@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>瞄准射击</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #f5f6fa;
+  color: #2d2d44;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+.game-wrapper {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  padding: 20px;
+  max-width: 520px;
+  width: 100%;
+  margin: 16px;
+}
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.game-title { font-size: 20px; font-weight: 700; }
+.stats-bar {
+  display: flex;
+  gap: 14px;
+  font-size: 14px;
+  color: #5a5a7a;
+}
+.stat-item { white-space: nowrap; }
+.stat-item span { color: #2d2d44; font-weight: 600; }
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #f0f1f5;
+  border-radius: 12px;
+  cursor: crosshair;
+  touch-action: none;
+}
+.overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(4px);
+  border-radius: 12px;
+  z-index: 10;
+}
+.overlay h2 { font-size: 28px; margin-bottom: 12px; }
+.overlay p { font-size: 16px; color: #5a5a7a; margin-bottom: 6px; }
+.overlay .result-stats { margin: 12px 0 20px; text-align: center; line-height: 1.8; }
+.overlay .result-stats .label { color: #5a5a7a; }
+.overlay .result-stats .value { font-weight: 700; color: #2d2d44; }
+.btn {
+  padding: 12px 36px;
+  font-size: 18px;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  background: #4361ee;
+  color: #fff;
+  transition: transform 0.12s, box-shadow 0.12s;
+  touch-action: manipulation;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(67,97,238,0.35); }
+.btn:active { transform: scale(0.97); }
+.btn-secondary { background: #e8e9f0; color: #2d2d44; }
+.btn-secondary:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+.canvas-wrap { position: relative; }
+</style>
+</head>
+<body>
+<div class="game-wrapper">
+  <div class="game-header">
+    <div class="game-title">瞄准射击</div>
+    <div class="stats-bar">
+      <div class="stat-item">得分 <span id="scoreDisplay">0</span></div>
+      <div class="stat-item">命中 <span id="hitDisplay">0</span></div>
+      <div class="stat-item">未中 <span id="missDisplay">0</span></div>
+      <div class="stat-item">时间 <span id="timeDisplay">30</span>s</div>
+    </div>
+  </div>
+  <div class="canvas-wrap" id="canvasWrap">
+    <canvas id="gameCanvas" width="480" height="480"></canvas>
+    <div class="overlay" id="startOverlay">
+      <h2>瞄准射击</h2>
+      <p>点击靶心得分，环数越高分数越高</p>
+      <p style="font-size:13px;color:#8a8aaa;margin-top:4px;">30秒限时挑战</p>
+      <button class="btn" id="startBtn" style="margin-top:16px;">开始游戏</button>
+    </div>
+    <div class="overlay" id="endOverlay" style="display:none;">
+      <h2>时间到！</h2>
+      <div class="result-stats" id="resultStats"></div>
+      <button class="btn" id="replayBtn">再来一局</button>
+    </div>
+  </div>
+</div>
+<script>
+(function() {
+  'use strict';
+
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = 480, H = 480;
+
+  const scoreDisplay = document.getElementById('scoreDisplay');
+  const hitDisplay = document.getElementById('hitDisplay');
+  const missDisplay = document.getElementById('missDisplay');
+  const timeDisplay = document.getElementById('timeDisplay');
+  const startOverlay = document.getElementById('startOverlay');
+  const endOverlay = document.getElementById('endOverlay');
+  const resultStats = document.getElementById('resultStats');
+  const startBtn = document.getElementById('startBtn');
+  const replayBtn = document.getElementById('replayBtn');
+
+  const ROUND_TIME = 30;
+  const BASE_TARGET_RADIUS = 32;
+  const BASE_TARGET_DURATION = 1800;
+  const MAX_TARGETS = 6;
+
+  let state = 'menu'; // menu | playing | ended
+  let score = 0;
+  let hits = 0;
+  let misses = 0;
+  let timeLeft = ROUND_TIME;
+  let targets = [];
+  let particles = [];
+  let missIndicators = [];
+  let spawnTimer = 0;
+  let spawnInterval = 700;
+  let highScore = 0;
+  let animFrameId = null;
+  let timerInterval = null;
+
+  function loadHighScore() {
+    try {
+      const val = localStorage.getItem('aimTrainer_highScore');
+      if (val) highScore = parseInt(val, 10) || 0;
+    } catch(e) {}
+  }
+  function saveHighScore() {
+    try { localStorage.setItem('aimTrainer_highScore', String(highScore)); } catch(e) {}
+  }
+  loadHighScore();
+
+  // --- Utility ---
+  function rand(min, max) { return Math.random() * (max - min) + min; }
+  function randInt(min, max) { return Math.floor(rand(min, max + 1)); }
+  function dist(x1, y1, x2, y2) { return Math.hypot(x2 - x1, y2 - y1); }
+
+  // --- Target ---
+  function createTarget() {
+    const difficulty = score / 50;
+    const radius = Math.max(10, BASE_TARGET_RADIUS - difficulty * 3);
+    const duration = Math.max(600, BASE_TARGET_DURATION - difficulty * 60);
+    const padding = radius + 10;
+    const x = rand(padding, W - padding);
+    const y = rand(padding, H - padding);
+    return {
+      x, y,
+      radius,
+      maxRadius: radius,
+      duration,
+      elapsed: 0,
+      alive: true,
+      opacity: 1,
+      ring1: radius * 0.85,
+      ring2: radius * 0.55,
+      bullseye: radius * 0.3
+    };
+  }
+
+  function spawnTargets() {
+    targets = targets.filter(t => t.alive);
+    const maxNow = Math.min(MAX_TARGETS, 3 + Math.floor(score / 30));
+    if (targets.length < maxNow) {
+      targets.push(createTarget());
+    }
+  }
+
+  // --- Particles ---
+  function spawnBurst(x, y, color, count) {
+    count = count || 18;
+    for (let i = 0; i < count; i++) {
+      const angle = rand(0, Math.PI * 2);
+      const speed = rand(1.5, 5);
+      particles.push({
+        x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        radius: rand(2, 6),
+        life: 1,
+        decay: rand(0.015, 0.04),
+        color: color || '#4361ee'
+      });
+    }
+  }
+
+  function spawnMiss(x, y) {
+    missIndicators.push({ x, y, life: 1, decay: 0.035 });
+  }
+
+  // --- Hit detection ---
+  function handleShot(px, py) {
+    if (state !== 'playing') return;
+    let hit = false;
+    for (let i = targets.length - 1; i >= 0; i--) {
+      const t = targets[i];
+      if (!t.alive) continue;
+      const d = dist(px, py, t.x, t.y);
+      if (d <= t.radius) {
+        // Hit! Determine ring
+        let points = 10;
+        let color = '#ff6b6b';
+        if (d <= t.bullseye) { points = 50; color = '#ff2d2d'; }
+        else if (d <= t.ring2) { points = 30; color = '#ff6b6b'; }
+        else if (d <= t.ring1) { points = 20; color = '#ffa94d'; }
+        score += points;
+        hits++;
+        t.alive = false;
+        spawnBurst(t.x, t.y, color, 22);
+        hit = true;
+        break;
+      }
+    }
+    if (!hit) {
+      misses++;
+      spawnMiss(px, py);
+    }
+  }
+
+  // --- Game loop ---
+  function update(dt) {
+    // Update targets
+    for (const t of targets) {
+      if (!t.alive) continue;
+      t.elapsed += dt;
+      if (t.elapsed >= t.duration) {
+        t.alive = false;
+        misses++;
+      }
+    }
+    targets = targets.filter(t => t.alive);
+
+    // Spawn
+    spawnTimer += dt;
+    if (spawnTimer >= spawnInterval) {
+      spawnTimer = 0;
+      spawnTargets();
+    }
+    const diff = score / 50;
+    spawnInterval = Math.max(300, 700 - diff * 30);
+
+    // Particles
+    for (const p of particles) {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.06;
+      p.life -= p.decay;
+    }
+    particles = particles.filter(p => p.life > 0);
+
+    // Miss indicators
+    for (const m of missIndicators) m.life -= m.decay;
+    missIndicators = missIndicators.filter(m => m.life > 0);
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    // Grid background
+    ctx.fillStyle = '#f0f1f5';
+    ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = '#e2e4ec';
+    ctx.lineWidth = 1;
+    for (let x = 0; x <= W; x += 40) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    }
+    for (let y = 0; y <= H; y += 40) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+
+    // Targets
+    for (const t of targets) {
+      if (!t.alive) continue;
+      const shrink = 1 - (t.elapsed / t.duration) * 0.15;
+      const r = t.radius * shrink;
+      const fade = Math.min(1, (t.duration - t.elapsed) / 200);
+      if (r < 3) continue;
+
+      ctx.globalAlpha = fade;
+      // Outer ring
+      ctx.beginPath();
+      ctx.arc(t.x, t.y, r, 0, Math.PI * 2);
+      ctx.fillStyle = '#e74c3c';
+      ctx.fill();
+      ctx.strokeStyle = '#c0392b';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Ring 1
+      ctx.beginPath();
+      ctx.arc(t.x, t.y, r * 0.8, 0, Math.PI * 2);
+      ctx.fillStyle = '#ecf0f1';
+      ctx.fill();
+      ctx.strokeStyle = '#bdc3c7';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Ring 2
+      ctx.beginPath();
+      ctx.arc(t.x, t.y, r * 0.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#e74c3c';
+      ctx.fill();
+
+      // Bullseye
+      ctx.beginPath();
+      ctx.arc(t.x, t.y, r * 0.25, 0, Math.PI * 2);
+      ctx.fillStyle = '#c0392b';
+      ctx.fill();
+
+      ctx.globalAlpha = 1;
+    }
+
+    // Particles
+    for (const p of particles) {
+      ctx.globalAlpha = Math.max(0, p.life);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius * p.life, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // Miss indicators
+    for (const m of missIndicators) {
+      ctx.globalAlpha = Math.max(0, m.life);
+      ctx.strokeStyle = '#e74c3c';
+      ctx.lineWidth = 3;
+      const s = 12 * (1 - m.life * 0.5);
+      ctx.beginPath();
+      ctx.moveTo(m.x - s, m.y - s); ctx.lineTo(m.x + s, m.y + s);
+      ctx.moveTo(m.x + s, m.y - s); ctx.lineTo(m.x - s, m.y + s);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+
+    // Difficulty indicator
+    if (state === 'playing' && score > 0) {
+      ctx.fillStyle = 'rgba(45,45,68,0.5)';
+      ctx.font = '12px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('难度 Lv.' + Math.floor(score / 50 + 1), 10, H - 10);
+    }
+  }
+
+  function gameLoop(timestamp) {
+    if (state !== 'playing') return;
+    if (!gameLoop.lastTime) gameLoop.lastTime = timestamp;
+    const dt = Math.min(timestamp - gameLoop.lastTime, 50);
+    gameLoop.lastTime = timestamp;
+
+    update(dt);
+    draw();
+    updateUI();
+
+    if (state === 'playing') {
+      animFrameId = requestAnimationFrame(gameLoop);
+    }
+  }
+  gameLoop.lastTime = 0;
+
+  function updateUI() {
+    scoreDisplay.textContent = score;
+    hitDisplay.textContent = hits;
+    missDisplay.textContent = misses;
+    timeDisplay.textContent = timeLeft;
+  }
+
+  // --- Timer ---
+  function startTimer() {
+    timeLeft = ROUND_TIME;
+    updateUI();
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(function() {
+      timeLeft--;
+      updateUI();
+      if (timeLeft <= 0) {
+        endGame();
+      }
+    }, 1000);
+  }
+
+  // --- End ---
+  function endGame() {
+    state = 'ended';
+    if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+    if (animFrameId) { cancelAnimationFrame(animFrameId); animFrameId = null; }
+
+    const accuracy = (hits + misses) > 0 ? (hits / (hits + misses) * 100) : 0;
+    if (score > highScore) {
+      highScore = score;
+      saveHighScore();
+    }
+
+    resultStats.innerHTML =
+      '<div><span class="label">得分 </span><span class="value">' + score + '</span></div>' +
+      '<div><span class="label">命中 </span><span class="value">' + hits + '</span></div>' +
+      '<div><span class="label">未中 </span><span class="value">' + misses + '</span></div>' +
+      '<div><span class="label">命中率 </span><span class="value">' + accuracy.toFixed(1) + '%</span></div>' +
+      '<div style="margin-top:6px;"><span class="label">最高纪录 </span><span class="value">' + highScore + '</span></div>';
+
+    endOverlay.style.display = 'flex';
+    draw();
+  }
+
+  // --- Start ---
+  function startGame() {
+    score = 0; hits = 0; misses = 0;
+    targets = []; particles = []; missIndicators = [];
+    spawnTimer = 0; spawnInterval = 700;
+    state = 'playing';
+    startOverlay.style.display = 'none';
+    endOverlay.style.display = 'none';
+    updateUI();
+    gameLoop.lastTime = 0;
+
+    // Initial targets
+    for (let i = 0; i < 3; i++) targets.push(createTarget());
+
+    if (animFrameId) cancelAnimationFrame(animFrameId);
+    animFrameId = requestAnimationFrame(gameLoop);
+    startTimer();
+  }
+
+  // --- Input ---
+  function getCanvasPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = W / rect.width;
+    const scaleY = H / rect.height;
+    let clientX, clientY;
+    if (e.touches) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+      e.preventDefault();
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+    return {
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY
+    };
+  }
+
+  function onPointerDown(e) {
+    const pos = getCanvasPos(e);
+    handleShot(pos.x, pos.y);
+  }
+
+  canvas.addEventListener('mousedown', onPointerDown);
+  canvas.addEventListener('touchstart', onPointerDown, { passive: false });
+
+  startBtn.addEventListener('click', startGame);
+  startBtn.addEventListener('touchend', function(e) { e.preventDefault(); startGame(); });
+  replayBtn.addEventListener('click', startGame);
+  replayBtn.addEventListener('touchend', function(e) { e.preventDefault(); startGame(); });
+
+  // Keyboard shortcut
+  document.addEventListener('keydown', function(e) {
+    if (e.code === 'Space' || e.key === 'Enter') {
+      if (state === 'menu') startGame();
+      else if (state === 'ended') startGame();
+    }
+  });
+
+  // Initial draw
+  draw();
+})();
+</script>
+</body>
+</html>

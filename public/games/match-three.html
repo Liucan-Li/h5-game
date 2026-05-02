@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>消消乐</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#f5f6fa;color:#2d2d44;min-height:100vh;display:flex;justify-content:center;align-items:center;overflow:hidden;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.game-container{text-align:center;padding:16px;max-width:520px;width:100%}
+h1{font-size:1.8rem;margin-bottom:4px;background:linear-gradient(135deg,#f093fb,#f5576c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{color:#888;font-size:.85rem;margin-bottom:12px}
+.stats{display:flex;justify-content:center;gap:20px;margin-bottom:12px}
+.stat{background:#fff;border-radius:12px;padding:8px 18px;box-shadow:0 2px 8px rgba(0,0,0,.06);font-size:.9rem}
+.stat-label{color:#888;margin-right:6px}
+.stat-value{font-weight:700;color:#2d2d44}
+.score-value{color:#f5576c}
+canvas{display:block;margin:0 auto;border-radius:14px;background:#fff;box-shadow:0 4px 20px rgba(0,0,0,.08);width:100%;max-width:420px;touch-action:manipulation;cursor:pointer}
+.controls{margin-top:12px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.btn{background:#fff;border:none;border-radius:10px;padding:10px 22px;font-size:.9rem;color:#2d2d44;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.06);transition:all .15s;font-weight:500}
+.btn:hover{box-shadow:0 4px 14px rgba(0,0,0,.1);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn-primary{background:linear-gradient(135deg,#f093fb,#f5576c);color:#fff;box-shadow:0 3px 12px rgba(245,87,108,.35)}
+.btn-primary:hover{box-shadow:0 5px 18px rgba(245,87,108,.45);transform:translateY(-1px)}
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:100;opacity:0;pointer-events:none;transition:opacity .3s}
+.overlay.show{opacity:1;pointer-events:auto}
+.overlay-content{background:#fff;border-radius:20px;padding:32px 40px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.15);transform:scale(.9);transition:transform .3s}
+.overlay.show .overlay-content{transform:scale(1)}
+.overlay-content h2{font-size:1.6rem;margin-bottom:8px}
+.overlay-content p{color:#888;margin-bottom:18px}
+@media(max-width:440px){canvas{max-width:95vw}h1{font-size:1.4rem}.stats{gap:10px}.stat{padding:6px 12px;font-size:.8rem}}
+</style>
+</head>
+<body>
+<div class="game-container">
+  <h1>消消乐</h1>
+  <p class="subtitle">交换相邻宝石，三个即可消除</p>
+  <div class="stats">
+    <div class="stat"><span class="stat-label">分数</span><span class="stat-value score-value" id="scoreDisplay">0</span></div>
+    <div class="stat"><span class="stat-label">最高分</span><span class="stat-value score-value" id="highScoreDisplay">-</span></div>
+  </div>
+  <canvas id="gameCanvas" width="420" height="420"></canvas>
+  <div class="controls">
+    <button class="btn btn-primary" id="newGameBtn">新游戏</button>
+  </div>
+</div>
+
+<div class="overlay" id="gameOverOverlay">
+  <div class="overlay-content">
+    <h2>&#127942; 游戏结束</h2>
+    <p id="gameOverMessage">得分: 0</p>
+    <div>
+      <button class="btn btn-primary" id="playAgainBtn">再来一局</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  const COLS = 8;
+  const ROWS = 8;
+  const NUM_COLORS = 6;
+  const CELL_SIZE = 52;
+  const PADDING = 2;
+  const GEM_RADIUS = 22;
+  const ANIM_DURATION = 200; // ms for swap/fall
+  const CLEAR_DURATION = 300;
+
+  const COLORS = [
+    '#e74c3c', // red
+    '#3498db', // blue
+    '#2ecc71', // green
+    '#f39c12', // orange
+    '#9b59b6', // purple
+    '#1abc9c'  // teal
+  ];
+
+  const COLOR_NAMES = ['R','B','G','O','P','T'];
+
+  const State = {
+    IDLE: 'IDLE',
+    SELECTED: 'SELECTED',
+    SWAPPING: 'SWAPPING',
+    SWAP_BACK: 'SWAP_BACK',
+    CHECKING: 'CHECKING',
+    CLEARING: 'CLEARING',
+    FALLING: 'FALLING',
+    REFILLING: 'REFILLING',
+    GAME_OVER: 'GAME_OVER'
+  };
+
+  let canvas, ctx;
+  let state = State.IDLE;
+  let grid = []; // 2D array [row][col] = colorIndex (0..5) or -1 for empty
+  let score = 0;
+  let selectedGem = null; // {row, col}
+  let swapGems = null; // [{row, col}, {row, col}]
+  let animationProgress = 0;
+  let animationStartTime = 0;
+  let clearingCells = []; // [{row, col}] cells to clear
+  let fallingData = []; // [{fromRow, fromCol, toRow, toCol, color}] for fall animation
+  let pendingScore = 0;
+  let animFrameId = null;
+  let gameOver = false;
+
+  const scoreDisplay = document.getElementById('scoreDisplay');
+  const highScoreDisplay = document.getElementById('highScoreDisplay');
+  const gameOverOverlay = document.getElementById('gameOverOverlay');
+  const gameOverMessage = document.getElementById('gameOverMessage');
+
+  function initCanvas() {
+    canvas = document.getElementById('gameCanvas');
+    ctx = canvas.getContext('2d');
+    // Size canvas responsively
+    canvas.addEventListener('click', handleCanvasClick);
+    canvas.addEventListener('touchstart', handleTouchStart, {passive: false});
+    canvas.addEventListener('touchmove', handleTouchMove, {passive: false});
+    canvas.addEventListener('touchend', handleTouchEnd, {passive: false});
+  }
+
+  let touchStartX, touchStartY;
+  let touchTarget = null;
+
+  function getCanvasCoords(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+    return {x, y};
+  }
+
+  function getGridCell(x, y) {
+    const col = Math.floor(x / CELL_SIZE);
+    const row = Math.floor(y / CELL_SIZE);
+    if (row < 0 || row >= ROWS || col < 0 || col >= COLS) return null;
+    return {row, col};
+  }
+
+  function handleCanvasClick(e) {
+    if (state === State.IDLE || state === State.SELECTED) {
+      const {x, y} = getCanvasCoords(e);
+      const cell = getGridCell(x, y);
+      if (!cell) return;
+      handleCellClick(cell.row, cell.col);
+    }
+  }
+
+  function handleTouchStart(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const {x, y} = getCanvasCoords(touch);
+    touchStartX = x;
+    touchStartY = y;
+    touchTarget = {x, y};
+  }
+
+  function handleTouchMove(e) {
+    e.preventDefault();
+  }
+
+  function handleTouchEnd(e) {
+    if (!touchTarget || state === State.SWAPPING || state === State.CLEARING || state === State.FALLING) return;
+    // Detect swipe direction
+    const dx = touchStartX - touchTarget.x;
+    const dy = touchStartY - touchTarget.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if (dist > 30) {
+      // Swipe
+      const cell1 = getGridCell(touchTarget.x, touchTarget.y);
+      if (!cell1) { touchTarget = null; return; }
+      let dr = 0, dc = 0;
+      if (Math.abs(dx) > Math.abs(dy)) {
+        dc = dx > 0 ? -1 : 1;
+      } else {
+        dr = dy > 0 ? -1 : 1;
+      }
+      const row2 = cell1.row + dr;
+      const col2 = cell1.col + dc;
+      if (row2 >= 0 && row2 < ROWS && col2 >= 0 && col2 < COLS) {
+        trySwap(cell1.row, cell1.col, row2, col2);
+      }
+    } else {
+      // Tap
+      const cell = getGridCell(touchTarget.x, touchTarget.y);
+      if (cell) handleCellClick(cell.row, cell.col);
+    }
+    touchTarget = null;
+  }
+
+  function handleCellClick(row, col) {
+    if (grid[row][col] === -1) return;
+    if (selectedGem) {
+      if (selectedGem.row === row && selectedGem.col === col) {
+        selectedGem = null;
+        state = State.IDLE;
+        return;
+      }
+      // Check if adjacent
+      const dr = Math.abs(selectedGem.row - row);
+      const dc = Math.abs(selectedGem.col - col);
+      if ((dr === 1 && dc === 0) || (dr === 0 && dc === 1)) {
+        trySwap(selectedGem.row, selectedGem.col, row, col);
+        selectedGem = null;
+      } else {
+        // Select new gem
+        selectedGem = {row, col};
+      }
+    } else {
+      selectedGem = {row, col};
+      state = State.SELECTED;
+    }
+  }
+
+  function trySwap(r1, c1, r2, c2) {
+    if (grid[r1][c1] === -1 || grid[r2][c2] === -1) return;
+    if (gameOver) return;
+    selectedGem = null;
+    swapGems = [{row: r1, col: c1}, {row: r2, col: c2}];
+    state = State.SWAPPING;
+    animationStartTime = performance.now();
+  }
+
+  function createGrid() {
+    grid = [];
+    for (let r = 0; r < ROWS; r++) {
+      grid[r] = [];
+      for (let c = 0; c < COLS; c++) {
+        let color;
+        do {
+          color = Math.floor(Math.random() * NUM_COLORS);
+        } while (hasInitialMatch(r, c, color));
+        grid[r][c] = color;
+      }
+    }
+  }
+
+  function hasInitialMatch(row, col, color) {
+    // Check left 2
+    if (col >= 2 && grid[row][col-1] === color && grid[row][col-2] === color) return true;
+    // Check above 2
+    if (row >= 2 && grid[row-1][col] === color && grid[row-2][col] === color) return true;
+    return false;
+  }
+
+  function findMatches() {
+    const matched = new Set();
+    // Horizontal
+    for (let r = 0; r < ROWS; r++) {
+      let streak = 1;
+      for (let c = 1; c < COLS; c++) {
+        if (grid[r][c] !== -1 && grid[r][c] === grid[r][c-1]) {
+          streak++;
+        } else {
+          if (streak >= 3) {
+            for (let k = 0; k < streak; k++) {
+              matched.add(r + ',' + (c - 1 - k));
+            }
+          }
+          streak = 1;
+        }
+      }
+      if (streak >= 3) {
+        for (let k = 0; k < streak; k++) {
+          matched.add(r + ',' + (COLS - 1 - k));
+        }
+      }
+    }
+    // Vertical
+    for (let c = 0; c < COLS; c++) {
+      let streak = 1;
+      for (let r = 1; r < ROWS; r++) {
+        if (grid[r][c] !== -1 && grid[r][c] === grid[r-1][c]) {
+          streak++;
+        } else {
+          if (streak >= 3) {
+            for (let k = 0; k < streak; k++) {
+              matched.add((r - 1 - k) + ',' + c);
+            }
+          }
+          streak = 1;
+        }
+      }
+      if (streak >= 3) {
+        for (let k = 0; k < streak; k++) {
+          matched.add((ROWS - 1 - k) + ',' + c);
+        }
+      }
+    }
+    return matched;
+  }
+
+  function hasAnyMove() {
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        if (grid[r][c] === -1) continue;
+        // Try swap right
+        if (c + 1 < COLS && grid[r][c+1] !== -1) {
+          // Swap
+          const tmp = grid[r][c];
+          grid[r][c] = grid[r][c+1];
+          grid[r][c+1] = tmp;
+          if (findMatches().size > 0) {
+            // Swap back
+            tmp2 = grid[r][c];
+            grid[r][c] = grid[r][c+1];
+            grid[r][c+1] = tmp2;
+            return true;
+          }
+          // Swap back
+          const tmp2 = grid[r][c];
+          grid[r][c] = grid[r][c+1];
+          grid[r][c+1] = tmp2;
+        }
+        // Try swap down
+        if (r + 1 < ROWS && grid[r+1][c] !== -1) {
+          const tmp = grid[r][c];
+          grid[r][c] = grid[r+1][c];
+          grid[r+1][c] = tmp;
+          if (findMatches().size > 0) {
+            const tmp2 = grid[r][c];
+            grid[r][c] = grid[r+1][c];
+            grid[r+1][c] = tmp2;
+            return true;
+          }
+          const tmp2 = grid[r][c];
+          grid[r][c] = grid[r+1][c];
+          grid[r+1][c] = tmp2;
+        }
+      }
+    }
+    return false;
+  }
+
+  function shuffleGrid() {
+    const colors = [];
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        if (grid[r][c] !== -1) colors.push(grid[r][c]);
+      }
+    }
+    // Fisher-Yates
+    for (let i = colors.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const tmp = colors[i];
+      colors[i] = colors[j];
+      colors[j] = tmp;
+    }
+    let idx = 0;
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        if (grid[r][c] !== -1) {
+          grid[r][c] = colors[idx++];
+        }
+      }
+    }
+    // If still no moves, recurse
+    if (!hasAnyMove()) {
+      shuffleGrid();
+    }
+  }
+
+  // Animation helpers
+  let swapAnimData = null;
+  let clearAnimStartTime = 0;
+  let fallAnimData = [];
+
+  function performSwap() {
+    const g1 = swapGems[0];
+    const g2 = swapGems[1];
+    const tmp = grid[g1.row][g1.col];
+    grid[g1.row][g1.col] = grid[g2.row][g2.col];
+    grid[g2.row][g2.col] = tmp;
+    swapGems = null;
+  }
+
+  function processMatchCheck() {
+    const matches = findMatches();
+    if (matches.size === 0) {
+      if (state === State.SWAP_BACK) {
+        state = State.IDLE;
+        if (!hasAnyMove()) {
+          shuffleGrid();
+        }
+        return;
+      }
+      if (state === State.CHECKING) {
+        // No matches after swap, swap back
+        state = State.SWAP_BACK;
+        const g1 = swapGems[0];
+        const g2 = swapGems[1];
+        swapGems = [{row: g1.row, col: g1.col}, {row: g2.row, col: g2.col}];
+        // swap back visually
+        state = State.SWAPPING;
+        animationStartTime = performance.now();
+        return;
+      }
+      state = State.IDLE;
+      if (!hasAnyMove()) {
+        shuffleGrid();
+      }
+      return;
+    }
+    // Matches found
+    clearingCells = [];
+    matches.forEach(key => {
+      const [r, c] = key.split(',').map(Number);
+      clearingCells.push({row: r, col: c});
+    });
+    state = State.CLEARING;
+    clearAnimStartTime = performance.now();
+  }
+
+  function processClear() {
+    // Calculate score
+    const numCleared = clearingCells.length;
+    pendingScore = numCleared * 10 * (1 + Math.floor((numCleared - 3) / 3));
+    score += pendingScore;
+    scoreDisplay.textContent = score;
+    // Remove cleared cells
+    clearingCells.forEach(cell => {
+      grid[cell.row][cell.col] = -1;
+    });
+    state = State.FALLING;
+    setupFall();
+  }
+
+  function setupFall() {
+    fallAnimData = [];
+    // For each column, move gems down
+    for (let c = 0; c < COLS; c++) {
+      let writeRow = ROWS - 1;
+      for (let r = ROWS - 1; r >= 0; r--) {
+        if (grid[r][c] !== -1) {
+          if (r !== writeRow) {
+            fallAnimData.push({
+              fromRow: r,
+              toRow: writeRow,
+              col: c,
+              color: grid[r][c],
+              startY: r * CELL_SIZE,
+              endY: writeRow * CELL_SIZE
+            });
+            grid[writeRow][c] = grid[r][c];
+            grid[r][c] = -1;
+          }
+          writeRow--;
+        }
+      }
+      // Fill empty cells at top
+      let emptyCount = 0;
+      for (let r = 0; r < ROWS; r++) {
+        if (grid[r][c] === -1) emptyCount++;
+        else break;
+      }
+      // Count remaining empties
+      let actualEmpty = 0;
+      for (let r = 0; r < ROWS; r++) {
+        if (grid[r][c] === -1) actualEmpty++;
+      }
+      for (let r = 0; r < actualEmpty; r++) {
+        const color = Math.floor(Math.random() * NUM_COLORS);
+        fallAnimData.push({
+          fromRow: -(actualEmpty - r),
+          toRow: r,
+          col: c,
+          color: color,
+          startY: -(actualEmpty - r) * CELL_SIZE,
+          endY: r * CELL_SIZE
+        });
+        grid[r][c] = color;
+      }
+    }
+    state = State.REFILLING;
+    animationStartTime = performance.now();
+  }
+
+  function drawGem(x, y, colorIndex, scale) {
+    const s = scale || 1;
+    const cx = x + CELL_SIZE / 2;
+    const cy = y + CELL_SIZE / 2;
+    const r = GEM_RADIUS * s;
+    const color = COLORS[colorIndex];
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+
+    // Highlight
+    const grad = ctx.createRadialGradient(cx - r * 0.3, cy - r * 0.3, 0, cx, cy, r);
+    grad.addColorStop(0, 'rgba(255,255,255,0.5)');
+    grad.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Inner circle
+    ctx.beginPath();
+    ctx.arc(cx, cy, r * 0.35, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Background grid lines
+    ctx.fillStyle = '#f8f9fc';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    for (let r = 0; r <= ROWS; r++) {
+      ctx.beginPath();
+      ctx.moveTo(0, r * CELL_SIZE);
+      ctx.lineTo(canvas.width, r * CELL_SIZE);
+      ctx.strokeStyle = '#eef0f5';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+    for (let c = 0; c <= COLS; c++) {
+      ctx.beginPath();
+      ctx.moveTo(c * CELL_SIZE, 0);
+      ctx.lineTo(c * CELL_SIZE, canvas.height);
+      ctx.strokeStyle = '#eef0f5';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    // Draw gems (not being cleared if we're in clear animation)
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        if (grid[r][c] === -1) continue;
+        // Skip cells being cleared during clear animation
+        if (state === State.CLEARING && clearingCells.some(cell => cell.row === r && cell.col === c)) continue;
+        drawGem(c * CELL_SIZE, r * CELL_SIZE, grid[r][c], 1);
+      }
+    }
+
+    // Draw clearing animation
+    if (state === State.CLEARING && clearingCells.length > 0) {
+      const elapsed = performance.now() - clearAnimStartTime;
+      const progress = Math.min(elapsed / CLEAR_DURATION, 1);
+      const scale = 1 - progress;
+      const alpha = 1 - progress;
+      clearingCells.forEach(cell => {
+        const color = grid[cell.row][cell.col];
+        if (color === -1) return; // Already cleared
+        const cx = cell.col * CELL_SIZE + CELL_SIZE / 2;
+        const cy = cell.row * CELL_SIZE + CELL_SIZE / 2;
+        const r = GEM_RADIUS * scale;
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.fillStyle = COLORS[color];
+        ctx.fill();
+        ctx.restore();
+      });
+      // Draw particles? keep it simple
+    }
+
+    // Draw selected highlight
+    if (selectedGem && (state === State.SELECTED)) {
+      const x = selectedGem.col * CELL_SIZE;
+      const y = selectedGem.row * CELL_SIZE;
+      ctx.save();
+      ctx.strokeStyle = '#f5576c';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([5, 3]);
+      ctx.strokeRect(x + 2, y + 2, CELL_SIZE - 4, CELL_SIZE - 4);
+      ctx.restore();
+    }
+
+    // Draw swap animation
+    if (state === State.SWAPPING && swapGems) {
+      const elapsed = performance.now() - animationStartTime;
+      const progress = Math.min(elapsed / ANIM_DURATION, 1);
+      const ease = progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+      const g1 = swapGems[0];
+      const g2 = swapGems[1];
+      const color1 = grid[g1.row][g1.col];
+      const color2 = grid[g2.row][g2.col];
+
+      const startX1 = g1.col * CELL_SIZE;
+      const startY1 = g1.row * CELL_SIZE;
+      const startX2 = g2.col * CELL_SIZE;
+      const startY2 = g2.row * CELL_SIZE;
+
+      const dx = (g2.col - g1.col) * CELL_SIZE * ease;
+      const dy = (g2.row - g1.row) * CELL_SIZE * ease;
+
+      // Redraw just these two
+      if (color1 !== -1) drawGem(startX1 + dx, startY1 + dy, color1, 1);
+      if (color2 !== -1) drawGem(startX2 - dx, startY2 - dy, color2, 1);
+
+      if (progress >= 1) {
+        // Swap complete
+        if (state === State.SWAPPING) {
+          performSwap();
+          state = State.CHECKING;
+          processMatchCheck();
+        } else if (state === State.SWAP_BACK) {
+          performSwap();
+          swapGems = null;
+          state = State.IDLE;
+          if (!hasAnyMove()) shuffleGrid();
+        }
+      }
+    }
+
+    // Draw fall animation
+    if (state === State.REFILLING && fallAnimData.length > 0) {
+      const elapsed = performance.now() - animationStartTime;
+      const progress = Math.min(elapsed / (ANIM_DURATION * 1.5), 1);
+      const ease = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      fallAnimData.forEach(fall => {
+        const currentY = fall.startY + (fall.endY - fall.startY) * ease;
+        if (fall.color !== -1) {
+          drawGem(fall.col * CELL_SIZE, currentY, fall.color, 1);
+        }
+      });
+      if (progress >= 1) {
+        fallAnimData = [];
+        state = State.CHECKING;
+        processMatchCheck();
+      }
+    }
+  }
+
+  function gameLoop(timestamp) {
+    draw();
+    animFrameId = requestAnimationFrame(gameLoop);
+  }
+
+  function newGame() {
+    gameOverOverlay.classList.remove('show');
+    gameOver = false;
+    score = 0;
+    scoreDisplay.textContent = '0';
+    selectedGem = null;
+    swapGems = null;
+    state = State.IDLE;
+    clearingCells = [];
+    fallAnimData = [];
+    createGrid();
+    // Ensure there's at least one move
+    if (!hasAnyMove()) shuffleGrid();
+    updateHighScoreDisplay();
+  }
+
+  function loadHighScore() {
+    const val = localStorage.getItem('matchThree_highScore');
+    return val ? parseInt(val, 10) : 0;
+  }
+
+  function saveHighScore(val) {
+    localStorage.setItem('matchThree_highScore', String(val));
+  }
+
+  function updateHighScoreDisplay() {
+    const hs = loadHighScore();
+    highScoreDisplay.textContent = hs > 0 ? hs : '-';
+  }
+
+  // Init
+  initCanvas();
+  newGame();
+  updateHighScoreDisplay();
+  gameLoop();
+
+  document.getElementById('newGameBtn').addEventListener('click', newGame);
+  document.getElementById('playAgainBtn').addEventListener('click', newGame);
+
+})();
+</script>
+</body>
+</html>

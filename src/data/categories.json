@@ -54,5 +54,12 @@
     "name": "冒险",
     "icon": "🗺️",
     "description": "充满冒险的游戏世界"
+  },
+  {
+    "id": "board",
+    "slug": "board",
+    "name": "棋牌",
+    "icon": "♟️",
+    "description": "棋盘与卡牌的智慧对决"
   }
 ]

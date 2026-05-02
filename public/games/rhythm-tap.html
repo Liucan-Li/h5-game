@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>节奏敲击</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #f5f6fa;
+  color: #2d2d44;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  overflow: hidden;
+}
+.game-wrapper {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  padding: 20px;
+  max-width: 460px;
+  width: 100%;
+  margin: 16px;
+}
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.game-title { font-size: 20px; font-weight: 700; }
+.stats-bar {
+  display: flex;
+  gap: 14px;
+  font-size: 14px;
+  color: #5a5a7a;
+}
+.stat-item span { color: #2d2d44; font-weight: 600; }
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #f8f9fc;
+  border-radius: 12px;
+  cursor: pointer;
+  touch-action: none;
+}
+.overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: blur(4px);
+  border-radius: 12px;
+  z-index: 10;
+}
+.overlay h2 { font-size: 28px; margin-bottom: 8px; }
+.overlay p { font-size: 15px; color: #5a5a7a; margin-bottom: 2px; }
+.overlay .key-hint {
+  font-size: 13px;
+  color: #8a8aaa;
+  margin-top: 8px;
+  line-height: 1.6;
+}
+.overlay .key-hint kbd {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #e8e9f0;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: monospace;
+}
+.btn {
+  padding: 12px 36px;
+  font-size: 18px;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  background: #4361ee;
+  color: #fff;
+  transition: transform 0.12s, box-shadow 0.12s;
+  touch-action: manipulation;
+  margin-top: 14px;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(67,97,238,0.35); }
+.btn:active { transform: scale(0.97); }
+.btn-secondary { background: #e8e9f0; color: #2d2d44; }
+.canvas-wrap { position: relative; }
+
+/* Touch lane zones */
+.touch-zones {
+  display: none;
+  gap: 0;
+  margin-top: 8px;
+}
+.touch-zone {
+  flex: 1;
+  padding: 12px 0;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  touch-action: manipulation;
+  background: #e8e9f0;
+  color: #5a5a7a;
+  transition: background 0.1s;
+}
+.touch-zone:active { background: #4361ee; color: #fff; }
+@media (max-width: 500px) {
+  .touch-zones { display: flex; }
+}
+</style>
+</head>
+<body>
+<div class="game-wrapper">
+  <div class="game-header">
+    <div class="game-title">节奏敲击</div>
+    <div class="stats-bar">
+      <div class="stat-item">得分 <span id="scoreDisplay">0</span></div>
+      <div class="stat-item">连击 <span id="comboDisplay">0</span></div>
+      <div class="stat-item">时间 <span id="timeDisplay">60</span>s</div>
+    </div>
+  </div>
+  <div class="canvas-wrap" id="canvasWrap">
+    <canvas id="gameCanvas" width="400" height="500"></canvas>
+    <div class="overlay" id="startOverlay">
+      <h2>节奏敲击</h2>
+      <p>在音符到达目标线时点击！</p>
+      <div class="key-hint">
+        <kbd>D</kbd> 第一列 &nbsp; <kbd>F</kbd> 第二列 &nbsp;
+        <kbd>J</kbd> 第三列 &nbsp; <kbd>K</kbd> 第四列
+      </div>
+      <button class="btn" id="startBtn">开始游戏</button>
+    </div>
+    <div class="overlay" id="endOverlay" style="display:none;">
+      <h2>结束！</h2>
+      <div id="endStats" style="margin:12px 0;text-align:center;line-height:1.9;"></div>
+      <button class="btn" id="replayBtn">再来一局</button>
+    </div>
+  </div>
+</div>
+<script>
+(function() {
+  'use strict';
+
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = 400, H = 500;
+
+  const scoreDisplay = document.getElementById('scoreDisplay');
+  const comboDisplay = document.getElementById('comboDisplay');
+  const timeDisplay = document.getElementById('timeDisplay');
+  const startOverlay = document.getElementById('startOverlay');
+  const endOverlay = document.getElementById('endOverlay');
+  const endStats = document.getElementById('endStats');
+  const startBtn = document.getElementById('startBtn');
+  const replayBtn = document.getElementById('replayBtn');
+
+  const ROUND_TIME = 60;
+  const LANE_COUNT = 4;
+  const LANE_NAMES = ['D', 'F', 'J', 'K'];
+  const LANE_KEYS = ['KeyD', 'KeyF', 'KeyJ', 'KeyK'];
+  const LANE_COLORS = ['#ff6b6b', '#ffd93d', '#6bcb77', '#4361ee'];
+  const TARGET_Y = 420;
+  const PERFECT_RANGE = 20;
+  const GOOD_RANGE = 45;
+
+  let state = 'menu'; // menu | playing | ended
+  let score = 0;
+  let combo = 0;
+  let maxCombo = 0;
+  let timeLeft = ROUND_TIME;
+  let notes = [];
+  let hitEffects = [];
+  let timerInterval = null;
+  let animFrameId = null;
+  let speed = 2.0;
+  let spawnTimer = 0;
+  let spawnInterval = 750;
+  let highScore = 0;
+  let accuracyStats = { perfect: 0, good: 0, miss: 0 };
+  let laneIndicators = [0, 0, 0, 0]; // flash timer
+
+  function loadHighScore() {
+    try {
+      const val = localStorage.getItem('rhythmTap_highScore');
+      if (val) highScore = parseInt(val, 10) || 0;
+    } catch(e) {}
+  }
+  function saveHighScore() {
+    try { localStorage.setItem('rhythmTap_highScore', String(highScore)); } catch(e) {}
+  }
+  loadHighScore();
+
+  function rand(min, max) { return Math.random() * (max - min) + min; }
+
+  function getLaneX(lane) {
+    const laneWidth = W / LANE_COUNT;
+    return lane * laneWidth + laneWidth / 2;
+  }
+
+  // --- Note ---
+  function createNote() {
+    const lane = Math.floor(Math.random() * LANE_COUNT);
+    return {
+      lane,
+      x: getLaneX(lane),
+      y: -20,
+      speed: speed,
+      alive: true,
+      judged: false
+    };
+  }
+
+  function spawnNotes() {
+    notes.push(createNote());
+    // Sometimes spawn a second note in a different lane
+    if (Math.random() < 0.25 + speed * 0.03) {
+      let lane2;
+      do { lane2 = Math.floor(Math.random() * LANE_COUNT); } while (lane2 === notes[notes.length - 1].lane);
+      const n2 = createNote();
+      n2.lane = lane2;
+      n2.x = getLaneX(lane2);
+      notes.push(n2);
+    }
+  }
+
+  // --- Hit effect ---
+  function spawnHitEffect(x, y, color, text) {
+    hitEffects.push({ x, y, color, text, life: 1, decay: 0.04 });
+  }
+
+  // --- Judge ---
+  function judge(lane, manual) {
+    if (state !== 'playing') return;
+    let hit = false;
+    for (const n of notes) {
+      if (!n.alive || n.judged) continue;
+      if (n.lane !== lane) continue;
+      const dist = Math.abs(n.y - TARGET_Y);
+      if (dist <= PERFECT_RANGE) {
+        n.alive = false;
+        n.judged = true;
+        score += 100;
+        combo++;
+        if (combo > maxCombo) maxCombo = combo;
+        accuracyStats.perfect++;
+        spawnHitEffect(n.x, TARGET_Y, '#6bcb77', 'PERFECT');
+        laneIndicators[lane] = 12;
+        hit = true;
+        break;
+      } else if (dist <= GOOD_RANGE) {
+        n.alive = false;
+        n.judged = true;
+        score += 50;
+        combo++;
+        if (combo > maxCombo) maxCombo = combo;
+        accuracyStats.good++;
+        spawnHitEffect(n.x, TARGET_Y, '#ffd93d', 'GOOD');
+        laneIndicators[lane] = 8;
+        hit = true;
+        break;
+      }
+    }
+    if (!hit && manual) {
+      // Pressed a lane with no note nearby - miss
+      combo = 0;
+      accuracyStats.miss++;
+      spawnHitEffect(getLaneX(lane), TARGET_Y, '#ff6b6b', 'MISS');
+      laneIndicators[lane] = 6;
+    }
+  }
+
+  // --- Update ---
+  function update(dt) {
+    if (state !== 'playing') return;
+
+    // Move notes
+    for (const n of notes) {
+      if (!n.alive) continue;
+      n.y += n.speed * (dt / 16);
+    }
+
+    // Check missed notes (passed target)
+    for (const n of notes) {
+      if (!n.alive || n.judged) continue;
+      if (n.y > TARGET_Y + GOOD_RANGE + 10) {
+        n.alive = false;
+        n.judged = true;
+        combo = 0;
+        accuracyStats.miss++;
+        spawnHitEffect(n.x, TARGET_Y, '#ff6b6b', 'MISS');
+      }
+    }
+
+    notes = notes.filter(n => n.alive || n.judged);
+
+    // Spawn
+    const diff = (ROUND_TIME - timeLeft) / 10;
+    spawnInterval = Math.max(300, 750 - diff * 30);
+    speed = Math.min(5.5, 2.0 + diff * 0.08);
+    spawnTimer += dt;
+    if (spawnTimer >= spawnInterval) {
+      spawnTimer = 0;
+      spawnNotes();
+    }
+
+    // Update note speeds
+    for (const n of notes) {
+      if (n.alive) n.speed = speed;
+    }
+
+    // Hit effects
+    for (const e of hitEffects) e.life -= e.decay;
+    hitEffects = hitEffects.filter(e => e.life > 0);
+
+    // Lane indicators
+    for (let i = 0; i < LANE_COUNT; i++) {
+      if (laneIndicators[i] > 0) laneIndicators[i]--;
+    }
+
+    // Auto-miss any notes way past the target
+    notes = notes.filter(n => n.y < H + 50);
+  }
+
+  // --- Draw ---
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    // Background
+    ctx.fillStyle = '#f8f9fc';
+    ctx.fillRect(0, 0, W, H);
+
+    // Lane lines
+    ctx.strokeStyle = '#e2e4ec';
+    ctx.lineWidth = 1;
+    for (let i = 1; i < LANE_COUNT; i++) {
+      const x = i * (W / LANE_COUNT);
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, H);
+      ctx.stroke();
+    }
+
+    // Lane indicators (flash on hit)
+    for (let i = 0; i < LANE_COUNT; i++) {
+      if (laneIndicators[i] > 0) {
+        const x = i * (W / LANE_COUNT);
+        ctx.fillStyle = LANE_COLORS[i] + '33';
+        ctx.fillRect(x, 0, W / LANE_COUNT, H);
+      }
+    }
+
+    // Target line
+    ctx.strokeStyle = '#4361ee';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 4]);
+    ctx.beginPath();
+    ctx.moveTo(0, TARGET_Y);
+    ctx.lineTo(W, TARGET_Y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Target line glow
+    const glow = ctx.createLinearGradient(0, TARGET_Y - 20, 0, TARGET_Y + 20);
+    glow.addColorStop(0, 'rgba(67,97,238,0)');
+    glow.addColorStop(0.5, 'rgba(67,97,238,0.08)');
+    glow.addColorStop(1, 'rgba(67,97,238,0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, TARGET_Y - 20, W, 40);
+
+    // Target markers on line
+    for (let i = 0; i < LANE_COUNT; i++) {
+      const x = getLaneX(i);
+      ctx.beginPath();
+      ctx.arc(x, TARGET_Y, 6, 0, Math.PI * 2);
+      ctx.fillStyle = LANE_COLORS[i];
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    // Notes
+    for (const n of notes) {
+      if (!n.alive) continue;
+      const radius = 16;
+      const alpha = n.y < 10 ? n.y / 10 : 1;
+
+      ctx.globalAlpha = alpha;
+      // Outer glow
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, radius + 4, 0, Math.PI * 2);
+      ctx.fillStyle = LANE_COLORS[n.lane] + '33';
+      ctx.fill();
+
+      // Main circle
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, radius, 0, Math.PI * 2);
+      ctx.fillStyle = LANE_COLORS[n.lane];
+      ctx.fill();
+
+      // Inner highlight
+      ctx.beginPath();
+      ctx.arc(n.x - 3, n.y - 3, radius * 0.35, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,255,255,0.4)';
+      ctx.fill();
+
+      // Lane label
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 10px monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(LANE_NAMES[n.lane], n.x, n.y);
+
+      ctx.globalAlpha = 1;
+    }
+
+    // Hit effects
+    for (const e of hitEffects) {
+      ctx.globalAlpha = Math.max(0, e.life);
+      ctx.fillStyle = e.color;
+      ctx.font = 'bold 16px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(e.text, e.x, e.y - (1 - e.life) * 24);
+    }
+    ctx.globalAlpha = 1;
+
+    // Lane labels at bottom
+    ctx.fillStyle = '#b0b0c8';
+    ctx.font = '12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    for (let i = 0; i < LANE_COUNT; i++) {
+      ctx.fillText(LANE_NAMES[i], getLaneX(i), H - 18);
+    }
+
+    // Combo indicator
+    if (state === 'playing' && combo > 1) {
+      ctx.fillStyle = '#2d2d44';
+      ctx.font = 'bold 20px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText(combo + '连击', W / 2, TARGET_Y - 30);
+    }
+  }
+
+  // --- Game loop ---
+  function gameLoop(timestamp) {
+    if (!gameLoop.lastTime) gameLoop.lastTime = timestamp;
+    const dt = Math.min(timestamp - gameLoop.lastTime, 50);
+    gameLoop.lastTime = timestamp;
+
+    update(dt);
+    draw();
+    updateUI();
+
+    if (state === 'playing') {
+      animFrameId = requestAnimationFrame(gameLoop);
+    }
+  }
+  gameLoop.lastTime = 0;
+
+  function updateUI() {
+    scoreDisplay.textContent = score;
+    comboDisplay.textContent = combo;
+    timeDisplay.textContent = Math.ceil(timeLeft);
+  }
+
+  // --- Timer ---
+  function startTimer() {
+    timeLeft = ROUND_TIME;
+    updateUI();
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(function() {
+      timeLeft--;
+      updateUI();
+      if (timeLeft <= 0) {
+        endGame();
+      }
+    }, 1000);
+  }
+
+  // --- End ---
+  function endGame() {
+    state = 'ended';
+    if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+    if (animFrameId) { cancelAnimationFrame(animFrameId); animFrameId = null; }
+
+    // Any remaining notes become misses
+    for (const n of notes) {
+      if (n.alive && !n.judged) {
+        accuracyStats.miss++;
+        n.alive = false;
+      }
+    }
+
+    const total = accuracyStats.perfect + accuracyStats.good + accuracyStats.miss;
+    const perfectPct = total > 0 ? (accuracyStats.perfect / total * 100) : 0;
+    const goodPct = total > 0 ? (accuracyStats.good / total * 100) : 0;
+    const missPct = total > 0 ? (accuracyStats.miss / total * 100) : 0;
+
+    if (score > highScore) {
+      highScore = score;
+      saveHighScore();
+    }
+
+    endStats.innerHTML =
+      '<div>得分: <strong>' + score + '</strong></div>' +
+      '<div>最大连击: <strong>' + maxCombo + '</strong></div>' +
+      '<div style="margin-top:6px;font-size:14px;">' +
+      'PERFECT: <strong style="color:#6bcb77;">' + accuracyStats.perfect + '</strong> (' + perfectPct.toFixed(1) + '%)<br>' +
+      'GOOD: <strong style="color:#ffd93d;">' + accuracyStats.good + '</strong> (' + goodPct.toFixed(1) + '%)<br>' +
+      'MISS: <strong style="color:#ff6b6b;">' + accuracyStats.miss + '</strong> (' + missPct.toFixed(1) + '%)<br>' +
+      '</div>' +
+      '<div style="margin-top:6px;font-size:13px;color:#8a8aaa;">最高纪录: ' + highScore + '</div>';
+
+    endOverlay.style.display = 'flex';
+  }
+
+  // --- Start ---
+  function startGame() {
+    score = 0; combo = 0; maxCombo = 0;
+    notes = []; hitEffects = [];
+    speed = 2.0;
+    spawnTimer = 0;
+    spawnInterval = 750;
+    accuracyStats = { perfect: 0, good: 0, miss: 0 };
+    laneIndicators = [0, 0, 0, 0];
+    state = 'playing';
+    startOverlay.style.display = 'none';
+    endOverlay.style.display = 'none';
+    gameLoop.lastTime = 0;
+    updateUI();
+
+    if (animFrameId) cancelAnimationFrame(animFrameId);
+    animFrameId = requestAnimationFrame(gameLoop);
+    startTimer();
+  }
+
+  // --- Input ---
+  // Keyboard
+  document.addEventListener('keydown', function(e) {
+    const idx = LANE_KEYS.indexOf(e.code);
+    if (idx !== -1) {
+      e.preventDefault();
+      judge(idx, true);
+    }
+    if (e.code === 'Space' || e.key === 'Enter') {
+      if (state === 'menu') startGame();
+      else if (state === 'ended') startGame();
+    }
+  });
+
+  // Canvas click/touch - detect which lane
+  function getLaneFromEvent(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = W / rect.width;
+    let clientX;
+    if (e.touches) {
+      clientX = e.touches[0].clientX;
+      e.preventDefault();
+    } else {
+      clientX = e.clientX;
+    }
+    const canvasX = (clientX - rect.left) * scaleX;
+    const laneWidth = W / LANE_COUNT;
+    const lane = Math.floor(canvasX / laneWidth);
+    return Math.max(0, Math.min(LANE_COUNT - 1, lane));
+  }
+
+  function onPointerDown(e) {
+    if (state !== 'playing') return;
+    const lane = getLaneFromEvent(e);
+    judge(lane, true);
+  }
+
+  canvas.addEventListener('mousedown', onPointerDown);
+  canvas.addEventListener('touchstart', onPointerDown, { passive: false });
+
+  startBtn.addEventListener('click', startGame);
+  startBtn.addEventListener('touchend', function(e) { e.preventDefault(); startGame(); });
+  replayBtn.addEventListener('click', startGame);
+  replayBtn.addEventListener('touchend', function(e) { e.preventDefault(); startGame(); });
+
+  // Initial draw
+  draw();
+})();
+</script>
+</body>
+</html>

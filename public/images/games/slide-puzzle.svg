@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+    <linearGradient id="grad1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6c63ff"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+    <linearGradient id="grad2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ec4899"/>
+      <stop offset="100%" stop-color="#f472b6"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)" rx="16"/>
+  <rect x="115" y="55" width="170" height="170" rx="8" fill="#2d2d5e"/>
+  <!-- Grid tiles with numbers -->
+  <g font-family="Arial,sans-serif" font-weight="bold" font-size="20" text-anchor="middle" dominant-baseline="central">
+    <rect x="120" y="60" width="37" height="37" rx="4" fill="url(#grad1)"/>
+    <text x="138" y="78" fill="#fff">1</text>
+    <rect x="160" y="60" width="37" height="37" rx="4" fill="url(#grad2)"/>
+    <text x="178" y="78" fill="#fff">2</text>
+    <rect x="200" y="60" width="37" height="37" rx="4" fill="url(#grad1)"/>
+    <text x="218" y="78" fill="#fff">3</text>
+    <rect x="240" y="60" width="37" height="37" rx="4" fill="url(#grad2)"/>
+    <text x="258" y="78" fill="#fff">4</text>
+    <rect x="120" y="100" width="37" height="37" rx="4" fill="url(#grad2)"/>
+    <text x="138" y="118" fill="#fff">5</text>
+    <rect x="160" y="100" width="37" height="37" rx="4" fill="url(#grad1)"/>
+    <text x="178" y="118" fill="#fff">6</text>
+    <rect x="200" y="100" width="37" height="37" rx="4" fill="url(#grad2)"/>
+    <text x="218" y="118" fill="#fff">7</text>
+    <rect x="240" y="100" width="37" height="37" rx="4" fill="url(#grad1)"/>
+    <text x="258" y="118" fill="#fff">8</text>
+    <rect x="120" y="140" width="37" height="37" rx="4" fill="url(#grad1)"/>
+    <text x="138" y="158" fill="#fff">9</text>
+    <rect x="160" y="140" width="37" height="37" rx="4" fill="url(#grad2)"/>
+    <text x="178" y="158" fill="#fff">10</text>
+    <rect x="200" y="140" width="37" height="37" rx="4" fill="url(#grad1)"/>
+    <text x="218" y="158" fill="#fff">11</text>
+    <rect x="240" y="140" width="37" height="37" rx="4" fill="url(#grad2)"/>
+    <text x="258" y="158" fill="#fff">12</text>
+    <rect x="120" y="180" width="37" height="37" rx="4" fill="url(#grad2)"/>
+    <text x="138" y="198" fill="#fff">13</text>
+    <rect x="160" y="180" width="37" height="37" rx="4" fill="url(#grad1)"/>
+    <text x="178" y="198" fill="#fff">14</text>
+    <rect x="200" y="180" width="37" height="37" rx="4" fill="url(#grad2)"/>
+    <text x="218" y="198" fill="#fff">15</text>
+    <rect x="240" y="180" width="37" height="37" rx="4" fill="#2d2d5e" stroke="#a29bfe" stroke-width="1" stroke-dasharray="3"/>
+  </g>
+  <text x="200" y="270" font-family="Arial,sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" opacity="0.6">滑块拼图</text>
+</svg>
