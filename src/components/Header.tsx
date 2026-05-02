@@ -25,11 +25,8 @@ export default function Header() {
     >
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6">
         {/* Logo */}
-        <Link href="/" className="group flex items-center gap-2.5 shrink-0">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--accent-1)] to-[var(--accent-2)] text-sm font-bold text-white shadow-lg shadow-[var(--accent-glow)] transition-transform duration-300 group-hover:scale-105">
-            H5
-          </span>
-          <span className="hidden text-base font-semibold sm:block">
+        <Link href="/" className="flex items-center shrink-0">
+          <span className="text-base font-semibold">
             <span className="text-gradient">乐游</span>
           </span>
         </Link>
