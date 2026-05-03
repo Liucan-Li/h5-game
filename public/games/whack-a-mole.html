@@ -218,6 +218,7 @@
     <div class="overlay" id="overlay">
       <h2>游戏结束</h2>
       <p>最终得分: <span id="finalScore">0</span></p>
+      <p style="font-size:14px;color:#999;margin:0 0 20px;">最高分: <span id="highScoreDisplay">0</span></p>
       <button class="btn btn-start" id="restartOverlayBtn">再来一局</button>
     </div>
   </div>
@@ -238,6 +239,7 @@
   const MOLE_VISIBLE_TIME = 900;
 
   let score = 0;
+  let highScore = parseInt(localStorage.getItem('whackamole_hi') || '0', 10);
   let timeLeft = GAME_DURATION;
   let gameRunning = false;
   let timerInterval = null;
@@ -420,6 +422,11 @@
     hideAllMoles();
     startBtn.disabled = false;
     finalScoreEl.textContent = score;
+    if (score > highScore) {
+      highScore = score;
+      localStorage.setItem('whackamole_hi', highScore);
+    }
+    document.getElementById('highScoreDisplay').textContent = highScore;
     overlay.classList.add('show');
   }
 

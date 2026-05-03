@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Snake Game</title>
+<title>贪吃蛇</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -58,8 +58,8 @@
 <body>
 <div class="container">
   <div class="header">
-    <h1>Snake</h1>
-    <div class="score-box"><div class="score-label">Score</div><div class="score-value" id="score">0</div></div>
+    <h1>贪吃蛇</h1>
+    <div class="score-box"><div class="score-label">分数</div><div class="score-value" id="score">0</div></div><div class="score-box"><div class="score-label">最高分</div><div class="score-value" id="hiScore">0</div></div>
   </div>
   <canvas id="gameCanvas" width="400" height="400"></canvas>
   <div class="controls" id="mobileControls">
@@ -79,13 +79,13 @@
       <button class="ctrl-btn blank"></button>
     </div>
   </div>
-  <div class="status">Arrow keys or on-screen controls &middot; <button class="restart" id="restartBtn">Restart</button></div>
+  <div class="status">方向键或屏幕按钮操作 &middot; <button class="restart" id="restartBtn">重新开始</button></div>
 </div>
 <div class="overlay" id="gameOverlay">
   <div class="overlay-box">
-    <h2>Game Over!</h2>
-    <p>Score: <span id="finalScore">0</span></p>
-    <button class="restart" id="restartOverlayBtn">Play Again</button>
+    <h2>游戏结束！</h2>
+    <p>分数：<span id="finalScore">0</span></p>
+    <button class="restart" id="restartOverlayBtn">重新开始</button>
   </div>
 </div>
 <script>
@@ -94,6 +94,7 @@
   const ctx = canvas.getContext('2d');
   const scoreEl = document.getElementById('score');
   const finalScoreEl = document.getElementById('finalScore');
+  const hiScoreEl = document.getElementById('hiScore');
   const overlay = document.getElementById('gameOverlay');
   const overlayRestart = document.getElementById('restartOverlayBtn');
 
@@ -112,6 +113,8 @@
     gameRunning = true;
     overlay.classList.remove('active');
     scoreEl.textContent = '0';
+    // Load high score
+    try { hiScoreEl.textContent = parseInt(localStorage.getItem('snake_hi')) || 0; } catch(e) {}
     spawnFood();
     draw();
     if (gameLoop) clearInterval(gameLoop);
@@ -164,6 +167,14 @@
     gameRunning = false;
     clearInterval(gameLoop);
     finalScoreEl.textContent = score;
+    // Save high score
+    try {
+      const hi = parseInt(localStorage.getItem('snake_hi')) || 0;
+      if (score > hi) {
+        localStorage.setItem('snake_hi', score);
+        hiScoreEl.textContent = score;
+      }
+    } catch(e) {}
     overlay.classList.add('active');
   }
 

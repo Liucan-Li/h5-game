@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Dino Runner</title>
+<title>恐龙快跑</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -36,16 +36,16 @@
 <body>
 <div class="container">
   <div class="header">
-    <h1>Dino Run</h1>
-    <div class="score-box"><div class="score-label">Score</div><div class="score-value" id="score">0</div></div>
+    <h1>恐龙快跑</h1>
+    <div class="score-box"><div class="score-label">分数</div><div class="score-value" id="score">0</div></div>
   </div>
   <canvas id="gameCanvas" width="500" height="300"></canvas>
   <div class="controls">
-    <button id="startBtn">Start Game</button>
-    <button class="secondary" id="resetBtn">Reset</button>
+    <button id="startBtn">开始游戏</button>
+    <button class="secondary" id="resetBtn">重置</button>
   </div>
-  <div class="high-score">High Score: <span id="highScore">0</span></div>
-  <div class="status">Press Space / tap to jump</div>
+  <div class="high-score">最高分：<span id="highScore">0</span></div>
+  <div class="status">按空格键或点击跳跃</div>
 </div>
 <script>
 (function() {
@@ -104,7 +104,7 @@
     gameStarted = true;
     gameRunning = true;
     gameOver = false;
-    startBtn.textContent = 'Running';
+    startBtn.textContent = '游戏中';
     if (animationId) cancelAnimationFrame(animationId);
     loop();
   }
@@ -219,7 +219,7 @@
           highScoreEl.textContent = highScore;
           try { localStorage.setItem('dinoHighScore', String(highScore)); } catch(e) {}
         }
-        startBtn.textContent = 'Game Over';
+        startBtn.textContent = '游戏结束';
         draw();
         return;
       }
@@ -377,13 +377,13 @@
       ctx.fillStyle = '#e86a6a';
       ctx.font = 'bold 32px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('Game Over', W / 2, H / 2 - 15);
+      ctx.fillText('游戏结束', W / 2, H / 2 - 15);
       ctx.fillStyle = '#ccc';
       ctx.font = '18px sans-serif';
-      ctx.fillText('Score: ' + score, W / 2, H / 2 + 20);
+      ctx.fillText('分数：' + score, W / 2, H / 2 + 20);
       ctx.fillStyle = '#7f8c8d';
       ctx.font = '14px sans-serif';
-      ctx.fillText('Press Space or tap to restart', W / 2, H / 2 + 50);
+      ctx.fillText('按空格键或点击重新开始', W / 2, H / 2 + 50);
     }
 
     // Start prompt
@@ -393,10 +393,10 @@
       ctx.fillStyle = '#7c3aed';
       ctx.font = 'bold 24px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('Press Start or Space', W / 2, H / 2);
+      ctx.fillText('按开始或空格键', W / 2, H / 2);
       ctx.fillStyle = '#7f8c8d';
       ctx.font = '16px sans-serif';
-      ctx.fillText('Jump over the cacti!', W / 2, H / 2 + 30);
+      ctx.fillText('跳过仙人掌！', W / 2, H / 2 + 30);
     }
   }
 
@@ -458,7 +458,7 @@
     if (animationId) cancelAnimationFrame(animationId);
     gameRunning = false;
     gameStarted = false;
-    startBtn.textContent = 'Start Game';
+    startBtn.textContent = '开始游戏';
     init();
   });
 

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Flappy Bird</title>
+<title>像素鸟</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -76,8 +76,8 @@
 <div class="game-wrapper">
   <canvas id="gameCanvas" width="400" height="600"></canvas>
   <div class="ui-bar">
-    <span class="score-display">Score: <span id="scoreDisplay">0</span></span>
-    <span class="best-display">Best: <span id="bestDisplay">0</span></span>
+    <span class="score-display">分数：<span id="scoreDisplay">0</span></span>
+    <span class="best-display">最高：<span id="bestDisplay">0</span></span>
     <button class="restart-btn" id="restartBtn">&#x21bb;</button>
   </div>
 </div>
@@ -317,10 +317,10 @@
       ctx.fillStyle = '#fff';
       ctx.font = 'bold 28px "Courier New", monospace';
       ctx.textAlign = 'center';
-      ctx.fillText('FLAPPY BIRD', W/2, H/3 - 20);
+      ctx.fillText('像素鸟', W/2, H/3 - 20);
       ctx.font = '16px "Courier New", monospace';
       ctx.fillStyle = '#00d4ff';
-      ctx.fillText('Tap or Click to Start', W/2, H/3 + 30);
+      ctx.fillText('点击开始', W/2, H/3 + 30);
     }
 
     // Game over
@@ -330,15 +330,15 @@
       ctx.fillStyle = '#ff4444';
       ctx.font = 'bold 36px "Courier New", monospace';
       ctx.textAlign = 'center';
-      ctx.fillText('GAME OVER', W/2, H/2 - 40);
+      ctx.fillText('游戏结束', W/2, H/2 - 40);
       ctx.fillStyle = '#fff';
       ctx.font = '20px "Courier New", monospace';
-      ctx.fillText('Score: ' + game.score, W/2, H/2 + 10);
+      ctx.fillText('分数：' + game.score, W/2, H/2 + 10);
       ctx.fillStyle = '#ffd700';
-      ctx.fillText('Best: ' + bestScore, W/2, H/2 + 45);
+      ctx.fillText('最高：' + bestScore, W/2, H/2 + 45);
       ctx.fillStyle = '#00d4ff';
       ctx.font = '14px "Courier New", monospace';
-      ctx.fillText('Tap or Click to Restart', W/2, H/2 + 90);
+      ctx.fillText('点击重新开始', W/2, H/2 + 90);
     }
   }
 

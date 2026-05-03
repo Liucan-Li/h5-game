@@ -76,6 +76,7 @@ h1{font-size:20px;font-weight:700;color:#2d2d44;letter-spacing:2px;}
 <div class="header-bar">
   <span class="stat">得分: <span id="scoreDisplay">0</span></span>
   <span class="stat">用时: <span id="timerDisplay">00:00</span></span>
+  <span class="stat">最高分: <span id="highScoreDisplay">0</span></span>
   <button id="newGameBtn">新游戏</button>
 </div>
 <div id="stockArea">
@@ -121,6 +122,7 @@ h1{font-size:20px;font-weight:700;color:#2d2d44;letter-spacing:2px;}
   let foundations = [[],[],[],[]];
   let tableau = [[],[],[],[],[],[],[]];
   let score = 0;
+  let highScore = parseInt(localStorage.getItem('solitaire_hi') || '0', 10);
   let moves = 0;
   let timer = 0;
   let timerInterval = null;
@@ -616,7 +618,12 @@ h1{font-size:20px;font-weight:700;color:#2d2d44;letter-spacing:2px;}
       gameWon = true;
       clearSelection();
       setTimeout(() => {
-        alert('恭喜通关！\n得分: ' + score + '\n用时: ' + formatTime(timer));
+        if (score > highScore) {
+          highScore = score;
+          localStorage.setItem('solitaire_hi', highScore);
+          document.getElementById('highScoreDisplay').textContent = highScore;
+        }
+        alert('恭喜通关！\n得分: ' + score + '\n用时: ' + formatTime(timer) + '\n最高分: ' + highScore);
       }, 200);
     }
   }

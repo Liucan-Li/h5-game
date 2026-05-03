@@ -239,6 +239,10 @@
         <div class="label">平均用时</div>
         <div class="value" id="finalTime">0.0s</div>
       </div>
+      <div class="result-item">
+        <div class="label">最高分</div>
+        <div class="value" id="finalHighScore">0</div>
+      </div>
     </div>
     <button class="btn btn-primary" id="playAgainBtn">再来一局</button>
   </div>
@@ -261,6 +265,7 @@
 
   let currentRound = 0;
   let correctCount = 0;
+  let highScore = parseInt(localStorage.getItem('colormatch_hi') || '0', 10);
   let totalTime = 0;
   let roundStartTime = 0;
   let isPlaying = false;
@@ -379,9 +384,14 @@
 
   function showResults() {
     isPlaying = false;
+    if (correctCount > highScore) {
+      highScore = correctCount;
+      localStorage.setItem('colormatch_hi', highScore);
+    }
     const avgTime = totalTime / TOTAL_ROUNDS;
     finalCorrect.textContent = `${correctCount}/${TOTAL_ROUNDS}`;
     finalTime.textContent = `${avgTime.toFixed(1)}s`;
+    document.getElementById('finalHighScore').textContent = highScore;
     resultSection.classList.remove('hidden');
     startBtn.classList.add('hidden');
     roundInfo.textContent = '游戏结束！';

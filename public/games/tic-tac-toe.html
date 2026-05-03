@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Tic-Tac-Toe</title>
+<title>井字棋</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -57,14 +57,14 @@
 <div class="container">
   <h1><span class="x">X</span> — <span class="o">O</span></h1>
   <div class="score-row">
-    <div class="score-item">You (<span class="x">X</span>): <span id="xScore">0</span></div>
-    <div class="score-item">AI (<span class="o">O</span>): <span id="oScore">0</span></div>
-    <div class="score-item">Draw: <span id="drawScore">0</span></div>
+    <div class="score-item">玩家 (<span class="x">X</span>): <span id="xScore">0</span></div>
+    <div class="score-item">电脑 (<span class="o">O</span>): <span id="oScore">0</span></div>
+    <div class="score-item">平局：<span id="drawScore">0</span></div>
   </div>
-  <div class="turn-indicator"><span id="turnText">Your turn</span></div>
+  <div class="turn-indicator"><span id="turnText">轮到你了</span></div>
   <div class="grid" id="grid"></div>
   <div class="status" id="statusText"></div>
-  <button id="resetBtn">New Game</button>
+  <button id="resetBtn">新游戏</button>
 </div>
 <script>
 (function() {
@@ -161,13 +161,13 @@
       if (result.winner === 'X') {
         xWins++;
         xScoreEl.textContent = xWins;
-        statusText.textContent = 'You win!';
-        turnText.textContent = 'Game Over';
+        statusText.textContent = '你赢了！';
+        turnText.textContent = '游戏结束';
       } else {
         oWins++;
         oScoreEl.textContent = oWins;
-        statusText.textContent = 'AI wins!';
-        turnText.textContent = 'Game Over';
+        statusText.textContent = '电脑赢了！';
+        turnText.textContent = '游戏结束';
       }
       aiThinking = false;
       return;
@@ -177,8 +177,8 @@
       gameOver = true;
       draws++;
       drawScoreEl.textContent = draws;
-      statusText.textContent = 'It\'s a draw!';
-      turnText.textContent = 'Game Over';
+      statusText.textContent = '平局！';
+      turnText.textContent = '游戏结束';
       aiThinking = false;
       return;
     }
@@ -216,10 +216,10 @@
   function updateUI() {
     if (gameOver) return;
     if (currentPlayer === 'X') {
-      turnText.textContent = 'Your turn (X)';
-      statusText.textContent = 'Click a cell to place X';
+      turnText.textContent = '轮到你了（X）';
+      statusText.textContent = '点击格子放置 X';
     } else {
-      turnText.textContent = 'AI thinking...';
+      turnText.textContent = '电脑思考中...';
       statusText.textContent = '';
     }
   }

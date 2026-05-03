@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Memory Match</title>
+<title>记忆翻牌</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -69,15 +69,15 @@
 <body>
 <div class="container">
   <div class="header">
-    <h1>Memory</h1>
+    <h1>记忆翻牌</h1>
     <div class="stats">
-      <div class="stat-box"><div class="stat-label">Moves</div><div class="stat-value" id="moves">0</div></div>
-      <div class="stat-box"><div class="stat-label">Time</div><div class="stat-value" id="timer">0s</div></div>
+      <div class="stat-box"><div class="stat-label">步数</div><div class="stat-value" id="moves">0</div></div>
+      <div class="stat-box"><div class="stat-label">时间</div><div class="stat-value" id="timer">0s</div></div>
     </div>
   </div>
   <div class="grid" id="grid"></div>
-  <button id="restartBtn">New Game</button>
-  <div class="status" id="statusMsg">Match all pairs to win!</div>
+  <button id="restartBtn">新游戏</button>
+  <div class="status" id="statusMsg">翻出所有配对的卡片即可获胜！</div>
 </div>
 <script>
 (function() {
@@ -100,7 +100,7 @@
     lockBoard = false;
     movesEl.textContent = '0';
     timerEl.textContent = '0s';
-    statusMsg.textContent = 'Match all pairs to win!';
+    statusMsg.textContent = '翻出所有配对的卡片即可获胜！';
     if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
 
     // Create and shuffle cards
@@ -155,7 +155,7 @@
       lockBoard = false;
       if (matched === EMOJIS.length) {
         clearInterval(timerInterval);
-        statusMsg.innerHTML = '🎉 You won in ' + moves + ' moves and ' + timer + 's!';
+        statusMsg.innerHTML = '🎉 你赢了！共 ' + moves + ' 步，用时 ' + timer + ' 秒！';
       }
     } else {
       setTimeout(() => {

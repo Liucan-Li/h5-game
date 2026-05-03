@@ -165,6 +165,7 @@
   let gameRunning = false;
   let gameOver = false;
   let score = 0;
+  let highScore = parseInt(localStorage.getItem('doodlejump_hi') || '0', 10);
   let maxHeight = 0;
 
   // Player
@@ -367,6 +368,10 @@
     if (player.y > cameraY + H + 50) {
       gameOver = true;
       gameRunning = false;
+      if (score > highScore) {
+        highScore = score;
+        localStorage.setItem('doodlejump_hi', highScore);
+      }
       startBtn.textContent = '再来一局';
       startBtn.disabled = false;
     }
@@ -497,6 +502,9 @@
     ctx.fillStyle = '#ddd';
     ctx.font = '20px system-ui, -apple-system, sans-serif';
     ctx.fillText(`最终分数: ${score}`, W / 2, H / 2 + 20);
+    ctx.fillStyle = '#888';
+    ctx.font = '16px system-ui, -apple-system, sans-serif';
+    ctx.fillText(`最高分: ${highScore}`, W / 2, H / 2 + 48);
   }
 
   function draw() {

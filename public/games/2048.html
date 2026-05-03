@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>2048</title>
+<title>2048 合成数字</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -80,20 +80,20 @@
   <div class="header">
     <h1>2048</h1>
     <div class="scores">
-      <div class="score-box"><div class="score-label">Score</div><div class="score-value" id="score">0</div></div>
-      <div class="score-box"><div class="score-label">Best</div><div class="score-value" id="best">0</div></div>
+      <div class="score-box"><div class="score-label">分数</div><div class="score-value" id="score">0</div></div>
+      <div class="score-box"><div class="score-label">最高分</div><div class="score-value" id="best">0</div></div>
     </div>
   </div>
   <div class="grid-container" id="gridContainer">
     <div class="grid-background" id="gridBg"></div>
     <div class="tile-container" id="tileContainer"></div>
     <div class="game-overlay" id="gameOverlay">
-      <h2 id="overlayTitle">Game Over!</h2>
-      <p id="overlayScore">Score: 0</p>
-      <button id="restartBtn">Play Again</button>
+      <h2 id="overlayTitle">游戏结束！</h2>
+      <p id="overlayScore">分数：0</p>
+      <button id="restartBtn">重新开始</button>
     </div>
   </div>
-  <div class="instructions">Use arrow keys or swipe to move tiles</div>
+  <div class="instructions">使用方向键或滑动来移动方块</div>
 </div>
 <script>
 (function() {
@@ -383,7 +383,7 @@
     best = Math.max(best || 0, score);
     bestEl.textContent = best;
     if (typeof localStorage !== 'undefined') {
-      try { localStorage.setItem('game2048best', String(best)); } catch(e) {}
+      try { localStorage.setItem('2048_hi', String(best)); } catch(e) {}
     }
   }
 
@@ -393,8 +393,8 @@
         for (let c = 0; c < SIZE; c++) {
           if (grid[r][c] >= 2048) {
             won = true;
-            overlayTitle.textContent = 'You Win!';
-            overlayScore.textContent = 'Score: ' + score;
+            overlayTitle.textContent = '你赢了！';
+            overlayScore.textContent = '分数：' + score;
             overlay.classList.add('active');
             return;
           }
@@ -403,8 +403,8 @@
     }
     if (!canMove()) {
       gameOver = true;
-      overlayTitle.textContent = 'Game Over!';
-      overlayScore.textContent = 'Score: ' + score;
+      overlayTitle.textContent = '游戏结束！';
+      overlayScore.textContent = '分数：' + score;
       overlay.classList.add('active');
     }
   }
@@ -473,7 +473,7 @@
   });
 
   // Load best
-  try { best = parseInt(localStorage.getItem('game2048best')) || 0; bestEl.textContent = best; } catch(e) { best = 0; }
+  try { best = parseInt(localStorage.getItem('2048_hi')) || 0; bestEl.textContent = best; } catch(e) { best = 0; }
 
   initGrid();
   // Re-render on resize

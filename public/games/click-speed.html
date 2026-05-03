@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Click Speed Test</title>
+<title>点击速度测试</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -66,24 +66,24 @@
 </head>
 <body>
 <div class="container">
-  <h1>Click Speed Test</h1>
+  <h1>点击速度测试</h1>
   <div class="timer-ring ready" id="timerRing">
     <span class="timer-text" id="timerText">10</span>
   </div>
   <div class="stats">
-    <div class="stat-box"><div class="stat-label">Clicks</div><div class="stat-value" id="clickCount">0</div></div>
+    <div class="stat-box"><div class="stat-label">点击</div><div class="stat-value" id="clickCount">0</div></div>
     <div class="stat-box"><div class="stat-label">CPS</div><div class="stat-value" id="cpsDisplay">0.0</div></div>
   </div>
   <div class="click-area ready" id="clickArea">
-    <span id="clickAreaText">Click here to start!</span>
+    <span id="clickAreaText">点击开始！</span>
   </div>
   <div class="result" id="resultBox">
-    <h2>Results</h2>
+    <h2>结果</h2>
     <div class="big"><span id="resultCps">0.0</span> CPS</div>
-    <div><span id="resultClicks">0</span> clicks in 10 seconds</div>
+    <div><span id="resultClicks">0</span> 次点击 / 10秒</div>
   </div>
-  <button class="action" id="restartBtn">Try Again</button>
-  <div class="history">Best: <span id="bestCps">0.0</span> CPS</div>
+  <button class="action" id="restartBtn">再试一次</button>
+  <div class="history">最高：<span id="bestCps">0.0</span> CPS</div>
 </div>
 <script>
 (function() {
@@ -125,7 +125,7 @@
     timeLeft = DURATION;
     resultBox.classList.remove('active');
     clickArea.className = 'click-area playing';
-    clickAreaText.textContent = 'Click as fast as you can!';
+    clickAreaText.textContent = '尽可能快地点击！';
     timerRing.className = 'timer-ring playing';
     updateUI();
 
@@ -143,7 +143,7 @@
     clearInterval(timerInterval);
     timerInterval = null;
     clickArea.className = 'click-area done';
-    clickAreaText.textContent = 'Time\'s up!';
+    clickAreaText.textContent = '时间到！';
     timerRing.className = 'timer-ring done';
 
     const finalCps = (clicks / DURATION);
@@ -183,7 +183,7 @@
     timeLeft = DURATION;
     resultBox.classList.remove('active');
     clickArea.className = 'click-area ready';
-    clickAreaText.textContent = 'Click here to start!';
+    clickAreaText.textContent = '点击开始！';
     timerRing.className = 'timer-ring ready';
     updateUI();
   });

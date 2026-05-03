@@ -50,6 +50,7 @@ canvas{display:block;margin:0 auto;border-radius:12px;background:#f8f6f0;box-sha
   <div class="stats">
     <div class="stat"><span class="stat-label">关卡</span><span class="stat-value" id="levelDisplay">1/5</span></div>
     <div class="stat"><span class="stat-label">步数</span><span class="stat-value" id="movesDisplay">0</span></div>
+    <div class="stat"><span class="stat-label">最佳</span><span class="stat-value" id="bestMovesDisplay">--</span></div>
   </div>
   <canvas id="gameCanvas" width="400" height="400"></canvas>
   <div class="level-bar" id="levelBar"></div>
@@ -145,6 +146,7 @@ canvas{display:block;margin:0 auto;border-radius:12px;background:#f8f6f0;box-sha
   var boxes = [];       // [{r, c}]
   var targets = [];     // [{r, c}]
   var moveCount = 0;
+  var bestMoves = JSON.parse(localStorage.getItem('sokoban_best') || '{}');
   var undoStack = [];   // [{type, boxIdx, fromR, fromC, toR, toC, prevRow, prevCol}]
   var gameWon = false;
 
@@ -475,7 +477,12 @@ canvas{display:block;margin:0 auto;border-radius:12px;background:#f8f6f0;box-sha
       if (!onTarget) return;
     }
     gameWon = true;
-    winMessage.textContent = '第 ' + (currentLevel + 1) + ' 关完成！共 ' + moveCount + ' 步';
+    if (!bestMoves[currentLevel] || moveCount < bestMoves[currentLevel]) {
+      bestMoves[currentLevel] = moveCount;
+      localStorage.setItem('sokoban_best', JSON.stringify(bestMoves));
+    }
+    var pb = bestMoves[currentLevel] ? '最佳 ' + bestMoves[currentLevel] + ' 步' : '';
+    winMessage.textContent = '第 ' + (currentLevel + 1) + ' 关完成！共 ' + moveCount + ' 步' + (pb ? '，' + pb : '');
     winOverlay.classList.add('show');
   }
 
@@ -507,6 +514,7 @@ canvas{display:block;margin:0 auto;border-radius:12px;background:#f8f6f0;box-sha
   function updateUI() {
     movesDisplay.textContent = moveCount;
     levelDisplay.textContent = (currentLevel + 1) + '/' + LEVELS.length;
+    document.getElementById('bestMovesDisplay').textContent = bestMoves[currentLevel] || '--';
   }
 
   function updateLevelBar() {

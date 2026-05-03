@@ -173,6 +173,7 @@
   let distance = 0;
   let coins = 0;
   let score = 0;
+  let highScore = parseInt(localStorage.getItem('platformrunner_hi') || '0', 10);
   let frameCount = 0;
 
   // Player
@@ -450,6 +451,10 @@
   function endGame() {
     gameOver = true;
     gameRunning = false;
+    if (score > highScore) {
+      highScore = score;
+      localStorage.setItem('platformrunner_hi', highScore);
+    }
     startBtn.textContent = '再来一局';
     startBtn.disabled = false;
   }
@@ -667,6 +672,9 @@
     ctx.fillStyle = '#aaa';
     ctx.font = '16px system-ui, -apple-system, sans-serif';
     ctx.fillText(`距离: ${Math.floor(distance)}m  金币: ${coins}`, W / 2, H / 2 + 50);
+    ctx.fillStyle = '#888';
+    ctx.font = '16px system-ui, -apple-system, sans-serif';
+    ctx.fillText(`最高分: ${highScore}`, W / 2, H / 2 + 78);
   }
 
   function draw() {

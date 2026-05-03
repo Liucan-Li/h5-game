@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Space Shooter</title>
+<title>太空射击</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -87,13 +87,14 @@
 <div class="game-wrapper">
   <div class="hud">
     <span class="hud-score">&#x2605; <span id="scoreDisplay">0</span></span>
-    <span class="hud-level">Lv <span id="levelDisplay">1</span></span>
+    <span class="hud-level">最高分 <span id="hiDisplay">0</span></span>
+    <span class="hud-level">关卡 <span id="levelDisplay">1</span></span>
     <span class="hud-lives" id="livesDisplay">&#x2764; &#x2764; &#x2764;</span>
   </div>
   <canvas id="gameCanvas" width="400" height="600"></canvas>
   <div class="controls-row">
-    <span class="status-text" id="statusText">Click/Tap to Start</span>
-    <button class="restart-btn" id="restartBtn">Restart</button>
+    <span class="status-text" id="statusText">点击开始</span>
+    <button class="restart-btn" id="restartBtn">重新开始</button>
   </div>
 </div>
 <script>
@@ -106,6 +107,7 @@
   const livesEl = document.getElementById('livesDisplay');
   const levelEl = document.getElementById('levelDisplay');
   const statusEl = document.getElementById('statusText');
+  const hiEl = document.getElementById('hiDisplay');
 
   // Stars
   const STAR_COUNT = 80;
@@ -157,7 +159,9 @@
       autoShoot: false,
     };
     updateHUD();
-    statusEl.textContent = 'Click/Tap to Start';
+    const hi = parseInt(localStorage.getItem('spaceshooter_hi')) || 0;
+    hiEl.textContent = hi;
+    statusEl.textContent = '点击开始';
     statusEl.className = 'status-text';
   }
 
@@ -173,7 +177,7 @@
     if (game.state === 'ready') {
       game.state = 'playing';
       game.autoShoot = true;
-      statusEl.textContent = 'Playing';
+      statusEl.textContent = '游戏中';
       statusEl.className = 'status-text playing';
     }
   }
@@ -438,8 +442,12 @@
     if (game.lives <= 0) {
       game.state = 'over';
       game.autoShoot = false;
-      statusEl.textContent = 'Game Over';
+      statusEl.textContent = '游戏结束';
       statusEl.className = 'status-text';
+      if (game.score > (parseInt(localStorage.getItem('spaceshooter_hi')) || 0)) {
+        localStorage.setItem('spaceshooter_hi', game.score);
+        hiEl.textContent = game.score;
+      }
     }
   }
 
@@ -609,14 +617,14 @@
       ctx.textAlign = 'center';
       ctx.shadowColor = '#ff4444';
       ctx.shadowBlur = 20;
-      ctx.fillText('GAME OVER', W/2, H/2 - 20);
+      ctx.fillText('游戏结束', W/2, H/2 - 20);
       ctx.shadowBlur = 0;
       ctx.fillStyle = '#ffd700';
       ctx.font = '18px "Segoe UI", sans-serif';
-      ctx.fillText('Score: ' + game.score, W/2, H/2 + 25);
+      ctx.fillText('分数：' + game.score, W/2, H/2 + 25);
       ctx.fillStyle = '#888';
       ctx.font = '13px "Segoe UI", sans-serif';
-      ctx.fillText('Click to restart', W/2, H/2 + 60);
+      ctx.fillText('点击重新开始', W/2, H/2 + 60);
     }
 
     // Ready state
@@ -628,11 +636,11 @@
       ctx.textAlign = 'center';
       ctx.shadowColor = '#00d4ff';
       ctx.shadowBlur = 20;
-      ctx.fillText('SPACE SHOOTER', W/2, H/2 - 20);
+      ctx.fillText('太空射击', W/2, H/2 - 20);
       ctx.shadowBlur = 0;
       ctx.fillStyle = '#888';
       ctx.font = '14px "Segoe UI", sans-serif';
-      ctx.fillText('Click or tap to start', W/2, H/2 + 20);
+      ctx.fillText('点击开始', W/2, H/2 + 20);
     }
   }
 

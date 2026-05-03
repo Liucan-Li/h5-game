@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Minesweeper</title>
+<title>扫雷</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -232,7 +232,7 @@
       gameState = 'won';
       clearInterval(timerInterval);
       faceBtn.innerHTML = '&#x1F60E;';
-      msgEl.textContent = 'You Win!';
+      msgEl.textContent = '你赢了！';
       msgEl.className = 'message win';
       render();
     }
@@ -242,7 +242,7 @@
     gameState = 'lost';
     clearInterval(timerInterval);
     faceBtn.innerHTML = '&#x1F635;';
-    msgEl.textContent = 'Game Over!';
+    msgEl.textContent = '游戏结束！';
     msgEl.className = 'message lose';
     // Reveal all mines
     for (let r = 0; r < ROWS; r++) {

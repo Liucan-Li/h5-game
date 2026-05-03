@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Reaction Time Test</title>
+<title>反应速度测试</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -62,14 +62,14 @@
 </head>
 <body>
 <div class="container">
-  <h1>Reaction Test</h1>
+  <h1>反应速度测试</h1>
   <div class="test-area idle" id="testArea">
-    <div class="msg" id="msgText">Wait for green</div>
-    <div class="sub-msg" id="subMsg">Click to start</div>
+    <div class="msg" id="msgText">等待绿色</div>
+    <div class="sub-msg" id="subMsg">点击开始</div>
   </div>
   <div class="stats">
-    <div class="stat-box"><div class="stat-label">Last</div><div class="stat-value" id="lastTime">—</div></div>
-    <div class="stat-box"><div class="stat-label">Avg</div><div class="stat-value" id="avgTime">—</div></div>
+    <div class="stat-box"><div class="stat-label">上次</div><div class="stat-value" id="lastTime">—</div></div>
+    <div class="stat-box"><div class="stat-label">平均</div><div class="stat-value" id="avgTime">—</div></div>
   </div>
   <div class="attempts" id="attemptDots">
     <div class="attempt-dot">1</div>
@@ -79,9 +79,9 @@
     <div class="attempt-dot">5</div>
   </div>
   <div>
-    <button id="resetBtn">Reset</button>
+    <button id="resetBtn">重置</button>
   </div>
-  <div class="best-row">Personal best: <span id="bestTime">—</span></div>
+  <div class="best-row">个人最佳：<span id="bestTime">—</span></div>
 </div>
 <script>
 (function() {
@@ -131,21 +131,21 @@
   function goToIdle() {
     state = 'idle';
     testArea.className = 'test-area idle';
-    msgText.textContent = 'Click to start';
-    subMsg.textContent = trials.length + '/' + MAX_TRIALS + ' attempts';
+    msgText.textContent = '点击开始';
+    subMsg.textContent = trials.length + '/' + MAX_TRIALS + ' 次尝试';
   }
 
   function startWaiting() {
     state = 'waiting';
     testArea.className = 'test-area waiting';
-    msgText.textContent = 'Wait...';
-    subMsg.textContent = 'Click when it turns green';
+    msgText.textContent = '等待中...';
+    subMsg.textContent = '显示绿色时点击';
 
     const delay = 1000 + Math.random() * 3000; // 1-4 seconds
     timeoutId = setTimeout(() => {
       state = 'ready';
       testArea.className = 'test-area ready';
-      msgText.textContent = 'Click NOW!';
+      msgText.textContent = '点击！';
       subMsg.textContent = '';
       startTime = performance.now();
       timeoutId = null;
@@ -164,8 +164,8 @@
       if (timeoutId) { clearTimeout(timeoutId); timeoutId = null; }
       state = 'too-soon';
       testArea.className = 'test-area too-soon';
-      msgText.textContent = 'Too soon!';
-      subMsg.textContent = 'Click to try again';
+      msgText.textContent = '太快了！';
+      subMsg.textContent = '点击重试';
     } else if (state === 'ready') {
       const reaction = Math.round(performance.now() - startTime);
       trials.push(reaction);
@@ -179,8 +179,8 @@
         const avg = Math.round(trials.reduce((a, b) => a + b, 0) / trials.length);
         state = 'idle';
         testArea.className = 'test-area idle';
-        msgText.textContent = 'All done!';
-        subMsg.textContent = avg + 'ms average — Click to reset';
+        msgText.textContent = '全部完成！';
+        subMsg.textContent = '平均 ' + avg + 'ms — 点击重置';
       } else {
         goToIdle();
       }

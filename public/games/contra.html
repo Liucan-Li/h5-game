@@ -77,9 +77,9 @@ body{background:#0a0a12;display:flex;flex-direction:column;align-items:center;ju
 <script>
 (function(){
 var C=document.getElementById('canvas'),X=C.getContext('2d');X.imageSmoothingEnabled=false;
-var W=800,H=440,G=H-60,GRAV=0.6,K={},state='menu',scr=0,hi=0,lives=3,lvl=1,fc=0,cam={x:0},lw=3200;
+var W=800,H=440,G=H-60,GRAV=0.6,K={},state='menu',scr=0,hi=parseInt(localStorage.getItem('contra_hi'))||0,lives=3,lvl=1,fc=0,cam={x:0},lw=3200;
 var p={},bullets=[],eb=[],enemies=[],parts=[],capsules=[],platforms=[],wpn='N',wpnT=0,
-    touch={},tShoot=false,jPress=false;
+    touch={},jPress=false,WPN_N={S:'散弹',M:'机枪',R:'激光',N:'标准'};
 var el={s:document.getElementById('huScore'),w:document.getElementById('huWpn'),
        l:document.getElementById('huLife'),v:document.getElementById('huLvl')};
 
@@ -93,11 +93,11 @@ document.getElementById('startBtn').addEventListener('click',start);
 document.getElementById('gobtn').addEventListener('click',function(){if(state==='go')start();else if(state==='lclear')nextLvl();});
 document.querySelectorAll('[data-t]').forEach(function(b){
   var a=b.dataset.t;
-  b.addEventListener('touchstart',function(e){e.preventDefault();touch[a]=true;if(a==='shoot')tShoot=true;},{passive:false});
-  b.addEventListener('touchend',function(e){e.preventDefault();touch[a]=false;if(a==='shoot')tShoot=false;},{passive:false});
-  b.addEventListener('touchcancel',function(e){touch[a]=false;tShoot=false;});
-  b.addEventListener('mousedown',function(){touch[a]=true;if(a==='shoot')tShoot=true;});
-  b.addEventListener('mouseup',function(){touch[a]=false;if(a==='shoot')tShoot=false;});
+  b.addEventListener('touchstart',function(e){e.preventDefault();touch[a]=true;},{passive:false});
+  b.addEventListener('touchend',function(e){e.preventDefault();touch[a]=false;},{passive:false});
+  b.addEventListener('touchcancel',function(e){touch[a]=false;});
+  b.addEventListener('mousedown',function(){touch[a]=true;});
+  b.addEventListener('mouseup',function(){touch[a]=false;});
 });
 
 function initP(){
@@ -312,19 +312,19 @@ function updPlayer(){
   var jk=K['Space']||K['ArrowUp']||touch['up']||touch['jump'];
   if(jk&&p.onG&&!jPress){p.vy=-11;jPress=true;}
   if(!jk)jPress=false;
-  if(K['KeyZ']||K['KeyX']||tShoot)shoot();
+  if(K['KeyZ']||K['KeyX']||touch['shoot'])shoot();
   // Quick weapon switching for testing
-  if(K['KeyS']){wpn='S';el.w.textContent='散弹';K['KeyS']=false;}
-  if(K['KeyM']){wpn='M';el.w.textContent='机枪';K['KeyM']=false;}
-  if(K['KeyR']){wpn='R';el.w.textContent='激光';K['KeyR']=false;}
-  if(K['KeyN']){wpn='N';el.w.textContent='标准';K['KeyN']=false;}
+  if(K['KeyS']){wpn='S';el.w.textContent=WPN_N[wpn];K['KeyS']=false;}
+  if(K['KeyM']){wpn='M';el.w.textContent=WPN_N[wpn];K['KeyM']=false;}
+  if(K['KeyR']){wpn='R';el.w.textContent=WPN_N[wpn];K['KeyR']=false;}
+  if(K['KeyN']){wpn='N';el.w.textContent=WPN_N[wpn];K['KeyN']=false;}
   phys(p);p.h=p.duck?22:32;
   var tc=p.x-W/3;cam.x+=(tc-cam.x)*0.1;cam.x=Math.max(0,Math.min(cam.x,lw-W));
 }
 
 function updEnemies(){
   enemies.forEach(function(e){
-    if(e.dead>0){e.dead--;return;}
+    if(e.dead>0){if(--e.dead===0)e.dead=-1;return;}
     e.timer++;var d=p.x-e.x,ad=Math.abs(d);
     if(e.type==='s'){
       if(ad<350){e.dir=d>0?1:-1;e.cd--;if(e.cd<=0){e.cd=80-lvl*5;eb.push({x:e.x+(e.dir>0?e.w:-4),y:e.y+10,vx:e.dir*4,vy:0,life:80});}}
@@ -342,7 +342,7 @@ function updEnemies(){
     }
     phys(e,e.type==='b');
   });
-  enemies=enemies.filter(function(e){return!e.dead||e.dead>0;});
+  enemies=enemies.filter(function(e){return e.dead>=0;});
 }
 
 function collide(){
@@ -377,11 +377,11 @@ function collide(){
     c.y+=c.vy;c.vy+=0.2;c.life--;
     if(c.y>G-16)c.y=G-16;
     var hit=c.x>p.x&&c.x<p.x+p.w&&c.y>p.y&&c.y<p.y+p.h;
-    if(hit){wpn=c.type;el.w.textContent=c.type==='S'?'散弹':(c.type==='M'?'机枪':'激光');wpnT=900;}
+    if(hit){wpn=c.type;el.w.textContent=WPN_N[c.type];wpnT=900;}
     return !hit&&c.life>0;
   });
   // Weapon timer
-  if(wpnT>0){wpnT--;if(wpnT===0){wpn='N';el.w.textContent='标准';}}
+  if(wpnT>0){wpnT--;if(wpnT===0){wpn='N';el.w.textContent=WPN_N[wpn];}}
 }
 
 function hitP(){
@@ -411,7 +411,7 @@ function initLvl(){
   buildLvl();spawnEnemies();
 }
 function showGO(){
-  hi=Math.max(hi,scr);
+  hi=Math.max(hi,scr);localStorage.setItem('contra_hi',hi);
   var go=document.getElementById('go');
   go.style.display='flex';
   go.querySelector('h1').textContent='GAME OVER';

@@ -30,6 +30,7 @@ button:active{transform:scale(0.97);}
   <span class="score"><span class="dot black"></span> <span id="blackScore">2</span></span>
   <span id="turnIndicator">黑棋回合</span>
   <span class="score"><span class="dot white"></span> <span id="whiteScore">2</span></span>
+  <span id="recordDisplay" style="font-size:12px;color:#888;">胜0 负0 平0</span>
 </div>
 <div id="gameOverMsg"></div>
 <button id="rematchBtn">重新开始</button>
@@ -47,6 +48,7 @@ button:active{transform:scale(0.97);}
   let gameOver = false;
   let passCount = 0; // two consecutive passes = game over
   let validMoves = [];
+  let record = JSON.parse(localStorage.getItem('reversi_record') || '{"wins":0,"losses":0,"draws":0}');
 
   // --- Canvas setup ---
   const canvas = document.getElementById('gameCanvas');
@@ -167,9 +169,10 @@ button:active{transform:scale(0.97);}
     gameOver = true;
     const b = countColor(BLACK);
     const w = countColor(WHITE);
-    if (b > w) gameOverMsgEl.textContent = '黑棋胜！';
-    else if (w > b) gameOverMsgEl.textContent = '白棋胜！';
-    else gameOverMsgEl.textContent = '平局！';
+    if (b > w) { gameOverMsgEl.textContent = '黑棋胜！'; record.wins++; }
+    else if (w > b) { gameOverMsgEl.textContent = '白棋胜！'; record.losses++; }
+    else { gameOverMsgEl.textContent = '平局！'; record.draws++; }
+    localStorage.setItem('reversi_record', JSON.stringify(record));
     turnEl.textContent = '游戏结束';
     draw();
     updateUI();
@@ -370,6 +373,7 @@ button:active{transform:scale(0.97);}
   function updateUI() {
     blackScoreEl.textContent = countColor(BLACK);
     whiteScoreEl.textContent = countColor(WHITE);
+    document.getElementById('recordDisplay').textContent = '胜' + record.wins + ' 负' + record.losses + ' 平' + record.draws;
     if (!gameOver) {
       turnEl.textContent = currentPlayer === BLACK ? '黑棋回合' : '白棋回合(思考中...)';
     }

@@ -183,6 +183,7 @@
 <div class="game-container">
   <header>
     <h1>猜词游戏</h1>
+    <span style="font-size:13px;color:#888;position:absolute;left:0;top:50%;transform:translateY(-50%);">最佳: <span id="bestDisplay">--</span>次</span>
     <button class="btn-reset" id="resetBtn">新游戏</button>
   </header>
   <div class="grid-section">
@@ -219,6 +220,7 @@
   let guesses = [];
   let gameOver = false;
   let keyStatus = {};
+  let bestScore = parseInt(localStorage.getItem('wordle_best') || '0', 10);
 
   const gridEl = document.getElementById('grid');
   const keyboardEl = document.getElementById('keyboard');
@@ -401,8 +403,14 @@
     const win = result.every(r => r === 'correct');
     if (win) {
       gameOver = true;
+      const attempts = currentRow + 1;
+      if (bestScore === 0 || attempts < bestScore) {
+        bestScore = attempts;
+        localStorage.setItem('wordle_best', bestScore);
+        document.getElementById('bestDisplay').textContent = bestScore;
+      }
       setTimeout(() => {
-        showMessage(`恭喜你！用了 ${currentRow + 1} 次猜中`, 3000);
+        showMessage(`恭喜你！用了 ${attempts} 次猜中，最佳记录 ${bestScore} 次`, 3000);
       }, WORD_LENGTH * 200 + 200);
     } else if (currentRow >= MAX_ATTEMPTS - 1) {
       gameOver = true;
@@ -454,6 +462,7 @@
   // Init
   buildKeyboard();
   resetGame();
+  document.getElementById('bestDisplay').textContent = bestScore || '--';
 })();
 </script>
 </body>

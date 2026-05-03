@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Sudoku</title>
+<title>数独</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -148,7 +148,7 @@
 <body>
 <div class="game-wrapper">
   <div class="header">
-    <span class="title">Sudoku</span>
+    <span class="title">数独</span>
     <div class="controls">
       <button class="ctrl-btn" id="undoBtn">&#x21A9;</button>
       <button class="ctrl-btn" id="eraseBtn">&#x2717;</button>
@@ -160,9 +160,9 @@
   <div class="bottom-bar">
     <span class="status-text" id="statusText">&nbsp;</span>
     <div class="difficulty-btns">
-      <button class="diff-btn" data-diff="easy">Easy</button>
-      <button class="diff-btn active" data-diff="medium">Medium</button>
-      <button class="diff-btn" data-diff="hard">Hard</button>
+      <button class="diff-btn" data-diff="easy">简单</button>
+      <button class="diff-btn active" data-diff="medium">中等</button>
+      <button class="diff-btn" data-diff="hard">困难</button>
     </div>
   </div>
 </div>
@@ -321,7 +321,7 @@
       }
     }
     gameState = 'won';
-    statusEl.textContent = 'Puzzle Complete!';
+    statusEl.textContent = '完成！';
     statusEl.className = 'status-text won';
     return true;
   }
@@ -354,12 +354,12 @@
       errors[r][c] = true;
       mistakeCount++;
       if (mistakeCount <= 3) {
-        statusEl.textContent = 'Mistakes: ' + mistakeCount + '/3';
+        statusEl.textContent = '错误：' + mistakeCount + '/3';
         statusEl.className = 'status-text error-count';
       }
       if (mistakeCount >= 3) {
         gameState = 'lost';
-        statusEl.textContent = 'Too many mistakes! Press New Game.';
+        statusEl.textContent = '错误过多！点击重新开始。';
         statusEl.className = 'status-text';
         // Reveal solution
         for (let rr = 0; rr < 9; rr++) {

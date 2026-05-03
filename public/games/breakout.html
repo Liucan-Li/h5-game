@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -40,22 +40,24 @@
 <body>
 <div class="container">
   <div class="header">
-    <h1>Breakout</h1>
-    <div class="score-box"><div class="score-label">Score</div><div class="score-value" id="score">0</div></div>
+    <h1>打砖块</h1>
+    <div class="score-box"><div class="score-label">分数</div><div class="score-value" id="score">0</div>
+      <div style="margin-top:4px;font-size:0.75em;color:#7f8c8d">最高 <span id="hiScore">0</span></div></div>
   </div>
   <div class="lives" id="livesDisplay"></div>
   <canvas id="gameCanvas" width="360" height="480"></canvas>
   <div class="controls">
-    <button id="startBtn">Start Game</button>
-    <button class="secondary" id="resetBtn">Reset</button>
+    <button id="startBtn">开始游戏</button>
+    <button class="secondary" id="resetBtn">重置</button>
   </div>
-  <div class="status">Move paddle with mouse/touch</div>
+  <div class="status">← → 方向键 / 鼠标移动挡板</div>
 </div>
 <script>
 (function() {
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
   const scoreEl = document.getElementById('score');
+  const hiEl = document.getElementById('hiScore');
   const startBtn = document.getElementById('startBtn');
   const resetBtn = document.getElementById('resetBtn');
   const livesDisplay = document.getElementById('livesDisplay');
@@ -67,9 +69,9 @@
 
   // Game state
   let ball, paddle, bricks;
-  let score, lives;
+  let score, lives, hi;
   let gameRunning, gameOver, gameWon;
-  let animationId;
+  let animationId, keys={};
 
   const PADDLE_W = 80;
   const PADDLE_H = 12;
@@ -120,6 +122,8 @@
 
     score = 0;
     lives = 3;
+    hi = parseInt(localStorage.getItem('breakout_hi')) || 0;
+    hiEl.textContent = hi;
     gameRunning = false;
     gameOver = false;
     gameWon = false;
@@ -146,7 +150,7 @@
     gameRunning = true;
     gameOver = false;
     gameWon = false;
-    startBtn.textContent = 'Playing...';
+    startBtn.textContent = '游戏中...';
     if (animationId) cancelAnimationFrame(animationId);
     loop();
   }
@@ -177,7 +181,7 @@
       if (lives <= 0) {
         gameRunning = false;
         gameOver = true;
-        startBtn.textContent = 'Game Over';
+        startBtn.textContent = '游戏结束';
         draw();
         return;
       }
@@ -237,7 +241,7 @@
         if (bricks.every(b => !b.alive)) {
           gameRunning = false;
           gameWon = true;
-          startBtn.textContent = 'You Win!';
+          startBtn.textContent = '你赢了！';
         }
         break;
       }
@@ -290,20 +294,20 @@
       ctx.fillStyle = '#e86a6a';
       ctx.font = 'bold 36px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('Game Over', W / 2, H / 2 - 10);
+      ctx.fillText('游戏结束', W / 2, H / 2 - 10);
       ctx.fillStyle = '#ccc';
       ctx.font = '18px sans-serif';
-      ctx.fillText('Score: ' + score, W / 2, H / 2 + 30);
+      ctx.fillText('分数: ' + score, W / 2, H / 2 + 30);
     } else if (gameWon) {
       ctx.fillStyle = 'rgba(0,0,0,0.6)';
       ctx.fillRect(0, 0, W, H);
       ctx.fillStyle = '#4ecca3';
       ctx.font = 'bold 36px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('You Win!', W / 2, H / 2 - 10);
+      ctx.fillText('你赢了！', W / 2, H / 2 - 10);
       ctx.fillStyle = '#ccc';
       ctx.font = '18px sans-serif';
-      ctx.fillText('Score: ' + score, W / 2, H / 2 + 30);
+      ctx.fillText('分数: ' + score, W / 2, H / 2 + 30);
     }
   }
 
@@ -320,7 +324,7 @@
 
   canvas.addEventListener('mouseenter', () => {
     if (!gameRunning && !gameOver && !gameWon) {
-      startBtn.textContent = 'Start Game';
+      startBtn.textContent = '开始游戏';
     }
   });
 
@@ -351,9 +355,30 @@
   resetBtn.addEventListener('click', () => {
     if (animationId) cancelAnimationFrame(animationId);
     gameRunning = false;
-    startBtn.textContent = 'Start Game';
+    startBtn.textContent = '开始游戏';
     init();
   });
+
+  // Keyboard support
+  document.addEventListener('keydown', (e) => { keys[e.key] = true; if (['ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault(); });
+  document.addEventListener('keyup', (e) => { keys[e.key] = false; });
+
+  // Update paddle with keyboard in game loop
+  const origLoop = loop;
+  loop = function() {
+    if (keys['ArrowLeft']) paddle.x = Math.max(0, paddle.x - 6);
+    if (keys['ArrowRight']) paddle.x = Math.min(W - paddle.w, paddle.x + 6);
+    origLoop();
+  };
+
+  // Save hi score on game over
+  const origUpdate = update;
+  update = function() {
+    origUpdate();
+    if (gameOver || gameWon) {
+      if (score > hi) { hi = score; hiEl.textContent = hi; localStorage.setItem('breakout_hi', hi); }
+    }
+  };
 
   // roundRect polyfill
   if (!CanvasRenderingContext2D.prototype.roundRect) {

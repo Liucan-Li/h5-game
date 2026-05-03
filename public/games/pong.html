@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Pong</title>
+<title>乒乓球</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -107,21 +107,22 @@
 <div class="game-wrapper">
   <div class="scoreboard">
     <div class="score-item">
-      <div class="score-label">Player</div>
+      <div class="score-label">玩家</div>
       <div class="score-value player" id="playerScore">0</div>
     </div>
     <div class="score-divider">:</div>
     <div class="score-item">
-      <div class="score-label">AI</div>
+      <div class="score-label">电脑</div>
       <div class="score-value ai" id="aiScore">0</div>
     </div>
   </div>
   <canvas id="gameCanvas" width="480" height="320"></canvas>
   <div class="status-bar">
-    <span class="status-text" id="statusText">Click to Start</span>
-    <button class="restart-btn" id="restartBtn">Restart</button>
+    <span class="status-text" id="statusText">点击开始</span>
+    <span class="status-text">最高分 <span id="hiDisplay">0</span></span>
+    <button class="restart-btn" id="restartBtn">重新开始</button>
   </div>
-  <div class="controls-hint">Move mouse or touch to control paddle</div>
+  <div class="controls-hint">移动鼠标或触摸控制球拍</div>
 </div>
 <script>
 (function(){
@@ -138,6 +139,7 @@
   const playerScoreEl = document.getElementById('playerScore');
   const aiScoreEl = document.getElementById('aiScore');
   const statusEl = document.getElementById('statusText');
+  const hiEl = document.getElementById('hiDisplay');
 
   let game = {};
 
@@ -156,14 +158,16 @@
     };
     playerScoreEl.textContent = '0';
     aiScoreEl.textContent = '0';
-    statusEl.textContent = 'Click to Start';
+    const hi = parseInt(localStorage.getItem('pong_hi')) || 0;
+    hiEl.textContent = hi;
+    statusEl.textContent = '点击开始';
     statusEl.className = 'status-text';
   }
 
   function startGame() {
     if (game.state === 'ready') {
       game.state = 'playing';
-      statusEl.textContent = 'Playing';
+      statusEl.textContent = '游戏中';
       statusEl.className = 'status-text playing';
     }
   }
@@ -230,8 +234,12 @@
       if (ai.score >= WIN_SCORE) {
         game.state = 'over';
         game.winner = 'AI';
-        statusEl.textContent = 'AI Wins!';
+        statusEl.textContent = '电脑赢了！';
         statusEl.className = 'status-text';
+        if (player.score > (parseInt(localStorage.getItem('pong_hi')) || 0)) {
+          localStorage.setItem('pong_hi', player.score);
+          hiEl.textContent = player.score;
+        }
       } else {
         resetBall();
       }
@@ -243,8 +251,12 @@
       if (player.score >= WIN_SCORE) {
         game.state = 'over';
         game.winner = 'Player';
-        statusEl.textContent = 'You Win!';
+        statusEl.textContent = '你赢了！';
         statusEl.className = 'status-text';
+        if (player.score > (parseInt(localStorage.getItem('pong_hi')) || 0)) {
+          localStorage.setItem('pong_hi', player.score);
+          hiEl.textContent = player.score;
+        }
       } else {
         resetBall();
       }
@@ -353,11 +365,11 @@
       ctx.textAlign = 'center';
       ctx.shadowColor = '#ffd700';
       ctx.shadowBlur = 20;
-      ctx.fillText(game.winner + ' Wins!', W/2, H/2 - 10);
+      ctx.fillText(game.winner + ' 赢了！', W/2, H/2 - 10);
       ctx.shadowBlur = 0;
       ctx.fillStyle = '#888';
       ctx.font = '14px "Courier New", monospace';
-      ctx.fillText('Click or press Space to restart', W/2, H/2 + 30);
+      ctx.fillText('点击或按空格重新开始', W/2, H/2 + 30);
     }
 
     // Ready state
@@ -369,11 +381,11 @@
       ctx.textAlign = 'center';
       ctx.shadowColor = '#00ffcc';
       ctx.shadowBlur = 20;
-      ctx.fillText('PONG', W/2, H/2 - 20);
+      ctx.fillText('乒乓球', W/2, H/2 - 20);
       ctx.shadowBlur = 0;
       ctx.fillStyle = '#888';
       ctx.font = '14px "Courier New", monospace';
-      ctx.fillText('First to ' + WIN_SCORE + ' wins', W/2, H/2 + 20);
+      ctx.fillText('先到 ' + WIN_SCORE + ' 分获胜', W/2, H/2 + 20);
     }
   }
 

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Tetris</title>
+<title>俄罗斯方块</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -148,22 +148,26 @@
     </div>
     <div class="side-panel">
       <div class="info-box">
-        <div class="info-label">Score</div>
+        <div class="info-label">分数</div>
         <div class="info-value score" id="scoreDisplay">0</div>
       </div>
       <div class="info-box">
-        <div class="info-label">Lines</div>
+        <div class="info-label">行数</div>
         <div class="info-value lines" id="linesDisplay">0</div>
       </div>
       <div class="info-box">
-        <div class="info-label">Level</div>
+        <div class="info-label">关卡</div>
         <div class="info-value level" id="levelDisplay">1</div>
       </div>
       <div class="info-box">
-        <div class="info-label">Next</div>
+        <div class="info-label">最高分</div>
+        <div class="info-value score" id="hiDisplay">0</div>
+      </div>
+      <div class="info-box">
+        <div class="info-label">下一个</div>
         <canvas id="nextPiece" width="96" height="96"></canvas>
       </div>
-      <button class="restart-btn" id="restartBtn">Restart</button>
+      <button class="restart-btn" id="restartBtn">重新开始</button>
     </div>
   </div>
   <div class="mobile-controls">
@@ -173,7 +177,7 @@
     <button class="mobile-btn" id="mbDrop">&#x2B07;</button>
     <button class="mobile-btn" id="mbRight">&rarr;</button>
   </div>
-  <div class="controls-info">Arrow keys: Move &middot; Up: Rotate &middot; Space: Hard Drop</div>
+  <div class="controls-info">方向键移动 &middot; 上键旋转 &middot; 空格键速降</div>
 </div>
 <script>
 (function(){
@@ -187,6 +191,7 @@
   const scoreEl = document.getElementById('scoreDisplay');
   const linesEl = document.getElementById('linesDisplay');
   const levelEl = document.getElementById('levelDisplay');
+  const hiEl = document.getElementById('hiDisplay');
 
   // Tetromino definitions
   const PIECES = [
@@ -233,6 +238,7 @@
   let score = 0;
   let lines = 0;
   let level = 1;
+  let hi = 0;
   let gameState = 'playing';
   let dropInterval = null;
   let dropTimer = 0;
@@ -261,6 +267,8 @@
     score = 0;
     lines = 0;
     level = 1;
+    hi = parseInt(localStorage.getItem('tetris_hi')) || 0;
+    hiEl.textContent = hi;
     gameState = 'playing';
     dropTimer = 0;
     animating = false;
@@ -278,6 +286,10 @@
     if (!validMove(currentPiece, 0, 0)) {
       gameState = 'over';
       clearInterval(dropInterval);
+      if (score > (parseInt(localStorage.getItem('tetris_hi')) || 0)) {
+        localStorage.setItem('tetris_hi', score);
+        hiEl.textContent = score;
+      }
       drawAll();
     }
   }
@@ -353,6 +365,10 @@
         if (py < 0) {
           gameState = 'over';
           clearInterval(dropInterval);
+          if (score > (parseInt(localStorage.getItem('tetris_hi')) || 0)) {
+            localStorage.setItem('tetris_hi', score);
+            hiEl.textContent = score;
+          }
           drawAll();
           return;
         }
@@ -485,10 +501,10 @@
       boardCtx.fillStyle = '#ff4444';
       boardCtx.font = 'bold 20px "Segoe UI", sans-serif';
       boardCtx.textAlign = 'center';
-      boardCtx.fillText('GAME OVER', 100, 180);
+      boardCtx.fillText('游戏结束', 100, 180);
       boardCtx.fillStyle = '#888';
       boardCtx.font = '12px "Segoe UI", sans-serif';
-      boardCtx.fillText('Press Restart', 100, 220);
+      boardCtx.fillText('点击重新开始', 100, 220);
     }
   }
 
