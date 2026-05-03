@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f0f23"/><stop offset="100%" stop-color="#1a0520"/>
+    </linearGradient>
+    <radialGradient id="r1"><stop offset="0%" stop-color="#ff6b6b"/><stop offset="100%" stop-color="#c0392b"/></radialGradient>
+    <radialGradient id="r2"><stop offset="0%" stop-color="#ffd93d"/><stop offset="100%" stop-color="#e67e22"/></radialGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)" rx="16"/>
+  <!-- Board frame -->
+  <rect x="60" y="20" width="280" height="240" rx="8" fill="#2d3436"/>
+  <!-- Slots grid -->
+  <g fill="#636e72">
+    <circle cx="100" cy="50" r="18"/><circle cx="150" cy="50" r="18"/><circle cx="200" cy="50" r="18"/><circle cx="250" cy="50" r="18"/><circle cx="300" cy="50" r="18"/>
+    <circle cx="100" cy="90" r="18"/><circle cx="150" cy="90" r="18"/><circle cx="200" cy="90" r="18"/><circle cx="250" cy="90" r="18"/><circle cx="300" cy="90" r="18"/>
+    <circle cx="100" cy="130" r="18"/><circle cx="150" cy="130" r="18"/><circle cx="200" cy="130" r="18"/><circle cx="250" cy="130" r="18"/><circle cx="300" cy="130" r="18"/>
+    <circle cx="100" cy="170" r="18"/><circle cx="150" cy="170" r="18"/><circle cx="200" cy="170" r="18"/><circle cx="250" cy="170" r="18"/><circle cx="300" cy="170" r="18"/>
+    <circle cx="100" cy="210" r="18"/><circle cx="150" cy="210" r="18"/><circle cx="200" cy="210" r="18"/><circle cx="250" cy="210" r="18"/><circle cx="300" cy="210" r="18"/>
+  </g>
+  <!-- Player pieces -->
+  <circle cx="150" cy="130" r="16" fill="url(#r1)"/>
+  <circle cx="200" cy="130" r="16" fill="url(#r2)"/>
+  <circle cx="150" cy="170" r="16" fill="url(#r1)"/>
+  <circle cx="200" cy="170" r="16" fill="url(#r2)"/>
+  <circle cx="150" cy="210" r="16" fill="url(#r1)"/>
+  <circle cx="200" cy="210" r="16" fill="url(#r2)"/>
+  <circle cx="150" cy="210" r="16" fill="url(#r1)"/>
+  <circle cx="200" cy="50" r="16" fill="url(#r2)"/>
+  <circle cx="250" cy="50" r="16" fill="url(#r1)"/>
+  <circle cx="100" cy="210" r="16" fill="url(#r2)"/>
+  <!-- Winning 4 in a row -->
+  <g opacity="0.3">
+    <line x1="138" y1="218" x2="312" y2="218" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  <!-- Title -->
+  <text x="200" y="288" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="15" fill="#ffd93d" text-anchor="middle" font-weight="bold" letter-spacing="3">四子棋</text>
+</svg>

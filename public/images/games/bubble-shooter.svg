@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f0f23"/><stop offset="100%" stop-color="#1a0520"/>
+    </linearGradient>
+    <radialGradient id="b1"><stop offset="0%" stop-color="#ff6b6b"/><stop offset="100%" stop-color="#c0392b"/></radialGradient>
+    <radialGradient id="b2"><stop offset="0%" stop-color="#74b9ff"/><stop offset="100%" stop-color="#2980b9"/></radialGradient>
+    <radialGradient id="b3"><stop offset="0%" stop-color="#55efc4"/><stop offset="100%" stop-color="#00b894"/></radialGradient>
+    <radialGradient id="b4"><stop offset="0%" stop-color="#fdcb6e"/><stop offset="100%" stop-color="#e17055"/></radialGradient>
+    <radialGradient id="b5"><stop offset="0%" stop-color="#e056fd"/><stop offset="100%" stop-color="#a29bfe"/></radialGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)" rx="16"/>
+  <!-- Bubbles grid -->
+  <circle cx="200" cy="30" r="16" fill="url(#b1)"/>
+  <circle cx="168" cy="52" r="16" fill="url(#b2)"/>
+  <circle cx="232" cy="52" r="16" fill="url(#b3)"/>
+  <circle cx="136" cy="74" r="16" fill="url(#b4)"/>
+  <circle cx="200" cy="74" r="16" fill="url(#b5)"/>
+  <circle cx="264" cy="74" r="16" fill="url(#b2)"/>
+  <circle cx="104" cy="96" r="16" fill="url(#b3)"/>
+  <circle cx="168" cy="96" r="16" fill="url(#b1)"/>
+  <circle cx="232" cy="96" r="16" fill="url(#b4)"/>
+  <!-- Shine on bubbles -->
+  <circle cx="196" cy="26" r="4" fill="rgba(255,255,255,0.3)"/>
+  <circle cx="164" cy="48" r="4" fill="rgba(255,255,255,0.3)"/>
+  <circle cx="228" cy="48" r="4" fill="rgba(255,255,255,0.3)"/>
+  <!-- Aim line -->
+  <line x1="200" y1="260" x2="170" y2="100" stroke="#ffffff33" stroke-width="2" stroke-dasharray="6,4"/>
+  <!-- Launcher -->
+  <rect x="185" y="252" width="30" height="14" rx="6" fill="#666"/>
+  <circle cx="200" cy="250" r="14" fill="url(#b1)"/>
+  <circle cx="196" cy="246" r="3" fill="rgba(255,255,255,0.3)"/>
+  <!-- Arrow indicator -->
+  <polygon points="200,170 195,185 205,185" fill="#ffffff44"/>
+  <!-- Title -->
+  <text x="200" y="290" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="15" fill="#74b9ff" text-anchor="middle" font-weight="bold" letter-spacing="3">泡泡龙</text>
+</svg>

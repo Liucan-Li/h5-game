@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f0f23"/><stop offset="100%" stop-color="#1a0520"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)" rx="16"/>
+  <!-- Playing cards -->
+  <g transform="translate(70, 40)">
+    <rect x="0" y="0" width="55" height="75" rx="6" fill="#fff" stroke="#ddd" stroke-width="1"/>
+    <text x="8" y="20" font-family="serif" font-size="18" font-weight="bold" fill="#e74c3c">A</text>
+    <text x="28" y="55" font-family="serif" font-size="24" font-weight="bold" fill="#e74c3c">♥</text>
+  </g>
+  <g transform="translate(145, 40)">
+    <rect x="0" y="0" width="55" height="75" rx="6" fill="#fff" stroke="#ddd" stroke-width="1"/>
+    <text x="8" y="20" font-family="serif" font-size="18" font-weight="bold" fill="#333">8</text>
+    <text x="28" y="55" font-family="serif" font-size="24" font-weight="bold" fill="#333">♠</text>
+  </g>
+  <g transform="translate(220, 40)">
+    <rect x="0" y="0" width="55" height="75" rx="6" fill="#fff" stroke="#ddd" stroke-width="1"/>
+    <text x="8" y="20" font-family="serif" font-size="18" font-weight="bold" fill="#e74c3c">3</text>
+    <text x="28" y="55" font-family="serif" font-size="24" font-weight="bold" fill="#e74c3c">♦</text>
+  </g>
+  <g transform="translate(295, 40)">
+    <rect x="0" y="0" width="55" height="75" rx="6" fill="#fff" stroke="#ddd" stroke-width="1"/>
+    <text x="8" y="20" font-family="serif" font-size="18" font-weight="bold" fill="#333">K</text>
+    <text x="28" y="55" font-family="serif" font-size="24" font-weight="bold" fill="#333">♣</text>
+  </g>
+  <!-- Operators -->
+  <g fill="#ffd93d" font-family="monospace" font-size="28" font-weight="bold" text-anchor="middle">
+    <text x="122" y="150">+</text>
+    <text x="197" y="150">−</text>
+    <text x="272" y="150">×</text>
+  </g>
+  <!-- Equation -->
+  <text x="200" y="200" font-family="monospace" font-size="20" fill="#4fc3f7" text-anchor="middle">( A + 8 − 3 ) × K</text>
+  <!-- Result -->
+  <rect x="140" y="220" width="120" height="40" rx="8" fill="#2d3436"/>
+  <text x="200" y="248" font-family="monospace" font-size="22" font-weight="bold" fill="#4ecca3" text-anchor="middle">= 24</text>
+  <!-- Equals sign -->
+  <text x="200" y="218" font-family="monospace" font-size="16" fill="#636e72" text-anchor="middle">=</text>
+  <!-- Title -->
+  <text x="200" y="288" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="15" fill="#ffd93d" text-anchor="middle" font-weight="bold" letter-spacing="3">24点</text>
+</svg>

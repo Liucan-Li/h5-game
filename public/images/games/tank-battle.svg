@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f0f23"/><stop offset="100%" stop-color="#1a0520"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)" rx="16"/>
+  <!-- Battlefield grid -->
+  <g stroke="#222" stroke-width="0.5">
+    <rect x="20" y="20" width="360" height="240" fill="#1a1a2e" rx="4"/>
+  </g>
+  <!-- Bricks -->
+  <g fill="#cc5533" stroke="#aa4422" stroke-width="1">
+    <rect x="40" y="80" width="32" height="16"/><rect x="72" y="80" width="32" height="16"/>
+    <rect x="296" y="160" width="32" height="16"/><rect x="328" y="160" width="32" height="16"/>
+    <rect x="100" y="200" width="32" height="16"/><rect x="132" y="200" width="32" height="16"/>
+    <rect x="200" y="60" width="32" height="16"/><rect x="232" y="60" width="32" height="16"/>
+  </g>
+  <!-- Steel walls -->
+  <g fill="#888" stroke="#666" stroke-width="1">
+    <rect x="180" y="120" width="16" height="32"/>
+    <rect x="204" y="120" width="16" height="32"/>
+  </g>
+  <!-- Eagle base -->
+  <rect x="188" y="240" width="24" height="20" fill="#444"/>
+  <polygon points="200,242 192,256 208,256" fill="#ffdd00"/>
+  <!-- Player tank -->
+  <g transform="translate(200, 200)">
+    <rect x="-12" y="-12" width="24" height="24" rx="2" fill="#f1c40f"/>
+    <rect x="-6" y="-18" width="12" height="6" rx="1" fill="#f1c40f"/>
+    <rect x="-2" y="-24" width="4" height="8" fill="#e67e22"/>
+    <circle cx="-4" cy="0" r="2" fill="#333"/>
+    <circle cx="4" cy="0" r="2" fill="#333"/>
+  </g>
+  <!-- Enemy tanks -->
+  <g transform="translate(100, 40)">
+    <rect x="-10" y="-10" width="20" height="20" rx="2" fill="#e74c3c"/>
+    <rect x="-5" y="-14" width="10" height="4" rx="1" fill="#e74c3c"/>
+    <circle cx="0" cy="0" r="2" fill="#333"/>
+  </g>
+  <g transform="translate(300, 80)">
+    <rect x="-10" y="-10" width="20" height="20" rx="2" fill="#e74c3c"/>
+    <rect x="-5" y="-14" width="10" height="4" rx="1" fill="#e74c3c"/>
+    <circle cx="0" cy="0" r="2" fill="#333"/>
+  </g>
+  <!-- Bullet -->
+  <circle cx="200" cy="172" r="3" fill="#fff"/>
+  <!-- Explosion -->
+  <g transform="translate(140, 60)">
+    <circle cx="0" cy="0" r="10" fill="#ff8800" opacity="0.6"/>
+    <circle cx="0" cy="0" r="6" fill="#ffcc00" opacity="0.8"/>
+    <circle cx="0" cy="0" r="3" fill="#fff"/>
+  </g>
+  <!-- Title -->
+  <text x="200" y="288" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="15" fill="#e74c3c" text-anchor="middle" font-weight="bold" letter-spacing="3">坦克大战</text>
+</svg>

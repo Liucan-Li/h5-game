@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f0f23"/><stop offset="100%" stop-color="#1a0520"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)" rx="16"/>
+  <!-- Maze walls -->
+  <rect x="40" y="30" width="320" height="8" rx="4" fill="#2121de"/>
+  <rect x="40" y="30" width="8" height="240" rx="4" fill="#2121de"/>
+  <rect x="352" y="30" width="8" height="240" rx="4" fill="#2121de"/>
+  <rect x="40" y="262" width="320" height="8" rx="4" fill="#2121de"/>
+  <rect x="40" y="110" width="80" height="8" rx="4" fill="#2121de"/>
+  <rect x="280" y="110" width="80" height="8" rx="4" fill="#2121de"/>
+  <rect x="180" y="110" width="40" height="8" rx="4" fill="#2121de"/>
+  <rect x="120" y="150" width="8" height="80" rx="4" fill="#2121de"/>
+  <rect x="272" y="150" width="8" height="80" rx="4" fill="#2121de"/>
+  <rect x="180" y="190" width="40" height="8" rx="4" fill="#2121de"/>
+  <!-- Dots -->
+  <circle cx="80" cy="70" r="3" fill="#ffcc80"/>
+  <circle cx="140" cy="70" r="3" fill="#ffcc80"/>
+  <circle cx="200" cy="70" r="3" fill="#ffcc80"/>
+  <circle cx="260" cy="70" r="3" fill="#ffcc80"/>
+  <circle cx="320" cy="70" r="3" fill="#ffcc80"/>
+  <circle cx="80" cy="150" r="3" fill="#ffcc80"/>
+  <circle cx="200" cy="150" r="3" fill="#ffcc80"/>
+  <circle cx="320" cy="150" r="3" fill="#ffcc80"/>
+  <circle cx="80" cy="230" r="3" fill="#ffcc80"/>
+  <circle cx="200" cy="230" r="3" fill="#ffcc80"/>
+  <circle cx="320" cy="230" r="3" fill="#ffcc80"/>
+  <!-- Power pellet -->
+  <circle cx="200" cy="80" r="6" fill="#ff80ab"/>
+  <!-- Pac-Man -->
+  <g transform="translate(130, 141)">
+    <path d="M0,20 A20,20 0 1,1 34,6 L12,20 Z" fill="#ffdd00"/>
+    <circle cx="24" cy="10" r="3" fill="#000"/>
+  </g>
+  <!-- Ghosts -->
+  <g transform="translate(220, 130)">
+    <rect x="0" y="4" width="24" height="20" rx="10" fill="#ff4444"/>
+    <rect x="0" y="4" width="24" height="14" rx="10" fill="#ff4444"/>
+    <rect x="0" y="18" width="6" height="10" rx="3" fill="#ff4444"/>
+    <rect x="6" y="18" width="6" height="10" rx="3" fill="#ff4444"/>
+    <rect x="12" y="18" width="6" height="10" rx="3" fill="#ff4444"/>
+    <rect x="18" y="18" width="6" height="10" rx="3" fill="#ff4444"/>
+    <circle cx="7" cy="10" r="4" fill="#fff"/>
+    <circle cx="17" cy="10" r="4" fill="#fff"/>
+    <circle cx="8" cy="10" r="2" fill="#222"/>
+    <circle cx="18" cy="10" r="2" fill="#222"/>
+  </g>
+  <g transform="translate(100, 200)">
+    <rect x="0" y="4" width="24" height="20" rx="10" fill="#ffb8ff"/>
+    <rect x="0" y="4" width="24" height="14" rx="10" fill="#ffb8ff"/>
+    <rect x="0" y="18" width="6" height="10" rx="3" fill="#ffb8ff"/>
+    <rect x="6" y="18" width="6" height="10" rx="3" fill="#ffb8ff"/>
+    <rect x="12" y="18" width="6" height="10" rx="3" fill="#ffb8ff"/>
+    <rect x="18" y="18" width="6" height="10" rx="3" fill="#ffb8ff"/>
+    <circle cx="7" cy="10" r="4" fill="#fff"/>
+    <circle cx="17" cy="10" r="4" fill="#fff"/>
+    <circle cx="8" cy="10" r="2" fill="#222"/>
+    <circle cx="18" cy="10" r="2" fill="#222"/>
+  </g>
+  <!-- Title -->
+  <text x="200" y="288" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="15" fill="#ffdd00" text-anchor="middle" font-weight="bold" letter-spacing="3">吃豆人</text>
+</svg>
