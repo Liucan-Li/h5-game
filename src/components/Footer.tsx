@@ -1,14 +1,11 @@
-"use client"
+import { getTranslations } from "next-intl/server"
 
-import { useTranslations } from "next-intl"
-
-export default function Footer() {
-  const t = useTranslations("footer")
+export default async function Footer() {
+  const t = await getTranslations("footer")
   const year = new Date().getFullYear()
 
   return (
     <footer className="mt-auto border-t border-[var(--border-default)]">
-      {/* Gradient accent line */}
       <div className="h-px bg-gradient-to-r from-transparent via-[var(--accent-1)]/30 to-transparent" />
 
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">

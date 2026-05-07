@@ -5,6 +5,13 @@ import { useLocale, useTranslations } from "next-intl"
 import { useState, useRef, useEffect } from "react"
 import { routing } from "@/i18n/routing"
 
+const flagMap: Record<string, string> = {
+  zh: "🇨🇳",
+  "zh-TW": "🇭🇰",
+  en: "🇺🇸",
+  ja: "🇯🇵",
+}
+
 export default function LanguageSwitcher() {
   const locale = useLocale()
   const pathname = usePathname()
@@ -23,7 +30,6 @@ export default function LanguageSwitcher() {
 
   const switchLocale = (next: string) => {
     setOpen(false)
-    // Replace locale prefix in current path
     const segments = pathname.split("/")
     if (routing.locales.includes(segments[1] as typeof routing.locales[number])) {
       segments[1] = next
@@ -31,13 +37,6 @@ export default function LanguageSwitcher() {
       segments.splice(1, 0, next)
     }
     router.push(segments.join("/") || "/")
-  }
-
-  const flagMap: Record<string, string> = {
-    zh: "🇨🇳",
-    "zh-TW": "🇭🇰",
-    en: "🇺🇸",
-    ja: "🇯🇵",
   }
 
   return (

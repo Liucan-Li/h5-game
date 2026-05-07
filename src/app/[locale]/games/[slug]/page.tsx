@@ -31,8 +31,10 @@ export default async function GamePage({ params }: Props) {
   const category = getCategoryBySlug(game.category)
   const localizedCat = category ? getLocalizedCategory(category, locale) : null
   const related = getRelatedGames(game, 6)
-  const t = await getTranslations({ locale, namespace: "breadcrumb" })
-  const tSection = await getTranslations({ locale, namespace: "section" })
+  const [t, tSection] = await Promise.all([
+    getTranslations({ locale, namespace: "breadcrumb" }),
+    getTranslations({ locale, namespace: "section" }),
+  ])
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
@@ -69,7 +71,7 @@ export default async function GamePage({ params }: Props) {
               <span>{localizedCat?.name ?? category.name}</span>
             </Link>
           )}
-          {game.tags.map((tag) => (
+          {localized.tags.map((tag) => (
             <span
               key={tag}
               className="rounded-xl bg-gradient-to-r from-[var(--accent-1)]/10 to-[var(--accent-2)]/10 px-3 py-1.5 text-xs font-medium text-[var(--accent-2)]"

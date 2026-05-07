@@ -38,8 +38,10 @@ export default async function CategoryPage({ params }: Props) {
 
   const localizedCat = getLocalizedCategory(category, locale)
   const games = getGamesByCategory(slug)
-  const t = await getTranslations({ locale, namespace: "category" })
-  const tBc = await getTranslations({ locale, namespace: "breadcrumb" })
+  const [t, tBc] = await Promise.all([
+    getTranslations({ locale, namespace: "category" }),
+    getTranslations({ locale, namespace: "breadcrumb" }),
+  ])
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
