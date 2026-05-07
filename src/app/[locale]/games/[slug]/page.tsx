@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { getGameBySlug, getRelatedGames, getCategoryBySlug } from "@/lib/games"
-import { getLocalizedGame } from "@/lib/i18n-games"
+import { getLocalizedGame, getLocalizedCategory } from "@/lib/i18n-games"
 import GameIframe from "@/components/GameIframe"
 import GameGrid from "@/components/GameGrid"
 import type { Metadata } from "next"
@@ -29,6 +29,7 @@ export default async function GamePage({ params }: Props) {
 
   const localized = getLocalizedGame(game, locale)
   const category = getCategoryBySlug(game.category)
+  const localizedCat = category ? getLocalizedCategory(category, locale) : null
   const related = getRelatedGames(game, 6)
   const t = await getTranslations({ locale, namespace: "breadcrumb" })
   const tSection = await getTranslations({ locale, namespace: "section" })
@@ -44,7 +45,7 @@ export default async function GamePage({ params }: Props) {
         {category && (
           <>
             <Link href={`/${locale}/categories/${category.slug}`} className="transition-colors hover:text-[var(--text-primary)]">
-              {category.name}
+              {localizedCat?.name ?? category.name}
             </Link>
             <span className="text-[var(--border-default)]">/</span>
           </>
@@ -65,7 +66,7 @@ export default async function GamePage({ params }: Props) {
               className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-default)] bg-white/[0.03] px-3.5 py-1.5 text-xs font-medium text-[var(--text-muted)] transition-all hover:border-[var(--accent-1)]/30 hover:text-[var(--accent-1)]"
             >
               <span>{category.icon}</span>
-              <span>{category.name}</span>
+              <span>{localizedCat?.name ?? category.name}</span>
             </Link>
           )}
           {game.tags.map((tag) => (

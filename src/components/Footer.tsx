@@ -1,4 +1,11 @@
+"use client"
+
+import { useTranslations } from "next-intl"
+
 export default function Footer() {
+  const t = useTranslations("footer")
+  const year = new Date().getFullYear()
+
   return (
     <footer className="mt-auto border-t border-[var(--border-default)]">
       {/* Gradient accent line */}
@@ -12,7 +19,7 @@ export default function Footer() {
             </span>
           </div>
           <p className="text-xs text-[var(--text-muted)]">
-            &copy; {new Date().getFullYear()} H5 Game Platform
+            {t("copyright", { year })}
           </p>
         </div>
       </div>

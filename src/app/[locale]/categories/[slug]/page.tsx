@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { getCategoryBySlug, getGamesByCategory, getCategories } from "@/lib/games"
+import { getLocalizedCategory } from "@/lib/i18n-games"
 import GameGrid from "@/components/GameGrid"
 import type { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
@@ -22,10 +23,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug, locale } = await params
   const category = getCategoryBySlug(slug)
   if (!category) return { title: "Category not found" }
+  const localized = getLocalizedCategory(category, locale)
   const t = await getTranslations({ locale, namespace: "category" })
   return {
-    title: `${t("gamesOf", { name: category.name })} - 乐游`,
-    description: category.description,
+    title: `${t("gamesOf", { name: localized.name })} - 乐游`,
+    description: localized.description,
   }
 }
 
@@ -34,6 +36,7 @@ export default async function CategoryPage({ params }: Props) {
   const category = getCategoryBySlug(slug)
   if (!category) notFound()
 
+  const localizedCat = getLocalizedCategory(category, locale)
   const games = getGamesByCategory(slug)
   const t = await getTranslations({ locale, namespace: "category" })
   const tBc = await getTranslations({ locale, namespace: "breadcrumb" })
@@ -44,7 +47,7 @@ export default async function CategoryPage({ params }: Props) {
       <nav className="mb-6 flex items-center gap-2 text-xs text-[var(--text-muted)]">
         <Link href={`/${locale}`} className="transition-colors hover:text-[var(--text-primary)]">{tBc("home")}</Link>
         <span className="text-[var(--border-default)]">/</span>
-        <span className="text-[var(--text-secondary)]">{category.name}</span>
+        <span className="text-[var(--text-secondary)]">{localizedCat.name}</span>
       </nav>
 
       {/* Category header */}
@@ -55,9 +58,9 @@ export default async function CategoryPage({ params }: Props) {
           </span>
           <div>
             <h1 className="text-2xl font-bold text-[var(--text-primary)] sm:text-3xl">
-              {t("gamesOf", { name: category.name })}
+              {t("gamesOf", { name: localizedCat.name })}
             </h1>
-            <p className="mt-1 text-sm text-[var(--text-muted)]">{category.description}</p>
+            <p className="mt-1 text-sm text-[var(--text-muted)]">{localizedCat.description}</p>
           </div>
         </div>
       </div>

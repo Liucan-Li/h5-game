@@ -53,6 +53,29 @@
     "ja": "日本語",
     "switchLabel": "Language"
   },
+  "footer": { "copyright": "© {year} LeYou Game Platform" },
+  "categories": {
+    "action":    { "name": "Action", "description": "Fast-paced action games to test your reflexes" },
+    "puzzle":    { "name": "Puzzle", "description": "Brain-training puzzle and logic games" },
+    "arcade":    { "name": "Arcade", "description": "Classic arcade-style games" },
+    "sports":    { "name": "Sports", "description": "Competitive sports games" },
+    "racing":    { "name": "Racing", "description": "Speed and thrills on the racetrack" },
+    "casual":    { "name": "Casual", "description": "Fun and relaxing casual games" },
+    "strategy":  { "name": "Strategy", "description": "Games that require strategic thinking" },
+    "adventure": { "name": "Adventure", "description": "Explore exciting adventure worlds" },
+    "board":     { "name": "Board", "description": "Chess and card game battles of wit" }
+  },
+  "tags": {
+    "测试": "Test", "策略": "Strategy", "单词": "Word", "动作": "Action",
+    "对战": "VS", "躲避": "Dodge", "反应": "Reflex", "格斗": "Fighting",
+    "怀旧": "Retro", "记忆": "Memory", "街机": "Arcade", "节奏": "Rhythm",
+    "经典": "Classic", "逻辑": "Logic", "麻将": "Mahjong", "冒险": "Adventure",
+    "跑酷": "Parkour", "扑克": "Poker", "棋类": "Board Game", "赛车": "Racing",
+    "射击": "Shooter", "数学": "Math", "数字": "Numbers", "速度": "Speed",
+    "太空": "Space", "体育": "Sports", "跳跃": "Jump", "文字": "Word",
+    "物理": "Physics", "象棋": "Chess", "消除": "Match", "休闲": "Casual",
+    "益智": "Puzzle", "音乐": "Music", "纸牌": "Card"
+  },
   "games": {
     "2048": { "title": "2048", "description": "Classic number-merging puzzle. Slide tiles to combine matching numbers and reach 2048!" },
     "snake": { "title": "Snake", "description": "Classic snake game. Control the snake to eat food, grow longer, and avoid hitting walls!" },
