@@ -35,7 +35,7 @@ export default function LanguageSwitcher() {
 
   const flagMap: Record<string, string> = {
     zh: "🇨🇳",
-    "zh-TW": "🇹🇼",
+    "zh-TW": "🇭🇰",
     en: "🇺🇸",
     ja: "🇯🇵",
   }
