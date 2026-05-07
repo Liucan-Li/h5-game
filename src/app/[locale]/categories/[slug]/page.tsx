@@ -3,37 +3,46 @@ import Link from "next/link"
 import { getCategoryBySlug, getGamesByCategory, getCategories } from "@/lib/games"
 import GameGrid from "@/components/GameGrid"
 import type { Metadata } from "next"
+import { getTranslations } from "next-intl/server"
+import { routing } from "@/i18n/routing"
 
 interface Props {
-  params: Promise<{ slug: string }>
+  params: Promise<{ slug: string; locale: string }>
 }
 
-export async function generateStaticParams() {
-  return getCategories().map((cat) => ({ slug: cat.slug }))
+export function generateStaticParams() {
+  const locales = routing.locales
+  const categories = getCategories()
+  return locales.flatMap((locale) =>
+    categories.map((cat) => ({ locale, slug: cat.slug }))
+  )
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params
+  const { slug, locale } = await params
   const category = getCategoryBySlug(slug)
-  if (!category) return { title: "分类未找到" }
+  if (!category) return { title: "Category not found" }
+  const t = await getTranslations({ locale, namespace: "category" })
   return {
-    title: `${category.name}游戏 - 乐游`,
+    title: `${t("gamesOf", { name: category.name })} - 乐游`,
     description: category.description,
   }
 }
 
 export default async function CategoryPage({ params }: Props) {
-  const { slug } = await params
+  const { slug, locale } = await params
   const category = getCategoryBySlug(slug)
   if (!category) notFound()
 
   const games = getGamesByCategory(slug)
+  const t = await getTranslations({ locale, namespace: "category" })
+  const tBc = await getTranslations({ locale, namespace: "breadcrumb" })
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
       {/* Breadcrumb */}
       <nav className="mb-6 flex items-center gap-2 text-xs text-[var(--text-muted)]">
-        <Link href="/" className="transition-colors hover:text-[var(--text-primary)]">首页</Link>
+        <Link href={`/${locale}`} className="transition-colors hover:text-[var(--text-primary)]">{tBc("home")}</Link>
         <span className="text-[var(--border-default)]">/</span>
         <span className="text-[var(--text-secondary)]">{category.name}</span>
       </nav>
@@ -46,7 +55,7 @@ export default async function CategoryPage({ params }: Props) {
           </span>
           <div>
             <h1 className="text-2xl font-bold text-[var(--text-primary)] sm:text-3xl">
-              {category.name}游戏
+              {t("gamesOf", { name: category.name })}
             </h1>
             <p className="mt-1 text-sm text-[var(--text-muted)]">{category.description}</p>
           </div>
@@ -54,8 +63,9 @@ export default async function CategoryPage({ params }: Props) {
       </div>
 
       <GameGrid
-        title={`共 ${games.length} 款游戏`}
+        title={t("gameCount", { count: games.length })}
         games={games}
+        locale={locale}
       />
     </div>
   )

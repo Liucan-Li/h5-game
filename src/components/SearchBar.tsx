@@ -2,9 +2,12 @@
 
 import { useRouter } from "next/navigation"
 import { useState, useCallback, useRef, useEffect } from "react"
+import { useTranslations, useLocale } from "next-intl"
 
 export default function SearchBar() {
   const router = useRouter()
+  const locale = useLocale()
+  const t = useTranslations("search")
   const [query, setQuery] = useState("")
   const [results, setResults] = useState<{ slug: string; title: string; thumbnail: string; category: string }[]>([])
   const [open, setOpen] = useState(false)
@@ -34,12 +37,12 @@ export default function SearchBar() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (query.trim()) { setOpen(false); router.push(`/games?q=${encodeURIComponent(query.trim())}`) }
+    if (query.trim()) { setOpen(false); router.push(`/${locale}/games?q=${encodeURIComponent(query.trim())}`) }
   }
 
   const handleSelect = (slug: string) => {
     setOpen(false); setQuery(""); setResults([])
-    router.push(`/games/${slug}`)
+    router.push(`/${locale}/games/${slug}`)
   }
 
   useEffect(() => {
@@ -79,7 +82,7 @@ export default function SearchBar() {
             onChange={(e) => handleChange(e.target.value)}
             onFocus={() => { setFocused(true); if (query.trim()) setOpen(true) }}
             onBlur={() => setFocused(false)}
-            placeholder="搜索游戏..."
+            placeholder={t("placeholder")}
             className="w-full bg-transparent px-3 py-2.5 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none"
           />
           <kbd className="mr-3 hidden shrink-0 rounded-md border border-[var(--border-default)] bg-black/[0.03] px-1.5 py-0.5 text-[10px] text-[var(--text-muted)] md:inline-block">
@@ -92,7 +95,7 @@ export default function SearchBar() {
       {open && results.length > 0 && (
         <div className="absolute top-full left-0 right-0 z-50 mt-2 overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--bg-secondary)] shadow-xl shadow-black/40 animate-scale-in">
           <div className="px-3 py-2 text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
-            游戏
+            {t("resultsLabel")}
           </div>
           {results.map((item) => (
             <button

@@ -3,12 +3,13 @@ import type { Game } from "@/lib/types"
 
 interface Props {
   game: Game
+  locale: string
 }
 
-export default function GameCard({ game }: Props) {
+export default function GameCard({ game, locale }: Props) {
   return (
     <Link
-      href={`/games/${game.slug}`}
+      href={`/${locale}/games/${game.slug}`}
       className="group relative flex flex-col overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--bg-card)] card-hover"
     >
       {/* Gradient overlay on hover */}

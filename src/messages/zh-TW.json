@@ -1,0 +1,108 @@
+{
+  "nav": {
+    "home": "首頁",
+    "allGames": "所有遊戲"
+  },
+  "hero": {
+    "badge": "{count} 款遊戲線上暢玩",
+    "title1": "發現你的",
+    "title2": "下一款最愛遊戲",
+    "subtitle": "彙集海量 H5 小遊戲，無需下載，開啟即玩",
+    "browseBtn": "瀏覽所有遊戲"
+  },
+  "section": {
+    "categories": "遊戲分類",
+    "featured": "🔥 推薦遊戲",
+    "allGames": "🎮 所有遊戲",
+    "related": "🎯 同類推薦"
+  },
+  "search": {
+    "placeholder": "搜尋遊戲...",
+    "resultsLabel": "遊戲",
+    "found": "找到 {count} 個結果",
+    "total": "共 {count} 款遊戲",
+    "searchLabel": "搜尋：「{q}」"
+  },
+  "game": {
+    "loading": "載入遊戲中...",
+    "fullscreen": "全螢幕",
+    "notFound": "找不到遊戲",
+    "exitFullscreen": "退出全螢幕"
+  },
+  "breadcrumb": {
+    "home": "首頁",
+    "games": "遊戲"
+  },
+  "gameGrid": {
+    "empty": "找不到遊戲"
+  },
+  "category": {
+    "gamesOf": "{name}遊戲",
+    "gameCount": "共 {count} 款遊戲",
+    "notFound": "找不到分類"
+  },
+  "meta": {
+    "siteTitle": "樂遊 - 線上暢玩海量小遊戲",
+    "siteDesc": "樂遊 - 彙集海量 H5 小遊戲，無需下載，開啟即玩。動作、益智、休閒、街機等各類遊戲一應俱全。",
+    "allGamesTitle": "所有遊戲 - 樂遊"
+  },
+  "lang": {
+    "zh": "简体中文",
+    "zh-TW": "繁體中文",
+    "en": "English",
+    "ja": "日本語",
+    "switchLabel": "語言"
+  },
+  "games": {
+    "2048": { "title": "2048", "description": "經典數字合成遊戲。滑動合併相同數字，挑戰合成 2048！" },
+    "snake": { "title": "貪吃蛇", "description": "經典貪吃蛇遊戲。控制小蛇吃食物，不斷變長，小心不要撞牆！" },
+    "memory": { "title": "記憶翻牌", "description": "測試你的記憶力！翻開卡片找到所有配對，用時越少越好。" },
+    "click-speed": { "title": "點擊速度測試", "description": "挑戰你的手速！在限定時間內盡可能多地點擊，看看你的 CPS 有多高！" },
+    "reaction-test": { "title": "反應速度測試", "description": "測試你的反應速度！螢幕變色時儘快點擊，看看你的反應時間。" },
+    "tic-tac-toe": { "title": "井字棋", "description": "經典井字棋遊戲。與 AI 對戰，三連一線即可獲勝！" },
+    "breakout": { "title": "打磚塊", "description": "經典打磚塊遊戲。控制擋板反彈小球，消滅所有磚塊！" },
+    "dino-runner": { "title": "恐龍快跑", "description": "Chrome 恐龍遊戲增強版。控制恐龍跳躍躲避障礙物，跑得越遠越好！" },
+    "flappy-bird": { "title": "Flappy Bird", "description": "經典 Flappy Bird 遊戲。點擊控制小鳥飛行，穿過管道縫隙！" },
+    "minesweeper": { "title": "踩地雷", "description": "經典踩地雷遊戲。揭開所有非雷格子，標記地雷位置，考驗你的邏輯推理！" },
+    "tetris": { "title": "俄羅斯方塊", "description": "經典俄羅斯方塊遊戲。旋轉擺放下落的方塊，填滿整行消除得分！" },
+    "space-shooter": { "title": "太空射擊", "description": "駕駛飛船在太空中射擊敵人，躲避隕石，挑戰高分！" },
+    "pong": { "title": "乒乓球", "description": "經典乒乓球遊戲。與 AI 對戰，誰能先得到 7 分？" },
+    "sudoku": { "title": "數獨", "description": "經典數獨遊戲。填入數字 1-9，使每行每列和每個宮格數字不重複。" },
+    "racing-game": { "title": "極速賽車", "description": "躲避車流，極速狂飆！測試你的反應和駕駛技巧。" },
+    "wordle": { "title": "猜單詞", "description": "Wordle 風格猜詞遊戲。五次機會猜出隱藏的五個字母單詞！" },
+    "whack-a-mole": { "title": "打地鼠", "description": "經典打地鼠遊戲！地鼠隨機出現，用錘子敲打它們得分！" },
+    "doodle-jump": { "title": "塗鴉跳躍", "description": "控制塗鴉小人不斷向上跳躍，踩中平台，小心不要掉下去！" },
+    "color-match": { "title": "顏色配配配", "description": "看準文字的顏色而不是文字本身，測試你的注意力！" },
+    "platform-runner": { "title": "冒險闖關", "description": "2D 平台跳躍遊戲。越過障礙，收集金幣，到達終點！" },
+    "slide-puzzle": { "title": "滑塊拼圖", "description": "拖動滑塊恢復數字順序。將打亂的 15 個數字按順序排列，看看你能多快完成！" },
+    "match-three": { "title": "消消樂", "description": "經典三消遊戲。交換相鄰寶石，三個或以上同色連成一線即可消除得分！" },
+    "sokoban": { "title": "推箱子", "description": "經典的倉庫推箱子謎題。將所有的箱子推到目標位置，規劃好你的每一步！" },
+    "aim-trainer": { "title": "瞄準射擊", "description": "測試你的瞄準和反應速度！在限定時間內擊中盡可能多的目標。" },
+    "rhythm-tap": { "title": "節奏敲擊", "description": "跟隨節奏，在音符到達目標區域時準確點擊！挑戰你的節奏感。" },
+    "asteroid-dodge": { "title": "躲避隕石", "description": "控制飛船在隕石雨中穿梭！堅持越久，分數越高！" },
+    "gomoku": { "title": "五子棋", "description": "經典五子棋遊戲。與 AI 對戰，先在橫、豎、斜任意方向連成五子即可獲勝！" },
+    "solitaire": { "title": "紙牌接龍", "description": "經典 Klondike 單人紙牌遊戲。將所有的牌按花色從 A 到 K 排列到目標區！" },
+    "reversi": { "title": "黑白棋", "description": "經典黑白棋（奧賽羅）遊戲。放置棋子包圍對手棋子即可翻轉，佔領最多格子者勝！" },
+    "contra": { "title": "魂斗羅", "description": "經典像素風格橫版射擊遊戲。消滅敵人、收集武器、挑戰 Boss，還原童年回憶！" },
+    "pacman": { "title": "吃豆人", "description": "經典吃豆人迷宮遊戲。吃掉所有豆子，躲避幽靈追擊，利用能量豆反擊！" },
+    "bubble-shooter": { "title": "泡泡龍", "description": "經典泡泡龍射擊遊戲。瞄準發射泡泡，三個同色相連即可消除，清空所有泡泡過關！" },
+    "tank-battle": { "title": "坦克大戰", "description": "經典坦克大戰遊戲。操控坦克保衛基地，消滅所有敵方坦克！" },
+    "fruit-ninja": { "title": "水果忍者", "description": "經典水果忍者遊戲。滑動切開飛出的水果，小心不要切到炸彈！" },
+    "connect-four": { "title": "四子棋", "description": "經典四子棋遊戲。輪流落子，橫、豎、斜任意方向四子連成一線即可獲勝！" },
+    "airplane-war": { "title": "飛機大戰", "description": "經典縱版射擊遊戲。操控戰機消滅敵機，收集道具升級火力，挑戰極限高分！" },
+    "mahjong-link": { "title": "連連看", "description": "經典麻將連連看遊戲。找到兩張相同的麻將牌，用不超過三次轉彎的路徑連接消除！" },
+    "bowling": { "title": "保齡球", "description": "經典保齡球遊戲。控制方向和力度，擊倒所有球瓶，挑戰滿分！" },
+    "pinball": { "title": "彈球", "description": "經典彈珠台遊戲。控制擋板彈射小球，擊中目標得分，爭取最高分！" },
+    "24-game": { "title": "24點", "description": "經典24點數學遊戲。用四張撲克牌通過加減乘除運算得出24，考驗你的算術能力！" },
+    "rock-paper-scissors": { "title": "剪刀石頭布", "description": "經典猜拳遊戲！與AI對決，看誰能猜中對手的出招，先贏5局者勝！" },
+    "blackjack": { "title": "21點", "description": "經典撲克牌21點！與莊家對戰，讓手牌點數盡量接近21而不超出，BlackJack一擊必勝！" },
+    "battleship": { "title": "海戰棋", "description": "經典海戰棋遊戲！在10×10的海域上布置艦隊，輪流炮擊，率先擊沉對手全部戰艦者勝！" },
+    "air-hockey": { "title": "空氣曲棍球", "description": "激情澎湃的空氣曲棍球！控制擋板擊打冰球，先攻入對方球門7球者勝！" },
+    "checkers": { "title": "國際跳棋", "description": "經典國際跳棋！在8×8棋盤上斜向移動棋子，跳吃對方棋子，消滅全部敵棋者勝！" },
+    "bomberman": { "title": "炸彈人", "description": "經典炸彈人！在迷宮中放置炸彈炸開牆壁、消滅敵人，小心不要被自己的炸彈炸到！" },
+    "war-card": { "title": "卡牌對戰", "description": "經典卡牌戰爭遊戲！雙方同時翻出一張牌，點數大的贏走所有牌，收集所有牌者勝！" },
+    "chinese-chess": { "title": "中國象棋", "description": "中華傳統象棋！操控紅方棋子與AI藍方對弈，將死對方老將即可獲勝！" },
+    "boxing": { "title": "拳擊對戰", "description": "激烈的拳擊對戰！使用A/D鍵出拳，S鍵防禦，消耗對手體力值，打倒對手贏得比賽！" },
+    "texas-holdem": { "title": "德州撲克", "description": "最流行的撲克遊戲！與AI莊家對決，利用底牌和公共牌組合最強牌型，贏取全部籌碼！" }
+  }
+}

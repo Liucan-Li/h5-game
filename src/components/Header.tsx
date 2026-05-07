@@ -2,18 +2,27 @@
 
 import Link from "next/link"
 import { useState, useEffect } from "react"
+import { useTranslations, useLocale } from "next-intl"
 import SearchBar from "./SearchBar"
 import CategoryNav from "./CategoryNav"
+import LanguageSwitcher from "./LanguageSwitcher"
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const t = useTranslations("nav")
+  const locale = useLocale()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener("scroll", onScroll, { passive: true })
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
+
+  const navLinks = [
+    { href: `/${locale}`, label: t("home") },
+    { href: `/${locale}/games`, label: t("allGames") },
+  ]
 
   return (
     <header
@@ -25,7 +34,7 @@ export default function Header() {
     >
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6">
         {/* Logo */}
-        <Link href="/" className="flex items-center shrink-0">
+        <Link href={`/${locale}`} className="flex items-center shrink-0">
           <span className="text-base font-semibold">
             <span className="text-gradient">乐游</span>
           </span>
@@ -38,10 +47,7 @@ export default function Header() {
 
         {/* Nav - desktop */}
         <nav className="hidden md:flex items-center gap-1">
-          {[
-            { href: "/", label: "首页" },
-            { href: "/games", label: "全部游戏" },
-          ].map((link) => (
+          {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -51,6 +57,11 @@ export default function Header() {
             </Link>
           ))}
         </nav>
+
+        {/* Language switcher - desktop */}
+        <div className="hidden md:block">
+          <LanguageSwitcher />
+        </div>
 
         {/* Mobile menu button */}
         <button
@@ -75,10 +86,7 @@ export default function Header() {
             <SearchBar />
           </div>
           <nav className="mb-4 flex flex-col gap-1">
-            {[
-              { href: "/", label: "首页" },
-              { href: "/games", label: "全部游戏" },
-            ].map((link) => (
+            {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -89,7 +97,10 @@ export default function Header() {
               </Link>
             ))}
           </nav>
-          <CategoryNav onSelect={() => setMenuOpen(false)} />
+          <div className="mb-4">
+            <LanguageSwitcher />
+          </div>
+          <CategoryNav locale={locale} onSelect={() => setMenuOpen(false)} />
         </div>
       )}
     </header>

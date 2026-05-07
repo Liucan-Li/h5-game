@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from "react"
 import type { Game } from "@/lib/types"
+import { useTranslations } from "next-intl"
 
 interface Props {
   game: Game
@@ -11,6 +12,7 @@ export default function GameIframe({ game }: Props) {
   const [loading, setLoading] = useState(true)
   const [fullscreen, setFullscreen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  const t = useTranslations("game")
 
   const toggleFullscreen = useCallback(() => {
     if (!containerRef.current) return
@@ -39,7 +41,7 @@ export default function GameIframe({ game }: Props) {
               <div className="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-t-[var(--accent-1)]" />
               <div className="absolute inset-1 animate-spin rounded-full border-2 border-transparent border-t-[var(--accent-2)]" style={{ animationDuration: "0.8s" }} />
             </div>
-            <span className="text-xs text-[var(--text-muted)]">加载游戏中...</span>
+            <span className="text-xs text-[var(--text-muted)]">{t("loading")}</span>
           </div>
         </div>
       )}
@@ -57,7 +59,7 @@ export default function GameIframe({ game }: Props) {
         <button
           onClick={toggleFullscreen}
           className="flex h-9 w-9 items-center justify-center rounded-xl bg-black/60 text-white backdrop-blur-sm transition-all hover:bg-black/80"
-          aria-label="全屏"
+          aria-label={fullscreen ? t("exitFullscreen") : t("fullscreen")}
         >
           {fullscreen ? (
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

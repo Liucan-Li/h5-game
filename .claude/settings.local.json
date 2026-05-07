@@ -7,7 +7,9 @@
       "Bash(curl *)",
       "Bash(env)",
       "Bash(nslookup github.com)",
-      "Bash(ssh *)"
+      "Bash(ssh *)",
+      "Bash(git add *)",
+      "Bash(git commit *)"
     ]
   }
 }

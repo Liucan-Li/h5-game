@@ -2,15 +2,18 @@
 
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { useTranslations, useLocale } from "next-intl"
 
 export default function SearchForm() {
   const router = useRouter()
+  const locale = useLocale()
+  const t = useTranslations("search")
   const [query, setQuery] = useState("")
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (query.trim()) {
-      router.push(`/games?q=${encodeURIComponent(query.trim())}`)
+      router.push(`/${locale}/games?q=${encodeURIComponent(query.trim())}`)
     }
   }
 
@@ -31,7 +34,7 @@ export default function SearchForm() {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="搜索游戏..."
+          placeholder={t("placeholder")}
           className="w-full rounded-xl border border-[var(--border-default)] bg-[var(--bg-card)] py-2.5 pl-10 pr-4 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none transition-all focus:border-[var(--accent-1)] focus:shadow-sm focus:shadow-[var(--accent-glow)]"
         />
       </div>

@@ -3,17 +3,29 @@ import { getAllGames, searchGames } from "@/lib/games"
 import GameGrid from "@/components/GameGrid"
 import CategoryNav from "@/components/CategoryNav"
 import SearchForm from "./SearchForm"
+import { getTranslations } from "next-intl/server"
 
-export const metadata: Metadata = {
-  title: "全部游戏 - 乐游",
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: "meta" })
+  return { title: t("allGamesTitle") }
 }
 
 export default async function GamesPage({
+  params,
   searchParams,
 }: {
+  params: Promise<{ locale: string }>
   searchParams: Promise<{ q?: string }>
 }) {
+  const { locale } = await params
   const { q } = await searchParams
+  const t = await getTranslations({ locale, namespace: "search" })
+  const tBc = await getTranslations({ locale, namespace: "breadcrumb" })
   const games = q ? searchGames(q) : getAllGames()
 
   return (
@@ -23,14 +35,14 @@ export default async function GamesPage({
         <h1 className="text-2xl font-bold text-[var(--text-primary)] sm:text-3xl">
           {q ? (
             <>
-              搜索: "<span className="text-gradient">{q}</span>"
+              {tBc("games")}: &ldquo;<span className="text-gradient">{q}</span>&rdquo;
             </>
           ) : (
-            "全部游戏"
+            tBc("games")
           )}
         </h1>
         <p className="mt-1 text-sm text-[var(--text-muted)]">
-          {q ? `找到 ${games.length} 个结果` : `共 ${games.length} 款游戏`}
+          {q ? t("found", { count: games.length }) : t("total", { count: games.length })}
         </p>
       </div>
 
@@ -41,11 +53,11 @@ export default async function GamesPage({
 
       {/* Category filter */}
       <div className="mb-8">
-        <CategoryNav />
+        <CategoryNav locale={locale} />
       </div>
 
       {/* Game grid */}
-      <GameGrid title="" games={games} />
+      <GameGrid title="" games={games} locale={locale} />
     </div>
   )
 }

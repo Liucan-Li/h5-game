@@ -1,12 +1,17 @@
 import type { Game } from "@/lib/types"
 import GameCard from "./GameCard"
+import { getTranslations } from "next-intl/server"
+import { getLocalizedGame } from "@/lib/i18n-games"
 
 interface Props {
   games: Game[]
   title?: string
+  locale: string
 }
 
-export default function GameGrid({ games, title }: Props) {
+export default async function GameGrid({ games, title, locale }: Props) {
+  const t = await getTranslations({ locale, namespace: "gameGrid" })
+
   if (games.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -18,7 +23,7 @@ export default function GameGrid({ games, title }: Props) {
             <line x1="15" y1="9" x2="15.01" y2="9" />
           </svg>
         </div>
-        <p className="text-sm text-[var(--text-muted)]">没有找到游戏</p>
+        <p className="text-sm text-[var(--text-muted)]">{t("empty")}</p>
       </div>
     )
   }
@@ -34,7 +39,7 @@ export default function GameGrid({ games, title }: Props) {
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {games.map((game) => (
           <div key={game.id} className="animate-fade-in-up">
-            <GameCard game={game} />
+            <GameCard game={getLocalizedGame(game, locale)} locale={locale} />
           </div>
         ))}
       </div>

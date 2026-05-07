@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>拳击对战</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0a0a0a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100dvh;
+    font-family: 'Courier New', monospace;
+    overflow: hidden;
+  }
+  .wrapper {
+    background: #1a0a0a;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 0 60px rgba(255,50,50,0.1);
+    max-width: 480px;
+    width: 100%;
+    margin: 8px;
+    text-align: center;
+  }
+  h1 { font-size: 18px; color: #f74; letter-spacing: 3px; margin-bottom: 4px; }
+  .subtitle { font-size: 11px; color: #446; margin-bottom: 10px; }
+  .fighters {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .fighter { flex: 1; text-align: center; }
+  .fighter-name { font-size: 11px; color: #446; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px; }
+  .hp-bar-wrap { height: 14px; background: #111; border-radius: 7px; border: 1px solid #334; overflow: hidden; margin: 0 6px; }
+  .hp-bar { height: 100%; border-radius: 7px; transition: width 0.3s; }
+  .hp-p { background: linear-gradient(90deg, #f44, #f88); }
+  .hp-a { background: linear-gradient(90deg, #44f, #88f); }
+  .hp-val { font-size: 13px; color: #888; margin-top: 2px; }
+  .arena {
+    background: #200808;
+    border-radius: 10px;
+    border: 2px solid #440;
+    padding: 6px;
+    margin-bottom: 10px;
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+  }
+  .fighter-sprite {
+    position: absolute;
+    font-size: 48px;
+    transition: left 0.1s;
+    bottom: 10px;
+    line-height: 1;
+  }
+  #pFighter { left: 40px; }
+  #aFighter { right: 40px; transform: scaleX(-1); }
+  .hit-flash { animation: flash 0.15s; }
+  @keyframes flash { 0%,100%{opacity:1} 50%{opacity:0.2} }
+  .status-msg {
+    font-size: 18px;
+    font-weight: bold;
+    min-height: 28px;
+    margin-bottom: 8px;
+  }
+  .s-hit { color: #f74; }
+  .s-block { color: #7df; }
+  .s-miss { color: #445; }
+  .s-ko { color: #ff0; }
+  .controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .ctrl-btn {
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: 1.5px solid #334;
+    background: #111;
+    color: #eee;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.1s;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .btn-jab { color: #f74; border-color: #f74; }
+  .btn-jab:hover { background: #f743; }
+  .btn-cross { color: #fa4; border-color: #fa4; }
+  .btn-cross:hover { background: #fa43; }
+  .btn-hook { color: #7df; border-color: #7df; }
+  .btn-hook:hover { background: #7df3; }
+  .btn-guard { color: #7f7; border-color: #7f7; }
+  .btn-guard:hover { background: #7f73; }
+  .btn-reset { color: #888; border-color: #888; }
+  .btn-reset:hover { background: #8883; }
+  .ctrl-btn:active { transform: scale(0.95); }
+  .ctrl-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .round-info { font-size: 11px; color: #446; margin-top: 4px; }
+  .combo-display { font-size: 13px; color: #fa4; min-height: 18px; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <h1>🥊 拳击对战</h1>
+  <div class="subtitle">KO 对手获得胜利！</div>
+
+  <div class="fighters">
+    <div class="fighter">
+      <div class="fighter-name">你</div>
+      <div class="hp-bar-wrap"><div class="hp-bar hp-p" id="pHpBar" style="width:100%"></div></div>
+      <div class="hp-val"><span id="pHp">100</span>/100</div>
+    </div>
+    <div style="font-size:22px;color:#334;align-self:center;">VS</div>
+    <div class="fighter">
+      <div class="fighter-name">AI</div>
+      <div class="hp-bar-wrap"><div class="hp-bar hp-a" id="aHpBar" style="width:100%"></div></div>
+      <div class="hp-val"><span id="aHp">100</span>/100</div>
+    </div>
+  </div>
+
+  <div class="arena">
+    <div class="fighter-sprite" id="pFighter">🥊</div>
+    <div class="fighter-sprite" id="aFighter">🤖</div>
+    <canvas id="arenaFx" width="460" height="200" style="position:absolute;top:0;left:0;pointer-events:none;"></canvas>
+  </div>
+
+  <div class="status-msg" id="statusMsg">&nbsp;</div>
+  <div class="combo-display" id="comboDisplay">&nbsp;</div>
+
+  <div class="controls">
+    <button class="ctrl-btn btn-jab" id="jabBtn" onclick="attack('jab')">直拳 [A]</button>
+    <button class="ctrl-btn btn-cross" id="crossBtn" onclick="attack('cross')">重拳 [D]</button>
+    <button class="ctrl-btn btn-hook" id="hookBtn" onclick="attack('hook')">勾拳 [W]</button>
+    <button class="ctrl-btn btn-guard" id="guardBtn" onclick="guard()">防御 [S]</button>
+    <button class="ctrl-btn btn-reset" onclick="resetGame()">重新开始</button>
+  </div>
+  <div class="round-info" id="roundInfo">第 1 回合 | 连击奖励会增加伤害</div>
+</div>
+
+<script>
+const ATTACKS = {
+  jab:   { dmg: 8,  hitRate: 0.85, name: '直拳', icon: '⚡' },
+  cross: { dmg: 16, hitRate: 0.65, name: '重拳', icon: '💥' },
+  hook:  { dmg: 12, hitRate: 0.75, name: '勾拳', icon: '🌀' },
+};
+
+let pHp = 100, aHp = 100, guarding = false, combo = 0, round = 1, locked = false, guardTimer = null;
+
+function resetGame() {
+  pHp = 100; aHp = 100; guarding = false; combo = 0; round = 1; locked = false;
+  if (guardTimer) clearTimeout(guardTimer);
+  document.getElementById('pHp').textContent = '100';
+  document.getElementById('aHp').textContent = '100';
+  document.getElementById('pHpBar').style.width = '100%';
+  document.getElementById('aHpBar').style.width = '100%';
+  document.getElementById('statusMsg').textContent = ' ';
+  document.getElementById('comboDisplay').textContent = ' ';
+  document.getElementById('roundInfo').textContent = '第 1 回合 | 连击奖励会增加伤害';
+  document.querySelectorAll('.ctrl-btn').forEach(b => b.disabled = false);
+  ['jabBtn','crossBtn','hookBtn','guardBtn'].forEach(id => document.getElementById(id).disabled = false);
+  document.getElementById('pFighter').style.left = '40px';
+  document.getElementById('aFighter').style.right = '40px';
+}
+
+function setMsg(msg, cls) {
+  const el = document.getElementById('statusMsg');
+  el.textContent = msg;
+  el.className = 'status-msg ' + cls;
+}
+
+function updateHpBars() {
+  const pPct = Math.max(0, pHp) / 100 * 100;
+  const aPct = Math.max(0, aHp) / 100 * 100;
+  document.getElementById('pHp').textContent = Math.max(0, pHp);
+  document.getElementById('aHp').textContent = Math.max(0, aHp);
+  document.getElementById('pHpBar').style.width = pPct + '%';
+  document.getElementById('aHpBar').style.width = aPct + '%';
+}
+
+function guard() {
+  if (locked) return;
+  guarding = true;
+  setMsg('🛡️ 防御姿态！', 's-block');
+  document.getElementById('guardBtn').style.background = '#7f73';
+  if (guardTimer) clearTimeout(guardTimer);
+  guardTimer = setTimeout(() => {
+    guarding = false;
+    document.getElementById('guardBtn').style.background = '';
+  }, 1500);
+}
+
+function flash(el) {
+  el.classList.remove('hit-flash');
+  void el.offsetWidth;
+  el.classList.add('hit-flash');
+}
+
+function attack(type) {
+  if (locked) return;
+  locked = true;
+
+  const atk = ATTACKS[type];
+  const comboMult = 1 + combo * 0.2;
+  let playerDmg = 0, aiDmg = 0, msgs = [];
+
+  // Player hits AI
+  if (Math.random() < atk.hitRate) {
+    playerDmg = Math.round(atk.dmg * comboMult);
+    combo++;
+    aHp -= playerDmg;
+    flash(document.getElementById('aFighter'));
+    msgs.push(atk.icon + ' ' + atk.name + '命中！-' + playerDmg);
+    document.getElementById('comboDisplay').textContent = combo > 1 ? '🔥 连击 x' + combo + ' (x' + comboMult.toFixed(1) + ')' : ' ';
+  } else {
+    combo = 0;
+    msgs.push('💨 ' + atk.name + '未中');
+    document.getElementById('comboDisplay').textContent = ' ';
+  }
+
+  updateHpBars();
+  if (aHp <= 0) { endGame('player'); return; }
+
+  // AI counterattack
+  setTimeout(() => {
+    const aiAttacks = ['jab','cross','hook'];
+    const aiType = aiAttacks[Math.floor(Math.random() * aiAttacks.length)];
+    const aiAtk = ATTACKS[aiType];
+    const aiHitRate = guarding ? aiAtk.hitRate * 0.3 : aiAtk.hitRate;
+    if (Math.random() < aiHitRate) {
+      const reduction = guarding ? 0.4 : 1;
+      aiDmg = Math.round(aiAtk.dmg * reduction);
+      pHp -= aiDmg;
+      flash(document.getElementById('pFighter'));
+      const guardNote = guarding ? ' (格挡减伤)' : '';
+      msgs.push('🤖 AI ' + aiAtk.name + '反击 -' + aiDmg + guardNote);
+    } else {
+      msgs.push('🤖 AI ' + aiAtk.name + '被躲开');
+    }
+
+    updateHpBars();
+    setMsg(msgs.join('  |  '), playerDmg > 0 ? 's-hit' : 's-miss');
+
+    if (pHp <= 0) { endGame('ai'); return; }
+
+    // Round check
+    if (round < 5 && (pHp < 40 || aHp < 40)) {
+      round++;
+      document.getElementById('roundInfo').textContent = '第 ' + round + ' 回合 | 局势紧张！';
+    }
+
+    locked = false;
+  }, 500);
+}
+
+function endGame(winner) {
+  locked = true;
+  guarding = false;
+  const msg = winner === 'player' ? '🏆 KO！你赢了！' : '💀 KO！AI 赢了！';
+  setMsg(msg, 's-ko');
+  ['jabBtn','crossBtn','hookBtn','guardBtn'].forEach(id => document.getElementById(id).disabled = true);
+}
+
+document.addEventListener('keydown', e => {
+  const map = { KeyA: () => attack('jab'), KeyD: () => attack('cross'), KeyW: () => attack('hook'), KeyS: guard };
+  if (map[e.code]) { e.preventDefault(); map[e.code](); }
+});
+</script>
+</body>
+</html>
