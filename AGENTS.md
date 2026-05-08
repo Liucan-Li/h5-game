@@ -81,3 +81,14 @@ interface Props { locale: string }
 | `src/proxy.ts` | next-intl middleware (Next.js 16 proxy convention) |
 | `src/lib/i18n-games.ts` | `getLocalizedGame()` — overlays translated title/description |
 | `src/messages/*.json` | Translation files (4 locales) |
+
+# SEO — MANDATORY
+
+Every new page MUST follow the SEO checklist in `SEO.md`.
+
+Key rules at a glance:
+- Implement `generateMetadata` with **title, description, canonical, hreflang (4 locales), openGraph**
+- Add new routes to `src/app/sitemap.ts`
+- Inject **JSON-LD** structured data in page components
+
+See `SEO.md` for full templates and infrastructure setup.
