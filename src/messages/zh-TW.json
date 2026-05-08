@@ -44,7 +44,8 @@
   "meta": {
     "siteTitle": "樂遊 - 線上暢玩海量小遊戲",
     "siteDesc": "樂遊 - 彙集海量 H5 小遊戲，無需下載，開啟即玩。動作、益智、休閒、街機等各類遊戲一應俱全。",
-    "allGamesTitle": "所有遊戲 - 樂遊"
+    "allGamesTitle": "所有遊戲 - 樂遊",
+    "categoryTitle": "{name}遊戲 - 樂遊"
   },
   "lang": {
     "zh": "简体中文",

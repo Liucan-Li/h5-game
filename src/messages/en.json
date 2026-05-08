@@ -44,7 +44,8 @@
   "meta": {
     "siteTitle": "LeYou - Play Hundreds of Games Online",
     "siteDesc": "LeYou - Hundreds of H5 games, no download needed. Action, puzzle, casual, arcade and more.",
-    "allGamesTitle": "All Games - LeYou"
+    "allGamesTitle": "All Games - LeYou",
+    "categoryTitle": "{name} Games - LeYou"
   },
   "lang": {
     "zh": "简体中文",

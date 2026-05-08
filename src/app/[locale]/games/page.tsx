@@ -5,6 +5,8 @@ import CategoryNav from "@/components/CategoryNav"
 import SearchForm from "./SearchForm"
 import { getTranslations } from "next-intl/server"
 
+const BASE_URL = "https://www.playgo.me"
+
 export async function generateMetadata({
   params,
 }: {
@@ -12,7 +14,29 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: "meta" })
-  return { title: t("allGamesTitle") }
+  const title = t("allGamesTitle")
+  const desc = t("siteDesc")
+  return {
+    title,
+    description: desc,
+    alternates: {
+      canonical: `${BASE_URL}/${locale}/games`,
+      languages: {
+        zh: `${BASE_URL}/zh/games`,
+        "zh-TW": `${BASE_URL}/zh-TW/games`,
+        en: `${BASE_URL}/en/games`,
+        ja: `${BASE_URL}/ja/games`,
+      },
+    },
+    openGraph: {
+      title,
+      description: desc,
+      url: `${BASE_URL}/${locale}/games`,
+      siteName: "LeYou",
+      locale,
+      type: "website",
+    },
+  }
 }
 
 export default async function GamesPage({

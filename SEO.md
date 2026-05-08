@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
   // ...获取页面数据...
 
-  const canonicalUrl = `https://leyou.game/${locale}/your-page`
+  const canonicalUrl = `https://www.playgo.me/${locale}/your-page`
 
   return {
     title: `页面标题 | LeYou`,
@@ -39,10 +39,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     alternates: {
       canonical: canonicalUrl,
       languages: {
-        zh:      "https://leyou.game/zh/your-page",
-        "zh-TW": "https://leyou.game/zh-TW/your-page",
-        en:      "https://leyou.game/en/your-page",
-        ja:      "https://leyou.game/ja/your-page",
+        zh:      "https://www.playgo.me/zh/your-page",
+        "zh-TW": "https://www.playgo.me/zh-TW/your-page",
+        en:      "https://www.playgo.me/en/your-page",
+        ja:      "https://www.playgo.me/ja/your-page",
       },
     },
 
@@ -105,8 +105,8 @@ routing.locales.map((locale) => ({
       "@type": "VideoGame",
       name: localized.title,
       description: localized.description,
-      url: `https://leyou.game/${locale}/games/${game.slug}`,
-      image: `https://leyou.game${game.thumbnail}`,
+      url: `https://www.playgo.me/${locale}/games/${game.slug}`,
+      image: `https://www.playgo.me${game.thumbnail}`,
       genre: game.category,
       playMode: "SinglePlayer",
       applicationCategory: "Game",
@@ -137,10 +137,10 @@ JSON-LD：`WebSite` + `SearchAction`（让 Google 展示站内搜索框）
   "@context": "https://schema.org",
   "@type": "WebSite",
   "name": "LeYou",
-  "url": "https://leyou.game",
+  "url": "https://www.playgo.me",
   "potentialAction": {
     "@type": "SearchAction",
-    "target": "https://leyou.game/zh/games?q={search_term_string}",
+    "target": "https://www.playgo.me/zh/games?q={search_term_string}",
     "query-input": "required name=search_term_string"
   }
 }
@@ -166,17 +166,17 @@ JSON-LD：`WebSite` + `SearchAction`（让 Google 展示站内搜索框）
   title: `${localized.title} | LeYou`,
   description: localized.description,
   alternates: {
-    canonical: `https://leyou.game/${locale}/games/${slug}`,
+    canonical: `https://www.playgo.me/${locale}/games/${slug}`,
     languages: {
-      zh:      `https://leyou.game/zh/games/${slug}`,
-      "zh-TW": `https://leyou.game/zh-TW/games/${slug}`,
-      en:      `https://leyou.game/en/games/${slug}`,
-      ja:      `https://leyou.game/ja/games/${slug}`,
+      zh:      `https://www.playgo.me/zh/games/${slug}`,
+      "zh-TW": `https://www.playgo.me/zh-TW/games/${slug}`,
+      en:      `https://www.playgo.me/en/games/${slug}`,
+      ja:      `https://www.playgo.me/ja/games/${slug}`,
     },
   },
   openGraph: {
     type: "article",
-    images: [{ url: `https://leyou.game${game.thumbnail}` }],
+    images: [{ url: `https://www.playgo.me${game.thumbnail}` }],
     ...
   },
 }
@@ -191,7 +191,7 @@ JSON-LD：`VideoGame`（见上方示例）
   title: `${localizedCat.name} 游戏 | LeYou`,
   description: localizedCat.description,
   alternates: {
-    canonical: `https://leyou.game/${locale}/categories/${slug}`,
+    canonical: `https://www.playgo.me/${locale}/categories/${slug}`,
     languages: { ... },
   },
   openGraph: { type: "website", ... },
@@ -205,8 +205,8 @@ JSON-LD：`BreadcrumbList`
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   "itemListElement": [
-    { "@type": "ListItem", "position": 1, "name": "首页", "item": "https://leyou.game/zh" },
-    { "@type": "ListItem", "position": 2, "name": "动作游戏", "item": "https://leyou.game/zh/categories/action" }
+    { "@type": "ListItem", "position": 1, "name": "首页", "item": "https://www.playgo.me/zh" },
+    { "@type": "ListItem", "position": 2, "name": "动作游戏", "item": "https://www.playgo.me/zh/categories/action" }
   ]
 }
 ```
@@ -225,7 +225,7 @@ import type { MetadataRoute } from "next"
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: { userAgent: "*", allow: "/" },
-    sitemap: "https://leyou.game/sitemap.xml",
+    sitemap: "https://www.playgo.me/sitemap.xml",
   }
 }
 ```
@@ -237,7 +237,7 @@ import type { MetadataRoute } from "next"
 import { getAllGames, getCategories } from "@/lib/games"
 import { routing } from "@/i18n/routing"
 
-const BASE_URL = "https://leyou.game"
+const BASE_URL = "https://www.playgo.me"
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const locales = routing.locales
@@ -297,12 +297,12 @@ export async function generateMetadata({ params }): Promise<Metadata> {
     title: { default: t("siteTitle"), template: `%s | LeYou` },
     description: t("siteDesc"),
     alternates: {
-      canonical: `https://leyou.game/${locale}`,
+      canonical: `https://www.playgo.me/${locale}`,
       languages: {
-        zh:      "https://leyou.game/zh",
-        "zh-TW": "https://leyou.game/zh-TW",
-        en:      "https://leyou.game/en",
-        ja:      "https://leyou.game/ja",
+        zh:      "https://www.playgo.me/zh",
+        "zh-TW": "https://www.playgo.me/zh-TW",
+        en:      "https://www.playgo.me/en",
+        ja:      "https://www.playgo.me/ja",
       },
     },
     openGraph: {
@@ -349,5 +349,5 @@ export async function generateMetadata({ params }): Promise<Metadata> {
 | Google Search Console → URL Inspection | 验证 sitemap 和 canonical |
 | Open Graph Debugger (Facebook) | 验证 OG 标签社交预览 |
 | Twitter Card Validator | 验证 Twitter Card |
-| `curl https://leyou.game/sitemap.xml` | 检查 sitemap URL 数量 |
-| `curl https://leyou.game/robots.txt` | 检查爬虫规则 |
+| `curl https://www.playgo.me/sitemap.xml` | 检查 sitemap URL 数量 |
+| `curl https://www.playgo.me/robots.txt` | 检查爬虫规则 |

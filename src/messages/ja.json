@@ -44,7 +44,8 @@
   "meta": {
     "siteTitle": "楽遊 - オンラインゲームを無料プレイ",
     "siteDesc": "楽遊 - 大量のH5ゲームを集約。ダウンロード不要でアクション・パズル・カジュアル・アーケードなど様々なゲームを楽しもう。",
-    "allGamesTitle": "全ゲーム - 楽遊"
+    "allGamesTitle": "全ゲーム - 楽遊",
+    "categoryTitle": "{name}ゲーム - 楽遊"
   },
   "lang": {
     "zh": "简体中文",

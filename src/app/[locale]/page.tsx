@@ -3,6 +3,7 @@ import GameGrid from "@/components/GameGrid"
 import CategoryGridSection from "@/components/CategoryGridSection"
 import { getFeaturedGames, getAllGames } from "@/lib/games"
 import { getTranslations } from "next-intl/server"
+import { websiteJsonLd } from "@/lib/structured-data"
 
 export default async function HomePage({
   params,
@@ -15,8 +16,14 @@ export default async function HomePage({
   const featured = getFeaturedGames()
   const all = getAllGames()
 
+  const jsonLd = websiteJsonLd(locale)
+
   return (
     <div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* ── Hero ── */}
       <section className="hero-gradient relative overflow-hidden pb-16 pt-12 sm:pb-24 sm:pt-20">
         {/* Floating emoji decorations */}

@@ -2,10 +2,13 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { getCategoryBySlug, getGamesByCategory, getCategories } from "@/lib/games"
 import { getLocalizedCategory } from "@/lib/i18n-games"
+import { breadcrumbJsonLd } from "@/lib/structured-data"
 import GameGrid from "@/components/GameGrid"
 import type { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
 import { routing } from "@/i18n/routing"
+
+const BASE_URL = "https://www.playgo.me"
 
 interface Props {
   params: Promise<{ slug: string; locale: string }>
@@ -24,10 +27,30 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const category = getCategoryBySlug(slug)
   if (!category) return { title: "Category not found" }
   const localized = getLocalizedCategory(category, locale)
-  const t = await getTranslations({ locale, namespace: "category" })
+  const t = await getTranslations({ locale, namespace: "meta" })
+  const title = t("categoryTitle", { name: localized.name })
+  const description = localized.description
+  const canonicalUrl = `${BASE_URL}/${locale}/categories/${slug}`
   return {
-    title: `${t("gamesOf", { name: localized.name })} - 乐游`,
-    description: localized.description,
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        zh: `${BASE_URL}/zh/categories/${slug}`,
+        "zh-TW": `${BASE_URL}/zh-TW/categories/${slug}`,
+        en: `${BASE_URL}/en/categories/${slug}`,
+        ja: `${BASE_URL}/ja/categories/${slug}`,
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      siteName: "LeYou",
+      locale,
+      type: "website",
+    },
   }
 }
 
@@ -43,8 +66,18 @@ export default async function CategoryPage({ params }: Props) {
     getTranslations({ locale, namespace: "breadcrumb" }),
   ])
 
+  const jsonLd = breadcrumbJsonLd([
+    { name: tBc("home"), url: `${BASE_URL}/${locale}` },
+    { name: localizedCat.name, url: `${BASE_URL}/${locale}/categories/${slug}` },
+  ])
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* Breadcrumb */}
       <nav className="mb-6 flex items-center gap-2 text-xs text-[var(--text-muted)]">
         <Link href={`/${locale}`} className="transition-colors hover:text-[var(--text-primary)]">{tBc("home")}</Link>

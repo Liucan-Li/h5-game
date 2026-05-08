@@ -2,10 +2,13 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { getGameBySlug, getRelatedGames, getCategoryBySlug } from "@/lib/games"
 import { getLocalizedGame, getLocalizedCategory } from "@/lib/i18n-games"
+import { videoGameJsonLd } from "@/lib/structured-data"
 import GameIframe from "@/components/GameIframe"
 import GameGrid from "@/components/GameGrid"
 import type { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
+
+const BASE_URL = "https://www.playgo.me"
 
 interface Props {
   params: Promise<{ slug: string; locale: string }>
@@ -16,9 +19,36 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const game = getGameBySlug(slug)
   if (!game) return { title: "Game not found" }
   const localized = getLocalizedGame(game, locale)
+  const title = localized.title
+  const description = localized.description
+  const canonicalUrl = `${BASE_URL}/${locale}/games/${slug}`
   return {
-    title: `${localized.title} - 乐游`,
-    description: localized.description,
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        zh: `${BASE_URL}/zh/games/${slug}`,
+        "zh-TW": `${BASE_URL}/zh-TW/games/${slug}`,
+        en: `${BASE_URL}/en/games/${slug}`,
+        ja: `${BASE_URL}/ja/games/${slug}`,
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      siteName: "LeYou",
+      locale,
+      type: "article",
+      images: [{ url: `${BASE_URL}${game.thumbnail}`, width: 400, height: 400, alt: title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [`${BASE_URL}${game.thumbnail}`],
+    },
   }
 }
 
@@ -36,8 +66,15 @@ export default async function GamePage({ params }: Props) {
     getTranslations({ locale, namespace: "section" }),
   ])
 
+  const jsonLd = videoGameJsonLd(game, localized.title, localized.description, locale)
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* Breadcrumb */}
       <nav className="mb-6 flex items-center gap-2 text-xs text-[var(--text-muted)]">
         <Link href={`/${locale}`} className="transition-colors hover:text-[var(--text-primary)]">{t("home")}</Link>

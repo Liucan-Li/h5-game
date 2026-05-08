@@ -22,6 +22,8 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
 }
 
+const BASE_URL = "https://www.playgo.me"
+
 export async function generateMetadata({
   params,
 }: {
@@ -29,9 +31,33 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: "meta" })
+  const siteTitle = t("siteTitle")
+  const siteDesc = t("siteDesc")
   return {
-    title: t("siteTitle"),
-    description: t("siteDesc"),
+    title: { default: siteTitle, template: `%s | LeYou` },
+    description: siteDesc,
+    alternates: {
+      canonical: `${BASE_URL}/${locale}`,
+      languages: {
+        zh: `${BASE_URL}/zh`,
+        "zh-TW": `${BASE_URL}/zh-TW`,
+        en: `${BASE_URL}/en`,
+        ja: `${BASE_URL}/ja`,
+      },
+    },
+    openGraph: {
+      title: siteTitle,
+      description: siteDesc,
+      url: `${BASE_URL}/${locale}`,
+      siteName: "LeYou",
+      locale,
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: siteTitle,
+      description: siteDesc,
+    },
   }
 }
 
