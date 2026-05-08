@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0a1628"/><stop offset="100%" stop-color="#0d2137"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)" rx="16"/>
+  <!-- Grid left (player) -->
+  <g stroke="#1a4a6a" stroke-width="0.8" fill="none">
+    <rect x="20" y="30" width="170" height="210" fill="#0a1e30"/>
+    <line x1="20" y1="51" x2="190" y2="51"/><line x1="20" y1="72" x2="190" y2="72"/>
+    <line x1="20" y1="93" x2="190" y2="93"/><line x1="20" y1="114" x2="190" y2="114"/>
+    <line x1="20" y1="135" x2="190" y2="135"/><line x1="20" y1="156" x2="190" y2="156"/>
+    <line x1="20" y1="177" x2="190" y2="177"/><line x1="20" y1="198" x2="190" y2="198"/>
+    <line x1="20" y1="219" x2="190" y2="219"/>
+    <line x1="37" y1="30" x2="37" y2="240"/><line x1="54" y1="30" x2="54" y2="240"/>
+    <line x1="71" y1="30" x2="71" y2="240"/><line x1="88" y1="30" x2="88" y2="240"/>
+    <line x1="105" y1="30" x2="105" y2="240"/><line x1="122" y1="30" x2="122" y2="240"/>
+    <line x1="139" y1="30" x2="139" y2="240"/><line x1="156" y1="30" x2="156" y2="240"/>
+    <line x1="173" y1="30" x2="173" y2="240"/>
+  </g>
+  <!-- Ships -->
+  <rect x="37" y="51" width="68" height="18" rx="3" fill="#2ecc71" opacity="0.85"/>
+  <rect x="71" y="93" width="51" height="18" rx="3" fill="#2ecc71" opacity="0.85"/>
+  <rect x="122" y="135" width="34" height="18" rx="3" fill="#2ecc71" opacity="0.85"/>
+  <!-- Hits -->
+  <circle cx="46" cy="60" r="6" fill="#e74c3c"/>
+  <text x="46" y="65" font-size="10" fill="#fff" text-anchor="middle">✕</text>
+  <!-- Misses -->
+  <circle cx="97" cy="60" r="6" fill="none" stroke="#3498db" stroke-width="2"/>
+  <circle cx="80" cy="81" r="6" fill="none" stroke="#3498db" stroke-width="2"/>
+  <!-- Grid right (enemy) -->
+  <g stroke="#1a4a6a" stroke-width="0.8" fill="none">
+    <rect x="210" y="30" width="170" height="210" fill="#0a1e30"/>
+    <line x1="210" y1="51" x2="380" y2="51"/><line x1="210" y1="72" x2="380" y2="72"/>
+    <line x1="210" y1="93" x2="380" y2="93"/><line x1="210" y1="114" x2="380" y2="114"/>
+    <line x1="210" y1="135" x2="380" y2="135"/><line x1="210" y1="156" x2="380" y2="156"/>
+    <line x1="210" y1="177" x2="380" y2="177"/><line x1="210" y1="198" x2="380" y2="198"/>
+    <line x1="210" y1="219" x2="380" y2="219"/>
+    <line x1="227" y1="30" x2="227" y2="240"/><line x1="244" y1="30" x2="244" y2="240"/>
+    <line x1="261" y1="30" x2="261" y2="240"/><line x1="278" y1="30" x2="278" y2="240"/>
+    <line x1="295" y1="30" x2="295" y2="240"/><line x1="312" y1="30" x2="312" y2="240"/>
+    <line x1="329" y1="30" x2="329" y2="240"/><line x1="346" y1="30" x2="346" y2="240"/>
+    <line x1="363" y1="30" x2="363" y2="240"/>
+  </g>
+  <!-- Enemy hits/misses -->
+  <circle cx="236" cy="60" r="6" fill="#e74c3c"/>
+  <text x="236" y="65" font-size="10" fill="#fff" text-anchor="middle">✕</text>
+  <circle cx="253" cy="60" r="6" fill="#e74c3c"/>
+  <text x="253" y="65" font-size="10" fill="#fff" text-anchor="middle">✕</text>
+  <circle cx="270" cy="60" r="6" fill="#e74c3c"/>
+  <text x="270" y="65" font-size="10" fill="#fff" text-anchor="middle">✕</text>
+  <circle cx="295" cy="81" r="6" fill="none" stroke="#3498db" stroke-width="2"/>
+  <circle cx="329" cy="102" r="6" fill="none" stroke="#3498db" stroke-width="2"/>
+  <!-- Explosion at hit -->
+  <circle cx="253" cy="60" r="12" fill="#ff8800" opacity="0.25"/>
+  <!-- Labels -->
+  <text x="105" y="258" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="11" fill="#2ecc71" text-anchor="middle">我方</text>
+  <text x="295" y="258" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="11" fill="#e74c3c" text-anchor="middle">敌方</text>
+  <text x="200" y="286" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="13" fill="#7faacc" text-anchor="middle" font-weight="bold">海战棋</text>
+</svg>

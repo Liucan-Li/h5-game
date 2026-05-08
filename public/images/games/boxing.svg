@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a0505"/><stop offset="100%" stop-color="#2a0d0d"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)" rx="16"/>
+  <!-- Ring floor -->
+  <rect x="30" y="130" width="340" height="110" rx="4" fill="#e8d5a3"/>
+  <!-- Ring ropes -->
+  <g stroke="#e74c3c" stroke-width="3" fill="none">
+    <rect x="30" y="100" width="340" height="20" rx="0"/>
+    <rect x="30" y="130" width="340" height="20" rx="0"/>
+    <rect x="30" y="160" width="340" height="20" rx="0"/>
+  </g>
+  <!-- Rope posts -->
+  <rect x="28" y="95" width="8" height="150" fill="#c0a060"/>
+  <rect x="364" y="95" width="8" height="150" fill="#c0a060"/>
+  <!-- Boxer left (red) -->
+  <g transform="translate(110,110)">
+    <circle cx="0" cy="-30" r="18" fill="#f5cba7"/>
+    <rect x="-14" y="-14" width="28" height="34" rx="4" fill="#e74c3c"/>
+    <rect x="-22" y="-12" width="16" height="24" rx="6" fill="#e74c3c"/>
+    <rect x="6" y="-12" width="16" height="24" rx="6" fill="#e74c3c"/>
+    <!-- Glove extended -->
+    <ellipse cx="28" cy="-4" rx="14" ry="10" fill="#c0392b"/>
+    <rect x="-14" y="20" width="12" height="30" rx="4" fill="#3d5a99"/>
+    <rect x="2" y="20" width="12" height="30" rx="4" fill="#3d5a99"/>
+  </g>
+  <!-- Boxer right (blue) -->
+  <g transform="translate(290,110)">
+    <circle cx="0" cy="-30" r="18" fill="#f5cba7"/>
+    <rect x="-14" y="-14" width="28" height="34" rx="4" fill="#3498db"/>
+    <rect x="-22" y="-12" width="16" height="24" rx="6" fill="#3498db"/>
+    <rect x="6" y="-12" width="16" height="24" rx="6" fill="#3498db"/>
+    <!-- Glove -->
+    <ellipse cx="-28" cy="-4" rx="14" ry="10" fill="#2980b9"/>
+    <rect x="-14" y="20" width="12" height="30" rx="4" fill="#2c3e50"/>
+    <rect x="2" y="20" width="12" height="30" rx="4" fill="#2c3e50"/>
+  </g>
+  <!-- Impact star -->
+  <g transform="translate(200,106)">
+    <circle cx="0" cy="0" r="16" fill="#ffdd00" opacity="0.85"/>
+    <text x="0" y="6" font-size="18" text-anchor="middle">💥</text>
+  </g>
+  <!-- Health bars -->
+  <rect x="30" y="72" width="120" height="12" rx="4" fill="#333"/>
+  <rect x="30" y="72" width="90" height="12" rx="4" fill="#e74c3c"/>
+  <rect x="250" y="72" width="120" height="12" rx="4" fill="#333"/>
+  <rect x="250" y="72" width="100" height="12" rx="4" fill="#3498db"/>
+  <text x="200" y="286" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="13" fill="#e74c3c" text-anchor="middle" font-weight="bold">拳击</text>
+</svg>

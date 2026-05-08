@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f0f23"/><stop offset="100%" stop-color="#1a0520"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)" rx="16"/>
+  <!-- VS text -->
+  <text x="200" y="148" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="28" fill="#f1c40f" text-anchor="middle" font-weight="bold" opacity="0.9">VS</text>
+  <!-- Left hand: Rock -->
+  <g transform="translate(80,130)">
+    <circle cx="0" cy="10" r="42" fill="#f5cba7" stroke="#d4a574" stroke-width="2"/>
+    <!-- Fist fingers -->
+    <rect x="-28" y="-18" width="56" height="28" rx="12" fill="#f5cba7" stroke="#d4a574" stroke-width="1.5"/>
+    <line x1="-14" y1="-18" x2="-14" y2="10" stroke="#d4a574" stroke-width="1.5"/>
+    <line x1="0" y1="-18" x2="0" y2="10" stroke="#d4a574" stroke-width="1.5"/>
+    <line x1="14" y1="-18" x2="14" y2="10" stroke="#d4a574" stroke-width="1.5"/>
+    <text x="0" y="55" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="13" fill="#f1c40f" text-anchor="middle">石头</text>
+  </g>
+  <!-- Right hand: Scissors -->
+  <g transform="translate(320,130)">
+    <circle cx="0" cy="10" r="42" fill="#f5cba7" stroke="#d4a574" stroke-width="2"/>
+    <!-- Two fingers extended -->
+    <rect x="-22" y="-38" width="16" height="40" rx="8" fill="#f5cba7" stroke="#d4a574" stroke-width="1.5"/>
+    <rect x="6" y="-38" width="16" height="40" rx="8" fill="#f5cba7" stroke="#d4a574" stroke-width="1.5"/>
+    <!-- Thumb tucked -->
+    <rect x="-28" y="6" width="56" height="20" rx="10" fill="#f5cba7" stroke="#d4a574" stroke-width="1.5"/>
+    <text x="0" y="55" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="13" fill="#f1c40f" text-anchor="middle">剪刀</text>
+  </g>
+  <!-- Score -->
+  <rect x="155" y="60" width="90" height="32" rx="10" fill="#ffffff10" stroke="#ffffff20"/>
+  <text x="185" y="81" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="20" fill="#e74c3c" text-anchor="middle" font-weight="bold">3</text>
+  <text x="200" y="81" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="14" fill="#aaa" text-anchor="middle">-</text>
+  <text x="215" y="81" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="20" fill="#3498db" text-anchor="middle" font-weight="bold">2</text>
+  <text x="200" y="286" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="13" fill="#f1c40f" text-anchor="middle" font-weight="bold">石头剪刀布</text>
+</svg>

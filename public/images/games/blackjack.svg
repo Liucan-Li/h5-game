@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0d1f0d"/><stop offset="100%" stop-color="#1a3a1a"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)" rx="16"/>
+  <!-- Table felt -->
+  <ellipse cx="200" cy="160" rx="175" ry="110" fill="#1a5c2a"/>
+  <ellipse cx="200" cy="160" rx="160" ry="95" fill="none" stroke="#2e8b57" stroke-width="2"/>
+  <!-- Dealer cards -->
+  <rect x="155" y="40" width="54" height="76" rx="6" fill="#fff" stroke="#ddd" stroke-width="1"/>
+  <text x="162" y="58" font-family="serif" font-size="18" fill="#e74c3c" font-weight="bold">A</text>
+  <text x="162" y="76" font-family="serif" font-size="14" fill="#e74c3c">♥</text>
+  <rect x="195" y="40" width="54" height="76" rx="6" fill="#2c3e50" stroke="#ddd" stroke-width="1"/>
+  <text x="210" y="82" font-family="serif" font-size="26" fill="#aaa">?</text>
+  <!-- Player cards -->
+  <rect x="115" y="165" width="54" height="76" rx="6" fill="#fff" stroke="#ddd" stroke-width="1"/>
+  <text x="122" y="183" font-family="serif" font-size="18" fill="#333" font-weight="bold">K</text>
+  <text x="122" y="201" font-family="serif" font-size="14" fill="#333">♠</text>
+  <rect x="155" y="165" width="54" height="76" rx="6" fill="#fff" stroke="#ddd" stroke-width="1"/>
+  <text x="162" y="183" font-family="serif" font-size="18" fill="#e74c3c" font-weight="bold">A</text>
+  <text x="162" y="201" font-family="serif" font-size="14" fill="#e74c3c">♦</text>
+  <rect x="195" y="165" width="54" height="76" rx="6" fill="#fff" stroke="#ddd" stroke-width="1"/>
+  <!-- Score badge -->
+  <rect x="110" y="248" width="40" height="20" rx="6" fill="#f1c40f"/>
+  <text x="130" y="262" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="12" fill="#333" text-anchor="middle" font-weight="bold">21</text>
+  <text x="200" y="290" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="13" fill="#f1c40f" text-anchor="middle" font-weight="bold">二十一点</text>
+</svg>
