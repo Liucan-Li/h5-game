@@ -9,7 +9,9 @@
       "Bash(nslookup github.com)",
       "Bash(ssh *)",
       "Bash(git add *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(npx playwright *)",
+      "Bash(npm install *)"
     ]
   }
 }
