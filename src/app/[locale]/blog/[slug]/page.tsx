@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import { getPostBySlug, getAllPosts } from "@/lib/blog"
+import { getPostBySlug, getAllPosts, getPostContent, parseMarkdownToHtml } from "@/lib/blog"
 import { getAllGames } from "@/lib/games"
 import type { Metadata } from "next"
 
@@ -47,6 +47,8 @@ export default async function BlogPostPage({ params }: Props) {
   if (!post) notFound()
 
   const games = getAllGames()
+  const content = getPostContent(slug)
+  const htmlContent = content ? parseMarkdownToHtml(content) : null
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
@@ -64,20 +66,14 @@ export default async function BlogPostPage({ params }: Props) {
           <time>{post.date}</time>
           <span>{post.category}</span>
         </div>
-        <div className="text-sm leading-relaxed text-[var(--text-secondary)] space-y-4">
-          <p>{post.description}</p>
-          <p>
-            Visit{" "}
-            <Link
-              href={`/${locale}/games`}
-              className="text-[var(--accent-1)] hover:underline"
-            >
-              LeYou Games
-            </Link>{" "}
-            to play all these games for free in your browser — no download
-            required.
-          </p>
-        </div>
+        {htmlContent ? (
+          <div
+            className="space-y-3"
+            dangerouslySetInnerHTML={{ __html: htmlContent }}
+          />
+        ) : (
+          <p className="text-sm leading-relaxed text-[var(--text-secondary)]">{post.description}</p>
+        )}
       </article>
       {games.length > 0 && (
         <div className="mt-8 p-4 rounded-xl border border-[var(--border-default)] bg-white/[0.02]">
