@@ -1,7 +1,12 @@
 import type { Game, Category } from "./types"
 
 type LocalizedGame = Game & { title: string; description: string; tags: string[] }
-type LocalizedCategory = Category & { name: string; description: string }
+type LocalizedCategory = Category & {
+  name: string
+  description: string
+  intro?: string
+  faq?: Array<{ q: string; a: string }>
+}
 
 const messageCache: Record<string, Record<string, unknown>> = {}
 
@@ -32,11 +37,19 @@ export function getLocalizedGame(game: Game, locale: string): LocalizedGame {
 }
 
 export function getLocalizedCategory(cat: Category, locale: string): LocalizedCategory {
-  if (locale === "zh") return cat
-
   const messages = loadMessages(locale)
-  const cats = messages.categories as Record<string, { name: string; description: string }> | undefined
+  const cats = messages.categories as
+    | Record<string, { name: string; description: string; intro?: string; faq?: Array<{ q: string; a: string }> }>
+    | undefined
   const loc = cats?.[cat.slug]
+
+  if (locale === "zh") {
+    return {
+      ...cat,
+      intro: loc?.intro,
+      faq: loc?.faq,
+    }
+  }
 
   if (!loc) return cat
 
@@ -44,5 +57,7 @@ export function getLocalizedCategory(cat: Category, locale: string): LocalizedCa
     ...cat,
     name: loc.name || cat.name,
     description: loc.description || cat.description,
+    intro: loc.intro,
+    faq: loc.faq,
   }
 }

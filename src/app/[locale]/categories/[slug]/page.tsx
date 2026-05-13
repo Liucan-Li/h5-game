@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { getCategoryBySlug, getGamesByCategory, getCategories } from "@/lib/games"
 import { getLocalizedCategory } from "@/lib/i18n-games"
-import { breadcrumbJsonLd } from "@/lib/structured-data"
+import { breadcrumbJsonLd, faqJsonLd } from "@/lib/structured-data"
 import GameGrid from "@/components/GameGrid"
 import type { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
@@ -100,11 +100,39 @@ export default async function CategoryPage({ params }: Props) {
         </div>
       </div>
 
+      {/* SEO intro */}
+      {localizedCat.intro && (
+        <div className="mb-8 max-w-3xl text-sm leading-relaxed text-[var(--text-secondary)]">
+          {localizedCat.intro}
+        </div>
+      )}
+
       <GameGrid
         title={t("gameCount", { count: games.length })}
         games={games}
         locale={locale}
       />
+
+      {/* FAQ section */}
+      {localizedCat.faq && localizedCat.faq.length > 0 && (
+        <section className="mt-12 border-t border-[var(--border-default)] pt-10">
+          <h2 className="mb-6 text-lg font-bold text-[var(--text-primary)]">
+            Frequently Asked Questions
+          </h2>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd(localizedCat.faq)) }}
+          />
+          <div className="space-y-4">
+            {localizedCat.faq.map((item, i) => (
+              <div key={i} className="rounded-xl border border-[var(--border-default)] bg-white/[0.02] p-4">
+                <h3 className="text-sm font-semibold text-[var(--text-primary)]">{item.q}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[var(--text-secondary)]">{item.a}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   )
 }
