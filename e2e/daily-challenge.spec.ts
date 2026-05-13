@@ -25,6 +25,6 @@ test.describe("Blog Pages", () => {
 
   test("blog post page loads", async ({ page }) => {
     await page.goto("/en/blog/best-free-puzzle-games-online")
-    await expect(page.locator("article h1")).toBeVisible()
+    await expect(page.locator("article h1").first()).toBeVisible()
   })
 })

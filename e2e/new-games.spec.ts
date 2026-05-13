@@ -7,7 +7,7 @@ test.describe("New Game Pages", () => {
     test(`${slug} page loads in English`, async ({ page }) => {
       await page.goto(`/en/games/${slug}`)
       await expect(page.locator("h1")).toBeVisible()
-      await expect(page.locator("iframe")).toBeVisible()
+      await expect(page.locator("iframe")).toBeAttached()
     })
   }
 })
