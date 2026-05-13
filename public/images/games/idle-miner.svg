@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+    <linearGradient id="pick" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#bdc3c7"/>
+      <stop offset="100%" stop-color="#95a5a6"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)" rx="16"/>
+  <rect x="120" y="180" width="160" height="80" rx="8" fill="#2d2d5e"/>
+  <rect x="130" y="140" width="20" height="40" rx="4" fill="#95a5a6"/>
+  <rect x="130" y="130" width="70" height="16" rx="4" fill="#7f8c8d"/>
+  <polygon points="200,130 230,100 240,130" fill="url(#pick)"/>
+  <rect x="150" y="190" width="40" height="40" rx="4" fill="#f39c12" opacity="0.8"/>
+  <rect x="200" y="200" width="40" height="40" rx="4" fill="#f1c40f" opacity="0.6"/>
+  <rect x="250" y="195" width="30" height="30" rx="4" fill="#e67e22" opacity="0.7"/>
+  <text x="200" y="290" font-family="Arial, sans-serif" font-size="14" fill="#f39c12" text-anchor="middle" opacity="0.6">Idle Miner</text>
+</svg>

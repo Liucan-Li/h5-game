@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next"
 import { getAllGames, getCategories } from "@/lib/games"
+import { getAllPosts } from "@/lib/blog"
 import { routing } from "@/i18n/routing"
 
 export const BASE_URL = "https://www.playgo.me"
@@ -42,5 +43,36 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }))
   )
 
-  return [...homeUrls, ...gamesListUrls, ...categoryUrls, ...gameUrls]
+  const dailyUrls = locales.flatMap((locale) => [
+    {
+      url: `${BASE_URL}/${locale}/daily/wordle`,
+      lastModified: now,
+      changeFrequency: "daily" as const,
+      priority: 0.9,
+    },
+    {
+      url: `${BASE_URL}/${locale}/daily/sudoku`,
+      lastModified: now,
+      changeFrequency: "daily" as const,
+      priority: 0.9,
+    },
+  ])
+
+  const blogPosts = getAllPosts()
+  const blogUrls = locales.flatMap((locale) =>
+    blogPosts.map((post) => ({
+      url: `${BASE_URL}/${locale}/blog/${post.slug}`,
+      lastModified: new Date(post.date),
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    })),
+  )
+  const blogListUrls = locales.map((locale) => ({
+    url: `${BASE_URL}/${locale}/blog`,
+    lastModified: now,
+    changeFrequency: "weekly" as const,
+    priority: 0.7,
+  }))
+
+  return [...homeUrls, ...gamesListUrls, ...categoryUrls, ...gameUrls, ...dailyUrls, ...blogUrls, ...blogListUrls]
 }

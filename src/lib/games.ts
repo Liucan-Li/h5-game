@@ -41,7 +41,18 @@ export function searchGames(query: string): Game[] {
 
 export function getRelatedGames(game: Game, count = 6): Game[] {
   const all = gamesData as Game[]
-  return all
-    .filter((g) => g.id !== game.id && g.category === game.category)
+  const scored = all
+    .filter((g) => g.id !== game.id)
+    .map((g) => {
+      let score = 0
+      if (g.category === game.category) score += 3
+      g.tags.forEach((t) => {
+        if (game.tags.includes(t)) score += 1
+      })
+      if (g.featured) score += 1
+      return { game: g, score }
+    })
+    .sort((a, b) => b.score - a.score)
     .slice(0, count)
+  return scored.map((s) => s.game)
 }

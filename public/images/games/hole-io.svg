@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+    <radialGradient id="hole">
+      <stop offset="60%" stop-color="#0a0a1a"/>
+      <stop offset="100%" stop-color="#2d2d5e"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)" rx="16"/>
+  <circle cx="200" cy="120" r="60" fill="url(#hole)" stroke="#6c5ce7" stroke-width="3" opacity="0.8"/>
+  <circle cx="200" cy="120" r="40" fill="#0a0a1a"/>
+  <text x="200" y="290" font-family="Arial, sans-serif" font-size="14" fill="#6c5ce7" text-anchor="middle" opacity="0.6">Hole.io</text>
+</svg>
