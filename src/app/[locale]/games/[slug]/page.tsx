@@ -9,6 +9,7 @@ import type { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
 
 const BASE_URL = "https://www.playgo.me"
+const EN_MESSAGES = require("@/messages/en.json")
 
 interface Props {
   params: Promise<{ slug: string; locale: string }>
@@ -19,9 +20,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const game = getGameBySlug(slug)
   if (!game) return { title: "Game not found" }
   const localized = getLocalizedGame(game, locale)
-  const title = localized.title
-  const description = localized.description
   const canonicalUrl = `${BASE_URL}/${locale}/games/${slug}`
+
+  // Try SEO-optimized English meta fields first, fall back to localized game data
+  const gameMessages = (EN_MESSAGES.games as Record<string, { metaTitle?: string; metaDesc?: string }>) || {}
+  const seoTitle = gameMessages[slug]?.metaTitle
+  const seoDesc = gameMessages[slug]?.metaDesc
+
+  const title = seoTitle || `${localized.title} | LeYou`
+  const description = seoDesc || localized.description
   return {
     title,
     description,
