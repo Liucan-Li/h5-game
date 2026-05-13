@@ -42,5 +42,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }))
   )
 
-  return [...homeUrls, ...gamesListUrls, ...categoryUrls, ...gameUrls]
+  const dailyUrls = locales.flatMap((locale) => [
+    {
+      url: `${BASE_URL}/${locale}/daily/wordle`,
+      lastModified: now,
+      changeFrequency: "daily" as const,
+      priority: 0.9,
+    },
+    {
+      url: `${BASE_URL}/${locale}/daily/sudoku`,
+      lastModified: now,
+      changeFrequency: "daily" as const,
+      priority: 0.9,
+    },
+  ])
+
+  return [...homeUrls, ...gamesListUrls, ...categoryUrls, ...gameUrls, ...dailyUrls]
 }
