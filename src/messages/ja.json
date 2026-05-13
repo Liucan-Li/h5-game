@@ -345,6 +345,58 @@
     "texas-holdem": {
       "title": "テキサスホールデム",
       "description": "世界で最も人気のポーカー！AIディーラーと対戦し、最強の5枚を作ってチップを全て獲得！"
+    },
+    "snake-io": {
+      "title": "Snake.io",
+      "description": "古典的なヘビバトルロイヤル。他のプレイヤーとリアルタイムで対戦し、餌を食べて成長しろ！"
+    },
+    "hole-io": {
+      "title": "Hole.io",
+      "description": "ブラックホールを操り街中のものを飲み込め！小さいものから始めて街全体を飲み込め！"
+    },
+    "cookie-clicker": {
+      "title": "Cookie Clicker",
+      "description": "古典的な放置クリッカーゲーム。クリックでクッキーを焼き、自動生産でクッキー王になろう！"
+    },
+    "idle-miner": {
+      "title": "Idle Miner",
+      "description": "鉱山を経営しよう！労働者を雇い、設備をアップグレードして深く掘り進み、富を築け！"
+    },
+    "slope-run": {
+      "title": "Slope Run",
+      "description": "傾斜したコースを高速で駆け抜けろ！障害物を避け、バランスを保ってどこまで行けるか挑戦！"
+    },
+    "geometry-dash": {
+      "title": "Geometry Dash",
+      "description": "リズムベースのアクションゲーム！音楽に合わせてジャンプし、障害物を避けて超難関レベルを攻略！"
+    },
+    "worldle": {
+      "title": "Worldle",
+      "description": "地理版Wordle！シルエットから国名を当てよう。毎日新しい問題で地理知識をテスト！"
+    },
+    "escape-room": {
+      "title": "Escape Room",
+      "description": "不思議な部屋に閉じ込められた。手がかりを見つけ、パズルを解いて脱出しよう！"
+    },
+    "piano-tiles": {
+      "title": "Piano Tiles",
+      "description": "反射神経をテスト！リズムに合わせて黒いタイルをタップ、白いタイルを踏むな！"
+    },
+    "tower-defense": {
+      "title": "Tower Defense",
+      "description": "防御タワーを建設して敵の進行を阻止せよ！戦略的に砲台を配置し基地を守れ！"
+    },
+    "space-invaders": {
+      "title": "Space Invaders",
+      "description": "古典的なアーケードシューティング！宇宙船を操りエイリアンの侵略を撃退せよ！"
+    },
+    "zombie-shooter": {
+      "title": "Zombie Shooter",
+      "description": "ゾンビの終末が到来！様々な武器を使って次々と襲い来るゾンビの群れを生き延びろ！"
+    },
+    "soccer-stars": {
+      "title": "Soccer Stars",
+      "description": "白熱のサッカー対決！チームを操りパスとシュートを決め、先に5得点した方が勝利！"
     }
   }
 }

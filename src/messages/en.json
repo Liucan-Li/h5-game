@@ -345,6 +345,58 @@
     "texas-holdem": {
       "title": "Texas Hold'em",
       "description": "The world's most popular poker! Beat the AI dealer using your hole cards and community cards!"
+    },
+    "snake-io": {
+      "title": "Snake.io",
+      "description": "Classic snake battle royale. Compete against other players in real-time, eat food, and grow to dominate the arena!"
+    },
+    "hole-io": {
+      "title": "Hole.io",
+      "description": "Control a black hole and consume everything in the city! Start small, grow massive, and swallow the whole city!"
+    },
+    "cookie-clicker": {
+      "title": "Cookie Clicker",
+      "description": "Classic idle clicker game. Click to bake cookies, buy upgrades, auto-produce, and become a cookie tycoon!"
+    },
+    "idle-miner": {
+      "title": "Idle Miner",
+      "description": "Manage your mine! Hire workers, upgrade equipment, dig deeper, and earn more wealth!"
+    },
+    "slope-run": {
+      "title": "Slope Run",
+      "description": "Race down a steep slope! Dodge obstacles, keep your balance, and see how far you can go!"
+    },
+    "geometry-dash": {
+      "title": "Geometry Dash",
+      "description": "Rhythm-based platformer! Jump to the beat, dodge obstacles, and conquer insanely difficult levels!"
+    },
+    "worldle": {
+      "title": "Worldle",
+      "description": "Geography Wordle! Guess the country by its silhouette — a new daily puzzle to test your geography knowledge!"
+    },
+    "escape-room": {
+      "title": "Escape Room",
+      "description": "You're trapped in a mysterious room. Find clues, solve puzzles, and find a way to escape!"
+    },
+    "piano-tiles": {
+      "title": "Piano Tiles",
+      "description": "Test your reflexes! Tap the black tiles to the rhythm — don't miss any white tiles!"
+    },
+    "tower-defense": {
+      "title": "Tower Defense",
+      "description": "Build defensive towers to stop enemy waves! Strategically place turrets and defend your base!"
+    },
+    "space-invaders": {
+      "title": "Space Invaders",
+      "description": "Classic arcade shooter! Pilot your ship against alien invaders and save the Earth!"
+    },
+    "zombie-shooter": {
+      "title": "Zombie Shooter",
+      "description": "The zombie apocalypse is here! Use various weapons to survive wave after wave of undead!"
+    },
+    "soccer-stars": {
+      "title": "Soccer Stars",
+      "description": "Fast-paced soccer showdown! Control your team, pass and shoot — first to 5 goals wins!"
     }
   }
 }

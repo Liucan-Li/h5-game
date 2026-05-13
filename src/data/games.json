@@ -898,5 +898,249 @@
     "width": 580,
     "height": 560,
     "createdAt": "2026-05-07"
+  },
+  {
+    "id": "51",
+    "slug": "snake-io",
+    "title": "Snake.io",
+    "description": "经典的贪吃蛇竞技游戏，与其他玩家实时对战，吃掉食物不断长大！",
+    "url": "/games/snake-io.html",
+    "thumbnail": "/images/games/snake-io.svg",
+    "category": "action",
+    "tags": [
+      "classic",
+      "io-game",
+      "multiplayer",
+      "arcade"
+    ],
+    "featured": false,
+    "width": 600,
+    "height": 500,
+    "createdAt": "2025-05-01"
+  },
+  {
+    "id": "52",
+    "slug": "hole-io",
+    "title": "Hole.io",
+    "description": "控制黑洞吞噬城市中的一切！从小的物体开始，变得越来越大，吞噬整个城市！",
+    "url": "/games/hole-io.html",
+    "thumbnail": "/images/games/hole-io.svg",
+    "category": "action",
+    "tags": [
+      "io-game",
+      "casual",
+      "multiplayer"
+    ],
+    "featured": false,
+    "width": 600,
+    "height": 500,
+    "createdAt": "2025-05-02"
+  },
+  {
+    "id": "53",
+    "slug": "cookie-clicker",
+    "title": "Cookie Clicker",
+    "description": "经典点击放置游戏。点击生产饼干，购买升级自动生产，成为饼干大亨！",
+    "url": "/games/cookie-clicker.html",
+    "thumbnail": "/images/games/cookie-clicker.svg",
+    "category": "casual",
+    "tags": [
+      "idle",
+      "clicker",
+      "casual",
+      "classic"
+    ],
+    "featured": false,
+    "width": 600,
+    "height": 500,
+    "createdAt": "2025-05-03"
+  },
+  {
+    "id": "54",
+    "slug": "idle-miner",
+    "title": "Idle Miner",
+    "description": "经营你的矿场！雇佣工人升级设备，挖掘更深的地层，赚取更多财富！",
+    "url": "/games/idle-miner.html",
+    "thumbnail": "/images/games/idle-miner.svg",
+    "category": "casual",
+    "tags": [
+      "idle",
+      "clicker",
+      "strategy"
+    ],
+    "featured": false,
+    "width": 600,
+    "height": 500,
+    "createdAt": "2025-05-04"
+  },
+  {
+    "id": "55",
+    "slug": "slope-run",
+    "title": "Slope Run",
+    "description": "在倾斜的赛道上高速奔跑！躲避障碍物，保持平衡，看你能跑多远！",
+    "url": "/games/slope-run.html",
+    "thumbnail": "/images/games/slope-run.svg",
+    "category": "action",
+    "tags": [
+      "parkour",
+      "classic",
+      "speed",
+      "survival"
+    ],
+    "featured": false,
+    "width": 600,
+    "height": 400,
+    "createdAt": "2025-05-05"
+  },
+  {
+    "id": "56",
+    "slug": "geometry-dash",
+    "title": "Geometry Dash",
+    "description": "节奏感十足的跑酷游戏！跟随音乐节奏跳跃躲避障碍，挑战超高难度关卡！",
+    "url": "/games/geometry-dash.html",
+    "thumbnail": "/images/games/geometry-dash.svg",
+    "category": "action",
+    "tags": [
+      "parkour",
+      "rhythm",
+      "action",
+      "survival"
+    ],
+    "featured": false,
+    "width": 600,
+    "height": 400,
+    "createdAt": "2025-05-06"
+  },
+  {
+    "id": "57",
+    "slug": "worldle",
+    "title": "Worldle",
+    "description": "Wordle 地理版！根据轮廓猜出国家名称，每日一题测试你的地理知识！",
+    "url": "/games/worldle.html",
+    "thumbnail": "/images/games/worldle.svg",
+    "category": "puzzle",
+    "tags": [
+      "daily",
+      "word",
+      "educational",
+      "puzzle"
+    ],
+    "featured": false,
+    "width": 400,
+    "height": 500,
+    "createdAt": "2025-05-07"
+  },
+  {
+    "id": "58",
+    "slug": "escape-room",
+    "title": "Escape Room",
+    "description": "你被困在一个神秘的房间中。寻找线索，解开谜题，找到逃出去的方法！",
+    "url": "/games/escape-room.html",
+    "thumbnail": "/images/games/escape-room.svg",
+    "category": "puzzle",
+    "tags": [
+      "puzzle",
+      "escape",
+      "horror",
+      "adventure"
+    ],
+    "featured": false,
+    "width": 600,
+    "height": 500,
+    "createdAt": "2025-05-08"
+  },
+  {
+    "id": "59",
+    "slug": "piano-tiles",
+    "title": "Piano Tiles",
+    "description": "测试你的反应速度！点击黑色瓷砖跟随音乐节奏，不要碰到白色瓷砖！",
+    "url": "/games/piano-tiles.html",
+    "thumbnail": "/images/games/piano-tiles.svg",
+    "category": "casual",
+    "tags": [
+      "rhythm",
+      "music",
+      "reflex",
+      "casual"
+    ],
+    "featured": false,
+    "width": 400,
+    "height": 500,
+    "createdAt": "2025-05-09"
+  },
+  {
+    "id": "60",
+    "slug": "tower-defense",
+    "title": "Tower Defense",
+    "description": "建造防御塔阻止敌人前进！策略选择炮塔位置升级，守卫你的基地！",
+    "url": "/games/tower-defense.html",
+    "thumbnail": "/images/games/tower-defense.svg",
+    "category": "strategy",
+    "tags": [
+      "strategy",
+      "tower-defense",
+      "classic"
+    ],
+    "featured": false,
+    "width": 700,
+    "height": 500,
+    "createdAt": "2025-05-10"
+  },
+  {
+    "id": "61",
+    "slug": "space-invaders",
+    "title": "Space Invaders",
+    "description": "经典街机射击游戏！操控飞船抵御外星人入侵，消灭所有入侵者！",
+    "url": "/games/space-invaders.html",
+    "thumbnail": "/images/games/space-invaders.svg",
+    "category": "action",
+    "tags": [
+      "shooter",
+      "space",
+      "classic",
+      "arcade"
+    ],
+    "featured": false,
+    "width": 600,
+    "height": 500,
+    "createdAt": "2025-05-11"
+  },
+  {
+    "id": "62",
+    "slug": "zombie-shooter",
+    "title": "Zombie Shooter",
+    "description": "僵尸末日来袭！使用各种武器消灭一波又一波的僵尸，生存到最后！",
+    "url": "/games/zombie-shooter.html",
+    "thumbnail": "/images/games/zombie-shooter.svg",
+    "category": "action",
+    "tags": [
+      "shooter",
+      "survival",
+      "horror",
+      "action"
+    ],
+    "featured": false,
+    "width": 600,
+    "height": 500,
+    "createdAt": "2025-05-12"
+  },
+  {
+    "id": "63",
+    "slug": "soccer-stars",
+    "title": "Soccer Stars",
+    "description": "快速足球对战游戏！控制球队传球射门，先进 5 球者获胜！",
+    "url": "/games/soccer-stars.html",
+    "thumbnail": "/images/games/soccer-stars.svg",
+    "category": "sports",
+    "tags": [
+      "sports",
+      "multiplayer",
+      "pvp",
+      "action"
+    ],
+    "featured": false,
+    "width": 600,
+    "height": 400,
+    "createdAt": "2025-05-13"
   }
 ]

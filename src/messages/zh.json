@@ -345,6 +345,58 @@
     "texas-holdem": {
       "title": "德州扑克",
       "description": "最流行的扑克游戏！与AI庄家对决，利用底牌和公共牌组合最强牌型，赢取全部筹码！"
+    },
+    "snake-io": {
+      "title": "Snake.io",
+      "description": "经典的贪吃蛇竞技游戏，与其他玩家实时对战，吃掉食物不断长大！"
+    },
+    "hole-io": {
+      "title": "Hole.io",
+      "description": "控制黑洞吞噬城市中的一切！从小的物体开始，变得越来越大，吞噬整个城市！"
+    },
+    "cookie-clicker": {
+      "title": "Cookie Clicker",
+      "description": "经典点击放置游戏。点击生产饼干，购买升级自动生产，成为饼干大亨！"
+    },
+    "idle-miner": {
+      "title": "Idle Miner",
+      "description": "经营你的矿场！雇佣工人升级设备，挖掘更深的地层，赚取更多财富！"
+    },
+    "slope-run": {
+      "title": "Slope Run",
+      "description": "在倾斜的赛道上高速奔跑！躲避障碍物，保持平衡，看你能跑多远！"
+    },
+    "geometry-dash": {
+      "title": "Geometry Dash",
+      "description": "节奏感十足的跑酷游戏！跟随音乐节奏跳跃躲避障碍，挑战超高难度关卡！"
+    },
+    "worldle": {
+      "title": "Worldle",
+      "description": "Wordle 地理版！根据轮廓猜出国家名称，每日一题测试你的地理知识！"
+    },
+    "escape-room": {
+      "title": "Escape Room",
+      "description": "你被困在一个神秘的房间中。寻找线索，解开谜题，找到逃出去的方法！"
+    },
+    "piano-tiles": {
+      "title": "Piano Tiles",
+      "description": "测试你的反应速度！点击黑色瓷砖跟随音乐节奏，不要碰到白色瓷砖！"
+    },
+    "tower-defense": {
+      "title": "Tower Defense",
+      "description": "建造防御塔阻止敌人前进！策略选择炮塔位置升级，守卫你的基地！"
+    },
+    "space-invaders": {
+      "title": "Space Invaders",
+      "description": "经典街机射击游戏！操控飞船抵御外星人入侵，消灭所有入侵者！"
+    },
+    "zombie-shooter": {
+      "title": "Zombie Shooter",
+      "description": "僵尸末日来袭！使用各种武器消灭一波又一波的僵尸，生存到最后！"
+    },
+    "soccer-stars": {
+      "title": "Soccer Stars",
+      "description": "快速足球对战游戏！控制球队传球射门，先进 5 球者获胜！"
     }
   }
 }
