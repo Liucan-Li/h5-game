@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+    <radialGradient id="ball">
+      <stop offset="0%" stop-color="#fff"/>
+      <stop offset="100%" stop-color="#dfe6e9"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)" rx="16"/>
+  <rect x="80" y="160" width="240" height="80" rx="8" fill="#00b894" opacity="0.3"/>
+  <rect x="80" y="160" width="240" height="40" rx="4" fill="#00b894" opacity="0.5"/>
+  <circle cx="200" cy="100" r="35" fill="url(#ball)" stroke="#2d3436" stroke-width="2"/>
+  <path d="M200 65 L200 135" stroke="#2d3436" stroke-width="1.5" opacity="0.4"/>
+  <path d="M165 100 L235 100" stroke="#2d3436" stroke-width="1.5" opacity="0.4"/>
+  <path d="M175 75 L225 125" stroke="#2d3436" stroke-width="1.5" opacity="0.3"/>
+  <path d="M225 75 L175 125" stroke="#2d3436" stroke-width="1.5" opacity="0.3"/>
+  <polygon points="200,100 185,95 180,80 195,85 210,80" fill="#2d3436" opacity="0.3"/>
+  <polygon points="200,100 215,105 220,120 205,115 190,120" fill="#2d3436" opacity="0.3"/>
+  <text x="200" y="290" font-family="Arial, sans-serif" font-size="14" fill="#00b894" text-anchor="middle" opacity="0.6">Soccer Stars</text>
+</svg>

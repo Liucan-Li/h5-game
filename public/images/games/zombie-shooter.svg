@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+    <linearGradient id="zombie" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6c5ce7"/>
+      <stop offset="100%" stop-color="#a29bfe"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)" rx="16"/>
+  <g opacity="0.8">
+    <circle cx="110" cy="110" r="20" fill="url(#zombie)"/>
+    <circle cx="105" cy="105" r="4" fill="#e17055"/>
+    <circle cx="115" cy="105" r="4" fill="#e17055"/>
+    <rect x="95" y="130" width="30" height="45" rx="4" fill="#6c5ce7"/>
+    <rect x="95" y="175" width="12" height="20" rx="3" fill="#5d4ec7"/>
+    <rect x="113" y="175" width="12" height="20" rx="3" fill="#5d4ec7"/>
+  </g>
+  <g opacity="0.6">
+    <circle cx="230" cy="130" r="18" fill="#a29bfe"/>
+    <circle cx="226" cy="126" r="3" fill="#e17055"/>
+    <circle cx="234" cy="126" r="3" fill="#e17055"/>
+    <rect x="218" y="148" width="24" height="40" rx="4" fill="#6c5ce7"/>
+  </g>
+  <g opacity="0.4">
+    <circle cx="310" cy="120" r="15" fill="#a29bfe"/>
+    <rect x="300" y="135" width="20" height="35" rx="4" fill="#6c5ce7"/>
+  </g>
+  <path d="M160 120 L190 110" stroke="#f1c40f" stroke-width="3" stroke-linecap="round"/>
+  <polygon points="190,110 200,105 195,115" fill="#f1c40f"/>
+  <text x="200" y="290" font-family="Arial, sans-serif" font-size="14" fill="#a29bfe" text-anchor="middle" opacity="0.6">Zombie Shooter</text>
+</svg>
