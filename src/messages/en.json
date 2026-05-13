@@ -129,7 +129,21 @@
     "vs": "VS",
     "word": "Word",
     "adventure": "Adventure",
-    "music": "Music"
+    "music": "Music",
+    "clicker": "Clicker",
+    "daily": "Daily",
+    "educational": "Educational",
+    "escape": "Escape",
+    "horror": "Horror",
+    "idle": "Idle",
+    "io-game": "IO Game",
+    "multiplayer": "Multiplayer",
+    "platformer": "Platformer",
+    "pvp": "PvP",
+    "survival": "Survival",
+    "timed": "Timed",
+    "tower-defense": "Tower Defense",
+    "typing": "Typing"
   },
   "games": {
     "2048": {

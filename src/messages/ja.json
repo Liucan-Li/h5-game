@@ -129,7 +129,21 @@
     "strategy": "戦略",
     "test": "テスト",
     "vs": "対戦",
-    "word": "単語"
+    "word": "単語",
+    "clicker": "クリッカー",
+    "daily": "デイリー",
+    "educational": "教育",
+    "escape": "脱出",
+    "horror": "ホラー",
+    "idle": "放置",
+    "io-game": "IOゲーム",
+    "multiplayer": "マルチプレイヤー",
+    "platformer": "プラットフォーマー",
+    "pvp": "PvP",
+    "survival": "サバイバル",
+    "timed": "制限時間",
+    "tower-defense": "タワーディフェンス",
+    "typing": "タイピング"
   },
   "games": {
     "2048": {

@@ -129,7 +129,21 @@
     "strategy": "策略",
     "test": "測試",
     "vs": "對戰",
-    "word": "單詞"
+    "word": "單詞",
+    "clicker": "點擊",
+    "daily": "每日",
+    "educational": "教育",
+    "escape": "逃脫",
+    "horror": "恐怖",
+    "idle": "放置",
+    "io-game": "IO競技",
+    "multiplayer": "多人",
+    "platformer": "平台跳躍",
+    "pvp": "對戰",
+    "survival": "生存",
+    "timed": "限時",
+    "tower-defense": "塔防",
+    "typing": "打字"
   },
   "games": {
     "2048": {

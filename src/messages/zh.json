@@ -129,7 +129,21 @@
     "strategy": "策略",
     "test": "测试",
     "vs": "对战",
-    "word": "单词"
+    "word": "单词",
+    "clicker": "点击",
+    "daily": "每日",
+    "educational": "教育",
+    "escape": "逃脱",
+    "horror": "恐怖",
+    "idle": "放置",
+    "io-game": "IO竞技",
+    "multiplayer": "多人",
+    "platformer": "平台跳跃",
+    "pvp": "对战",
+    "survival": "生存",
+    "timed": "限时",
+    "tower-defense": "塔防",
+    "typing": "打字"
   },
   "games": {
     "2048": {
