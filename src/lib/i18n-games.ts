@@ -18,8 +18,6 @@ function loadMessages(locale: string): Record<string, unknown> {
 }
 
 export function getLocalizedGame(game: Game, locale: string): LocalizedGame {
-  if (locale === "zh") return { ...game }
-
   const messages = loadMessages(locale)
   const games = messages.games as Record<string, { title: string; description: string }> | undefined
   const localized = games?.[game.slug]

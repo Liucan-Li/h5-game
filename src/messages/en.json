@@ -54,79 +54,283 @@
     "ja": "日本語",
     "switchLabel": "Language"
   },
-  "footer": { "copyright": "© {year} LeYou Game Platform" },
+  "footer": {
+    "copyright": "© {year} LeYou Game Platform"
+  },
   "categories": {
-    "action":    { "name": "Action", "description": "Fast-paced action games to test your reflexes" },
-    "puzzle":    { "name": "Puzzle", "description": "Brain-training puzzle and logic games" },
-    "arcade":    { "name": "Arcade", "description": "Classic arcade-style games" },
-    "sports":    { "name": "Sports", "description": "Competitive sports games" },
-    "racing":    { "name": "Racing", "description": "Speed and thrills on the racetrack" },
-    "casual":    { "name": "Casual", "description": "Fun and relaxing casual games" },
-    "strategy":  { "name": "Strategy", "description": "Games that require strategic thinking" },
-    "adventure": { "name": "Adventure", "description": "Explore exciting adventure worlds" },
-    "board":     { "name": "Board", "description": "Chess and card game battles of wit" }
+    "action": {
+      "name": "Action",
+      "description": "Fast-paced action games to test your reflexes"
+    },
+    "puzzle": {
+      "name": "Puzzle",
+      "description": "Brain-training puzzle and logic games"
+    },
+    "arcade": {
+      "name": "Arcade",
+      "description": "Classic arcade-style games"
+    },
+    "sports": {
+      "name": "Sports",
+      "description": "Competitive sports games"
+    },
+    "racing": {
+      "name": "Racing",
+      "description": "Speed and thrills on the racetrack"
+    },
+    "casual": {
+      "name": "Casual",
+      "description": "Fun and relaxing casual games"
+    },
+    "strategy": {
+      "name": "Strategy",
+      "description": "Games that require strategic thinking"
+    },
+    "adventure": {
+      "name": "Adventure",
+      "description": "Explore exciting adventure worlds"
+    },
+    "board": {
+      "name": "Board",
+      "description": "Chess and card game battles of wit"
+    }
   },
   "tags": {
-    "测试": "Test", "策略": "Strategy", "单词": "Word", "动作": "Action",
-    "对战": "VS", "躲避": "Dodge", "反应": "Reflex", "格斗": "Fighting",
-    "怀旧": "Retro", "记忆": "Memory", "街机": "Arcade", "节奏": "Rhythm",
-    "经典": "Classic", "逻辑": "Logic", "麻将": "Mahjong", "冒险": "Adventure",
-    "跑酷": "Parkour", "扑克": "Poker", "棋类": "Board Game", "赛车": "Racing",
-    "射击": "Shooter", "数学": "Math", "数字": "Numbers", "速度": "Speed",
-    "太空": "Space", "体育": "Sports", "跳跃": "Jump", "文字": "Word",
-    "物理": "Physics", "象棋": "Chess", "消除": "Match", "休闲": "Casual",
-    "益智": "Puzzle", "音乐": "Music", "纸牌": "Card"
+    "action": "Action",
+    "arcade": "Arcade",
+    "board": "Board",
+    "card": "Card",
+    "casual": "Casual",
+    "chess": "Chess",
+    "classic": "Classic",
+    "dodge": "Dodge",
+    "fighting": "Fighting",
+    "jump": "Jump",
+    "logic": "Logic",
+    "mahjong": "Mahjong",
+    "match": "Match",
+    "math": "Math",
+    "memory": "Memory",
+    "numbers": "Numbers",
+    "parkour": "Parkour",
+    "physics": "Physics",
+    "poker": "Poker",
+    "puzzle": "Puzzle",
+    "racing": "Racing",
+    "reflex": "Reflex",
+    "retro": "Retro",
+    "rhythm": "Rhythm",
+    "shooter": "Shooter",
+    "space": "Space",
+    "speed": "Speed",
+    "sports": "Sports",
+    "strategy": "Strategy",
+    "test": "Test",
+    "vs": "VS",
+    "word": "Word",
+    "adventure": "Adventure",
+    "music": "Music"
   },
   "games": {
-    "2048": { "title": "2048", "description": "Classic number-merging puzzle. Slide tiles to combine matching numbers and reach 2048!" },
-    "snake": { "title": "Snake", "description": "Classic snake game. Control the snake to eat food, grow longer, and avoid hitting walls!" },
-    "memory": { "title": "Memory Match", "description": "Test your memory! Flip cards to find all matching pairs in the shortest time possible." },
-    "click-speed": { "title": "Click Speed Test", "description": "Challenge your click speed! Click as fast as possible in limited time and see your CPS!" },
-    "reaction-test": { "title": "Reaction Time Test", "description": "Test your reflexes! Click when the screen changes color and measure your reaction time." },
-    "tic-tac-toe": { "title": "Tic-Tac-Toe", "description": "Classic Tic-Tac-Toe. Play against AI and get three in a row to win!" },
-    "breakout": { "title": "Breakout", "description": "Classic brick-breaker. Control the paddle to bounce the ball and destroy all bricks!" },
-    "dino-runner": { "title": "Dino Runner", "description": "Enhanced Chrome dino game. Jump to dodge obstacles and run as far as possible!" },
-    "flappy-bird": { "title": "Flappy Bird", "description": "Classic Flappy Bird. Tap to keep the bird flying and navigate through pipe gaps!" },
-    "minesweeper": { "title": "Minesweeper", "description": "Classic minesweeper. Reveal all safe cells, flag the mines, and use logic to win!" },
-    "tetris": { "title": "Tetris", "description": "Classic Tetris. Rotate and place falling blocks to complete lines and score points!" },
-    "space-shooter": { "title": "Space Shooter", "description": "Pilot a spaceship, shoot enemies, dodge asteroids, and chase high scores!" },
-    "pong": { "title": "Pong", "description": "Classic Pong. Battle the AI — first to 7 points wins!" },
-    "sudoku": { "title": "Sudoku", "description": "Classic Sudoku. Fill in numbers 1-9 so each row, column, and box has no repeats." },
-    "racing-game": { "title": "Speed Racing", "description": "Dodge traffic and race at top speed! Test your reflexes and driving skills." },
-    "wordle": { "title": "Wordle", "description": "Wordle-style word guessing. You have 5 attempts to guess the hidden 5-letter word!" },
-    "whack-a-mole": { "title": "Whack-a-Mole", "description": "Classic whack-a-mole! Moles pop up randomly — smash them with a hammer for points!" },
-    "doodle-jump": { "title": "Doodle Jump", "description": "Control the doodle character jumping upward, land on platforms, and don't fall!" },
-    "color-match": { "title": "Color Match", "description": "Match the color of the text, not the word itself. A true test of attention!" },
-    "platform-runner": { "title": "Platform Runner", "description": "2D platformer. Overcome obstacles, collect coins, and reach the finish line!" },
-    "slide-puzzle": { "title": "Slide Puzzle", "description": "Slide tiles back into order. Rearrange 15 numbered tiles as quickly as you can!" },
-    "match-three": { "title": "Match Three", "description": "Classic match-3. Swap adjacent gems to line up three or more and score points!" },
-    "sokoban": { "title": "Sokoban", "description": "Classic warehouse puzzle. Push all crates onto the target spots — plan every move!" },
-    "aim-trainer": { "title": "Aim Trainer", "description": "Sharpen your aim and reaction speed! Hit as many targets as possible in limited time." },
-    "rhythm-tap": { "title": "Rhythm Tap", "description": "Tap to the beat as notes reach the target zone! Challenge your sense of rhythm." },
-    "asteroid-dodge": { "title": "Asteroid Dodge", "description": "Navigate your ship through the meteor shower! The longer you survive, the higher your score!" },
-    "gomoku": { "title": "Gomoku", "description": "Classic Gomoku. Play against AI — first to connect five in a row wins!" },
-    "solitaire": { "title": "Solitaire", "description": "Classic Klondike solitaire. Sort all cards by suit from Ace to King in the foundation!" },
-    "reversi": { "title": "Reversi", "description": "Classic Reversi (Othello). Surround your opponent's pieces to flip them and occupy the most squares!" },
-    "contra": { "title": "Contra", "description": "Classic pixel-art run-and-gun. Eliminate enemies, collect weapons, and defeat the Boss!" },
-    "pacman": { "title": "Pac-Man", "description": "Classic Pac-Man maze. Eat all dots, dodge ghosts, and use power pellets to fight back!" },
-    "bubble-shooter": { "title": "Bubble Shooter", "description": "Classic bubble shooter. Aim and fire to match three same-colored bubbles and clear the board!" },
-    "tank-battle": { "title": "Tank Battle", "description": "Classic Tank Battle. Command your tank, defend the base, and destroy all enemy tanks!" },
-    "fruit-ninja": { "title": "Fruit Ninja", "description": "Classic Fruit Ninja. Slice flying fruit but don't hit the bombs!" },
-    "connect-four": { "title": "Connect Four", "description": "Classic Connect Four. Take turns dropping pieces — connect four in a row to win!" },
-    "airplane-war": { "title": "Airplane War", "description": "Classic vertical shooter. Command your fighter jet, shoot down enemies, and collect power-ups!" },
-    "mahjong-link": { "title": "Mahjong Link", "description": "Classic Mahjong Link. Find two identical tiles and connect them with at most 3 turns to clear!" },
-    "bowling": { "title": "Bowling", "description": "Classic bowling. Adjust direction and power to knock down all the pins and bowl a perfect game!" },
-    "pinball": { "title": "Pinball", "description": "Classic pinball machine. Control the flippers to keep the ball in play and hit targets!" },
-    "24-game": { "title": "24 Game", "description": "Classic 24 card math puzzle. Use four cards with +−×÷ to make exactly 24!" },
-    "rock-paper-scissors": { "title": "Rock Paper Scissors", "description": "Classic RPS! Compete against AI — first to win 5 rounds takes the match!" },
-    "blackjack": { "title": "Blackjack", "description": "Classic Blackjack. Beat the dealer by getting as close to 21 as possible without busting!" },
-    "battleship": { "title": "Battleship", "description": "Classic Battleship! Place your fleet on a 10×10 grid and take turns firing — sink all enemy ships to win!" },
-    "air-hockey": { "title": "Air Hockey", "description": "Fast-paced Air Hockey! Control your paddle to hit the puck — first to score 7 goals wins!" },
-    "checkers": { "title": "Checkers", "description": "Classic Checkers! Move pieces diagonally on an 8×8 board, jump over opponents, and capture all enemy pieces!" },
-    "bomberman": { "title": "Bomberman", "description": "Classic Bomberman! Place bombs to blast walls and defeat enemies — don't get caught in your own explosion!" },
-    "war-card": { "title": "War (Card Game)", "description": "Classic War card game! Both players flip a card simultaneously — higher card wins all!" },
-    "chinese-chess": { "title": "Chinese Chess", "description": "Traditional Chinese Chess (Xiangqi)! Control red pieces against AI's blue side — checkmate the general to win!" },
-    "boxing": { "title": "Boxing", "description": "Intense boxing match! Use A/D to punch, S to guard — drain your opponent's stamina and win the bout!" },
-    "texas-holdem": { "title": "Texas Hold'em", "description": "The world's most popular poker! Beat the AI dealer using your hole cards and community cards!" }
+    "2048": {
+      "title": "2048",
+      "description": "Classic number-merging puzzle. Slide tiles to combine matching numbers and reach 2048!"
+    },
+    "snake": {
+      "title": "Snake",
+      "description": "Classic snake game. Control the snake to eat food, grow longer, and avoid hitting walls!"
+    },
+    "memory": {
+      "title": "Memory Match",
+      "description": "Test your memory! Flip cards to find all matching pairs in the shortest time possible."
+    },
+    "click-speed": {
+      "title": "Click Speed Test",
+      "description": "Challenge your click speed! Click as fast as possible in limited time and see your CPS!"
+    },
+    "reaction-test": {
+      "title": "Reaction Time Test",
+      "description": "Test your reflexes! Click when the screen changes color and measure your reaction time."
+    },
+    "tic-tac-toe": {
+      "title": "Tic-Tac-Toe",
+      "description": "Classic Tic-Tac-Toe. Play against AI and get three in a row to win!"
+    },
+    "breakout": {
+      "title": "Breakout",
+      "description": "Classic brick-breaker. Control the paddle to bounce the ball and destroy all bricks!"
+    },
+    "dino-runner": {
+      "title": "Dino Runner",
+      "description": "Enhanced Chrome dino game. Jump to dodge obstacles and run as far as possible!"
+    },
+    "flappy-bird": {
+      "title": "Flappy Bird",
+      "description": "Classic Flappy Bird. Tap to keep the bird flying and navigate through pipe gaps!"
+    },
+    "minesweeper": {
+      "title": "Minesweeper",
+      "description": "Classic minesweeper. Reveal all safe cells, flag the mines, and use logic to win!"
+    },
+    "tetris": {
+      "title": "Tetris",
+      "description": "Classic Tetris. Rotate and place falling blocks to complete lines and score points!"
+    },
+    "space-shooter": {
+      "title": "Space Shooter",
+      "description": "Pilot a spaceship, shoot enemies, dodge asteroids, and chase high scores!"
+    },
+    "pong": {
+      "title": "Pong",
+      "description": "Classic Pong. Battle the AI — first to 7 points wins!"
+    },
+    "sudoku": {
+      "title": "Sudoku",
+      "description": "Classic Sudoku. Fill in numbers 1-9 so each row, column, and box has no repeats."
+    },
+    "racing-game": {
+      "title": "Speed Racing",
+      "description": "Dodge traffic and race at top speed! Test your reflexes and driving skills."
+    },
+    "wordle": {
+      "title": "Wordle",
+      "description": "Wordle-style word guessing. You have 5 attempts to guess the hidden 5-letter word!"
+    },
+    "whack-a-mole": {
+      "title": "Whack-a-Mole",
+      "description": "Classic whack-a-mole! Moles pop up randomly — smash them with a hammer for points!"
+    },
+    "doodle-jump": {
+      "title": "Doodle Jump",
+      "description": "Control the doodle character jumping upward, land on platforms, and don't fall!"
+    },
+    "color-match": {
+      "title": "Color Match",
+      "description": "Match the color of the text, not the word itself. A true test of attention!"
+    },
+    "platform-runner": {
+      "title": "Platform Runner",
+      "description": "2D platformer. Overcome obstacles, collect coins, and reach the finish line!"
+    },
+    "slide-puzzle": {
+      "title": "Slide Puzzle",
+      "description": "Slide tiles back into order. Rearrange 15 numbered tiles as quickly as you can!"
+    },
+    "match-three": {
+      "title": "Match Three",
+      "description": "Classic match-3. Swap adjacent gems to line up three or more and score points!"
+    },
+    "sokoban": {
+      "title": "Sokoban",
+      "description": "Classic warehouse puzzle. Push all crates onto the target spots — plan every move!"
+    },
+    "aim-trainer": {
+      "title": "Aim Trainer",
+      "description": "Sharpen your aim and reaction speed! Hit as many targets as possible in limited time."
+    },
+    "rhythm-tap": {
+      "title": "Rhythm Tap",
+      "description": "Tap to the beat as notes reach the target zone! Challenge your sense of rhythm."
+    },
+    "asteroid-dodge": {
+      "title": "Asteroid Dodge",
+      "description": "Navigate your ship through the meteor shower! The longer you survive, the higher your score!"
+    },
+    "gomoku": {
+      "title": "Gomoku",
+      "description": "Classic Gomoku. Play against AI — first to connect five in a row wins!"
+    },
+    "solitaire": {
+      "title": "Solitaire",
+      "description": "Classic Klondike solitaire. Sort all cards by suit from Ace to King in the foundation!"
+    },
+    "reversi": {
+      "title": "Reversi",
+      "description": "Classic Reversi (Othello). Surround your opponent's pieces to flip them and occupy the most squares!"
+    },
+    "contra": {
+      "title": "Contra",
+      "description": "Classic pixel-art run-and-gun. Eliminate enemies, collect weapons, and defeat the Boss!"
+    },
+    "pacman": {
+      "title": "Pac-Man",
+      "description": "Classic Pac-Man maze. Eat all dots, dodge ghosts, and use power pellets to fight back!"
+    },
+    "bubble-shooter": {
+      "title": "Bubble Shooter",
+      "description": "Classic bubble shooter. Aim and fire to match three same-colored bubbles and clear the board!"
+    },
+    "tank-battle": {
+      "title": "Tank Battle",
+      "description": "Classic Tank Battle. Command your tank, defend the base, and destroy all enemy tanks!"
+    },
+    "fruit-ninja": {
+      "title": "Fruit Ninja",
+      "description": "Classic Fruit Ninja. Slice flying fruit but don't hit the bombs!"
+    },
+    "connect-four": {
+      "title": "Connect Four",
+      "description": "Classic Connect Four. Take turns dropping pieces — connect four in a row to win!"
+    },
+    "airplane-war": {
+      "title": "Airplane War",
+      "description": "Classic vertical shooter. Command your fighter jet, shoot down enemies, and collect power-ups!"
+    },
+    "mahjong-link": {
+      "title": "Mahjong Link",
+      "description": "Classic Mahjong Link. Find two identical tiles and connect them with at most 3 turns to clear!"
+    },
+    "bowling": {
+      "title": "Bowling",
+      "description": "Classic bowling. Adjust direction and power to knock down all the pins and bowl a perfect game!"
+    },
+    "pinball": {
+      "title": "Pinball",
+      "description": "Classic pinball machine. Control the flippers to keep the ball in play and hit targets!"
+    },
+    "24-game": {
+      "title": "24 Game",
+      "description": "Classic 24 card math puzzle. Use four cards with +−×÷ to make exactly 24!"
+    },
+    "rock-paper-scissors": {
+      "title": "Rock Paper Scissors",
+      "description": "Classic RPS! Compete against AI — first to win 5 rounds takes the match!"
+    },
+    "blackjack": {
+      "title": "Blackjack",
+      "description": "Classic Blackjack. Beat the dealer by getting as close to 21 as possible without busting!"
+    },
+    "battleship": {
+      "title": "Battleship",
+      "description": "Classic Battleship! Place your fleet on a 10×10 grid and take turns firing — sink all enemy ships to win!"
+    },
+    "air-hockey": {
+      "title": "Air Hockey",
+      "description": "Fast-paced Air Hockey! Control your paddle to hit the puck — first to score 7 goals wins!"
+    },
+    "checkers": {
+      "title": "Checkers",
+      "description": "Classic Checkers! Move pieces diagonally on an 8×8 board, jump over opponents, and capture all enemy pieces!"
+    },
+    "bomberman": {
+      "title": "Bomberman",
+      "description": "Classic Bomberman! Place bombs to blast walls and defeat enemies — don't get caught in your own explosion!"
+    },
+    "war-card": {
+      "title": "War (Card Game)",
+      "description": "Classic War card game! Both players flip a card simultaneously — higher card wins all!"
+    },
+    "chinese-chess": {
+      "title": "Chinese Chess",
+      "description": "Traditional Chinese Chess (Xiangqi)! Control red pieces against AI's blue side — checkmate the general to win!"
+    },
+    "boxing": {
+      "title": "Boxing",
+      "description": "Intense boxing match! Use A/D to punch, S to guard — drain your opponent's stamina and win the bout!"
+    },
+    "texas-holdem": {
+      "title": "Texas Hold'em",
+      "description": "The world's most popular poker! Beat the AI dealer using your hole cards and community cards!"
+    }
   }
 }
