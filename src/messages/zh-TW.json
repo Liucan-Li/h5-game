@@ -61,7 +61,8 @@
     "wordleTitle": "每日 Wordle",
     "wordleDesc": "每天一道單字謎題。你能在 5 次內猜對嗎？",
     "sudokuTitle": "每日數獨",
-    "sudokuDesc": "每天一道數獨謎題。填入數字使每行每列每個 3x3 宮格都包含 1-9。"
+    "sudokuDesc": "每天一道數獨謎題。填入數字使每行每列每個 3x3 宮格都包含 1-9。",
+    "shareLabel": "分享結果"
   },
   "categories": {
     "action": {

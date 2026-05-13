@@ -61,7 +61,8 @@
     "wordleTitle": "Daily Wordle",
     "wordleDesc": "A new word puzzle every day. Can you guess it in 5 tries?",
     "sudokuTitle": "Daily Sudoku",
-    "sudokuDesc": "A new Sudoku puzzle every day. Fill the grid so each row, column, and 3x3 box contains 1-9."
+    "sudokuDesc": "A new Sudoku puzzle every day. Fill the grid so each row, column, and 3x3 box contains 1-9.",
+    "shareLabel": "Share Result"
   },
   "categories": {
     "action": {

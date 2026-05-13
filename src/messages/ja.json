@@ -61,7 +61,8 @@
     "wordleTitle": "デイリー Wordle",
     "wordleDesc": "毎日の単語パズル。5回の試行で答えを当てられますか？",
     "sudokuTitle": "デイリー数独",
-    "sudokuDesc": "毎日の数独パズル。各行・各列・各3x3ブロックに1-9を配置。"
+    "sudokuDesc": "毎日の数独パズル。各行・各列・各3x3ブロックに1-9を配置。",
+    "shareLabel": "結果をシェア"
   },
   "categories": {
     "action": {
