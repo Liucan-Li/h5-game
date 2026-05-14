@@ -4,7 +4,11 @@ import { useRouter } from "next/navigation"
 import { useState, useCallback, useRef, useEffect } from "react"
 import { useTranslations, useLocale } from "next-intl"
 
-export default function SearchBar() {
+interface Props {
+  dark?: boolean
+}
+
+export default function SearchBar({ dark }: Props) {
   const router = useRouter()
   const locale = useLocale()
   const t = useTranslations("search")
@@ -55,20 +59,28 @@ export default function SearchBar() {
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (inputRef.current && !inputRef.current.closest(".search-wrapper")) setOpen(false)
+      if (inputRef.current && !inputRef.current.closest(".search-wrapper")) { setOpen(false) }
     }
     document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
+  const bgClass = dark
+    ? "bg-white/[0.06] border-white/[0.08]"
+    : "bg-[var(--bg-secondary)] border-[var(--border-default)]"
+
+  const textClass = dark
+    ? "text-[var(--text-on-dark)] placeholder-[var(--text-on-dark-muted)]"
+    : "text-[var(--text-primary)] placeholder-[var(--text-muted)]"
+
   return (
     <div className="search-wrapper relative w-full">
       <form onSubmit={handleSubmit}>
         <div
-          className={`relative flex items-center rounded-xl border bg-[var(--bg-secondary)] transition-all duration-200 ${
+          className={`relative flex items-center rounded-xl border transition-all duration-200 ${bgClass} ${
             focused
-              ? "border-[var(--accent-1)] shadow-lg shadow-[var(--accent-glow)]"
-              : "border-[var(--border-default)]"
+              ? "border-[var(--accent-1)] shadow-lg shadow-[var(--accent-1)]/20"
+              : ""
           }`}
         >
           <svg className="ml-3.5 h-4 w-4 shrink-0 text-[var(--text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -83,9 +95,9 @@ export default function SearchBar() {
             onFocus={() => { setFocused(true); if (query.trim()) setOpen(true) }}
             onBlur={() => setFocused(false)}
             placeholder={t("placeholder")}
-            className="w-full bg-transparent px-3 py-2.5 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none"
+            className={`w-full bg-transparent px-3 py-2.5 text-sm outline-none ${textClass}`}
           />
-          <kbd className="mr-3 hidden shrink-0 rounded-md border border-[var(--border-default)] bg-black/[0.03] px-1.5 py-0.5 text-[10px] text-[var(--text-muted)] md:inline-block">
+          <kbd className={`mr-3 hidden shrink-0 rounded-md border px-1.5 py-0.5 text-[10px] md:inline-block ${dark ? "border-white/[0.08] bg-white/[0.04] text-[var(--text-on-dark-muted)]" : "border-[var(--border-default)] bg-black/[0.03] text-[var(--text-muted)]"}`}>
             ⌘K
           </kbd>
         </div>

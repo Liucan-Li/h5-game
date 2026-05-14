@@ -33,12 +33,12 @@ export default async function GameGrid({ games, title, locale }: Props) {
       {title && (
         <div className="mb-5 flex items-center gap-3">
           <h2 className="text-lg font-bold text-[var(--text-primary)]">{title}</h2>
-          <div className="h-px flex-1 bg-gradient-to-r from-[var(--border-default)] to-transparent" />
+          <div className="h-px flex-1 bg-gradient-to-r from-[var(--border-accent)] to-transparent" />
         </div>
       )}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+      <div className="stagger-children grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {games.map((game) => (
-          <div key={game.id} className="animate-fade-in-up">
+          <div key={game.id}>
             <GameCard game={getLocalizedGame(game, locale)} locale={locale} />
           </div>
         ))}

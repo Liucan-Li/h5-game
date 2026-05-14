@@ -121,7 +121,7 @@ test.describe("Desktop Tests", () => {
 
   test("desktop nav and search visible", async ({ page }) => {
     await page.goto("/zh")
-    await expect(page.locator("nav a[href='/zh/games']")).toBeVisible()
+    await expect(page.locator("nav a[href='/zh/games']").first()).toBeVisible()
     await expect(page.getByPlaceholder("搜索游戏...").first()).toBeVisible()
   })
 })

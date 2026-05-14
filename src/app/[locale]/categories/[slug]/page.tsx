@@ -88,7 +88,12 @@ export default async function CategoryPage({ params }: Props) {
       {/* Category header */}
       <div className="mb-8">
         <div className="flex items-center gap-4">
-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--accent-1)]/15 to-[var(--accent-2)]/15 text-2xl">
+          <span className={`flex h-14 w-14 items-center justify-center rounded-2xl text-2xl cat-${slug}`}
+            style={{
+              background: "linear-gradient(135deg, color-mix(in srgb, var(--cat-from) 15%, transparent), color-mix(in srgb, var(--cat-to) 10%, transparent))",
+              color: "var(--cat-from)",
+            }}
+          >
             {category.icon}
           </span>
           <div>

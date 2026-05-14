@@ -65,7 +65,7 @@ export default async function GamesPage({
             tBc("games")
           )}
         </h1>
-        <p className="mt-1 text-sm text-[var(--text-muted)]">
+        <p className="mt-1.5 text-sm leading-relaxed text-[var(--text-muted)]">
           {q ? t("found", { count: games.length }) : t("total", { count: games.length })}
         </p>
       </div>

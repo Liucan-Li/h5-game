@@ -8,7 +8,7 @@ import GameGrid from "@/components/GameGrid"
 import type { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
 
-const BASE_URL = "https://www.playgo.me"
+const BASE_URL: string = "https://www.playgo.me"
 const EN_MESSAGES = require("@/messages/en.json")
 
 interface Props {
@@ -20,14 +20,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const game = getGameBySlug(slug)
   if (!game) return { title: "Game not found" }
   const localized = getLocalizedGame(game, locale)
-  const canonicalUrl = `${BASE_URL}/${locale}/games/${slug}`
+  const canonicalUrl = BASE_URL + "/" + locale + "/games/" + slug
 
-  // Try SEO-optimized English meta fields first, fall back to localized game data
   const gameMessages = (EN_MESSAGES.games as Record<string, { metaTitle?: string; metaDesc?: string }>) || {}
   const seoTitle = gameMessages[slug]?.metaTitle
   const seoDesc = gameMessages[slug]?.metaDesc
 
-  const title = seoTitle || `${localized.title} | LeYou`
+  const title = seoTitle || (localized.title + " | LeYou")
   const description = seoDesc || localized.description
   return {
     title,
@@ -75,6 +74,8 @@ export default async function GamePage({ params }: Props) {
 
   const jsonLd = videoGameJsonLd(game, localized.title, localized.description, locale)
 
+  const catClass = `cat-${game.category.toLowerCase()}`
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
       <script
@@ -90,7 +91,7 @@ export default async function GamePage({ params }: Props) {
         <span className="text-[var(--border-default)]">/</span>
         {category && (
           <>
-            <Link href={`/${locale}/categories/${category.slug}`} className="transition-colors hover:text-[var(--text-primary)]">
+            <Link href={`/${locale}/categories/${category.slug}`} className={`transition-colors hover:text-[var(--cat-from)] ${catClass}`}>
               {localizedCat?.name ?? category.name}
             </Link>
             <span className="text-[var(--border-default)]">/</span>
@@ -109,7 +110,7 @@ export default async function GamePage({ params }: Props) {
           {category && (
             <Link
               href={`/${locale}/categories/${category.slug}`}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-default)] bg-white/[0.03] px-3.5 py-1.5 text-xs font-medium text-[var(--text-muted)] transition-all hover:border-[var(--accent-1)]/30 hover:text-[var(--accent-1)]"
+              className={`inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-default)] px-3.5 py-1.5 text-xs font-medium text-[var(--text-muted)] transition-all hover:border-[var(--accent-1)]/30 hover:text-[var(--accent-1)] ${catClass}`}
             >
               <span>{category.icon}</span>
               <span>{localizedCat?.name ?? category.name}</span>
@@ -118,7 +119,11 @@ export default async function GamePage({ params }: Props) {
           {localized.tags.map((tag) => (
             <span
               key={tag}
-              className="rounded-xl bg-gradient-to-r from-[var(--accent-1)]/10 to-[var(--accent-2)]/10 px-3 py-1.5 text-xs font-medium text-[var(--accent-2)]"
+              className={`rounded-xl px-3 py-1.5 text-xs font-medium ${catClass}`}
+              style={{
+                background: "linear-gradient(135deg, color-mix(in srgb, var(--cat-from) 12%, transparent), color-mix(in srgb, var(--cat-to) 8%, transparent))",
+                color: "var(--cat-from)",
+              }}
             >
               {tag}
             </span>

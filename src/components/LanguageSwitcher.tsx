@@ -12,7 +12,11 @@ const flagMap: Record<string, string> = {
   ja: "🇯🇵",
 }
 
-export default function LanguageSwitcher() {
+interface Props {
+  dark?: boolean
+}
+
+export default function LanguageSwitcher({ dark }: Props) {
   const locale = useLocale()
   const pathname = usePathname()
   const router = useRouter()
@@ -39,11 +43,19 @@ export default function LanguageSwitcher() {
     router.push(segments.join("/") || "/")
   }
 
+  const btnClass = dark
+    ? "flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.04] px-3 py-2 text-xs font-medium text-[var(--text-on-dark-muted)] transition-all hover:border-white/[0.15] hover:text-[var(--text-on-dark)]"
+    : "flex items-center gap-1.5 rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] px-3 py-2 text-xs font-medium text-[var(--text-secondary)] transition-all hover:border-[var(--accent-1)]/40 hover:text-[var(--text-primary)]"
+
+  const dropdownBg = dark
+    ? "bg-[var(--bg-deep-secondary)] border-white/[0.08]"
+    : "bg-[var(--bg-secondary)] border-[var(--border-default)]"
+
   return (
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] px-3 py-2 text-xs font-medium text-[var(--text-secondary)] transition-all hover:border-[var(--accent-1)]/40 hover:text-[var(--text-primary)]"
+        className={btnClass}
       >
         <span>{flagMap[locale]}</span>
         <span className="hidden sm:inline">{t(locale as keyof typeof flagMap)}</span>
@@ -53,13 +65,19 @@ export default function LanguageSwitcher() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-1.5 min-w-[140px] overflow-hidden rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] shadow-xl shadow-black/20">
+        <div className={`absolute right-0 top-full z-50 mt-1.5 min-w-[140px] overflow-hidden rounded-xl border shadow-xl shadow-black/20 ${dropdownBg}`}>
           {routing.locales.map((loc) => (
             <button
               key={loc}
               onClick={() => switchLocale(loc)}
-              className={`flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-sm transition-colors hover:bg-black/[0.04] ${
-                loc === locale ? "text-[var(--accent-1)] font-medium" : "text-[var(--text-secondary)]"
+              className={`flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-sm transition-colors ${
+                dark
+                  ? "hover:bg-white/[0.06]"
+                  : "hover:bg-black/[0.04]"
+              } ${
+                loc === locale
+                  ? "text-[var(--accent-1)] font-medium"
+                  : dark ? "text-[var(--text-on-dark-muted)]" : "text-[var(--text-secondary)]"
               }`}
             >
               <span>{flagMap[loc]}</span>
