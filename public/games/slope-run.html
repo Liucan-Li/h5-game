@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Slope Run</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #1a1a2e; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px;
+    -webkit-user-select: none; user-select: none; touch-action: none;
+  }
+  .container { text-align: center; width: 100%; max-width: 400px; }
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  h1 { font-size: 1.8em; font-weight: 800; background: linear-gradient(135deg, #00b894, #00cec9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .score-box { background: #16213e; padding: 6px 14px; border-radius: 8px; min-width: 70px; }
+  .score-label { font-size: 0.7em; color: #7f8c8d; }
+  .score-value { font-size: 1.3em; font-weight: 700; color: #fff; }
+  canvas { display: block; width: 100%; aspect-ratio: 3/4; background: #0f3460; border-radius: 12px; }
+  .overlay { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); border-radius: 12px; z-index: 10; }
+  .overlay.active { display: flex; }
+  .overlay h2 { font-size: 1.8em; color: #fff; margin-bottom: 8px; }
+  .overlay p { color: #ccc; margin-bottom: 16px; }
+  .overlay button { background: linear-gradient(135deg, #00b894, #00cec9); color: #1a1a2e; border: none; padding: 10px 28px; border-radius: 8px; font-size: 1em; font-weight: 700; cursor: pointer; }
+  .game-wrapper { position: relative; }
+  .instructions { color:#7f8c8d; font-size:0.8em; margin-top:12px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header"><h1>Slope Run</h1><div class="score-box"><div class="score-label">分数</div><div class="score-value" id="score">0</div></div></div>
+  <div class="game-wrapper">
+    <canvas id="gc" width="300" height="400"></canvas>
+    <div class="overlay" id="overlay"><h2 id="ot">游戏结束</h2><p id="os">分数：0</p><button id="rb">重新开始</button></div>
+  </div>
+  <div class="instructions">按 ← → 或 A/D 键左右移动，避开障碍</div>
+</div>
+<script>
+(function(){
+  const c=document.getElementById('gc'),ctx=c.getContext('2d');
+  const s=document.getElementById('score'),ov=document.getElementById('overlay');
+  const ot=document.getElementById('ot'),os=document.getElementById('os');
+  const W=300,H=400;
+
+  let player,obstacles,score,speed,gameOver,frame,framesSinceObs;
+
+  function init(){
+    player={x:W/2,y:H-60,size:10};
+    obstacles=[];
+    score=0; speed=3; gameOver=false; frame=0; framesSinceObs=0;
+    ov.classList.remove('active');
+    updateScore();
+    requestAnimationFrame(loop);
+  }
+
+  function updateScore(){s.textContent=Math.floor(score);}
+
+  function loop(){
+    if(gameOver)return;
+    frame++;
+    score+=0.05*speed;
+    updateScore();
+    speed=3+Math.floor(score/50);
+
+    framesSinceObs++;
+    const obsInterval=Math.max(20,60-Math.floor(speed)*2);
+    if(framesSinceObs>obsInterval&&Math.random()<0.4){
+      const obsW=20+Math.random()*30;
+      obstacles.push({
+        x:Math.random()*(W-obsW),y:-30,
+        w:obsW,h:15+Math.random()*15
+      });
+      framesSinceObs=0;
+    }
+
+    obstacles=obstacles.filter(o=>{
+      o.y+=speed;
+      if(o.y>H)return false;
+      // Collision
+      if(player.x+player.size>o.x&&player.x-player.size<o.x+o.w&&
+         player.y+player.size>o.y&&player.y-player.size<o.y+o.h){
+        gameOver=true;
+        ot.textContent='游戏结束';os.textContent='分数：'+Math.floor(score);
+        ov.classList.add('active');
+        return false;
+      }
+      return true;
+    });
+
+    render();
+    requestAnimationFrame(loop);
+  }
+
+  function render(){
+    ctx.fillStyle='#0f3460';ctx.fillRect(0,0,W,H);
+    // Track lines
+    ctx.strokeStyle='rgba(255,255,255,0.05)';ctx.lineWidth=1;
+    for(let i=0;i<H;i+=30){
+      ctx.beginPath();ctx.moveTo(0,i);ctx.lineTo(W,i);ctx.stroke();
+    }
+    // Obstacles
+    obstacles.forEach(o=>{
+      const grad=ctx.createLinearGradient(o.x,o.y,o.x,o.y+o.h);
+      grad.addColorStop(0,'#e74c3c');grad.addColorStop(1,'#c0392b');
+      ctx.fillStyle=grad;
+      ctx.beginPath();ctx.roundRect(o.x,o.y,o.w,o.h,4);ctx.fill();
+    });
+    // Player (ball)
+    const pg=ctx.createRadialGradient(player.x-3,player.y-3,0,player.x,player.y,player.size);
+    pg.addColorStop(0,'#00cec9');pg.addColorStop(1,'#00b894');
+    ctx.fillStyle=pg;
+    ctx.beginPath();ctx.arc(player.x,player.y,player.size,0,Math.PI*2);ctx.fill();
+    // Eyes
+    ctx.fillStyle='#fff';
+    ctx.beginPath();ctx.arc(player.x-4,player.y-3,2.5,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(player.x+4,player.y-3,2.5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#1a1a2e';
+    ctx.beginPath();ctx.arc(player.x-4,player.y-3,1.2,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(player.x+4,player.y-3,1.2,0,Math.PI*2);ctx.fill();
+    // Speed indicator
+    ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font='10px sans-serif';ctx.textAlign='left';
+    ctx.fillText('速度 '+Math.floor(speed),8,14);
+  }
+
+  document.addEventListener('keydown',e=>{
+    if(gameOver&&e.key===' '){e.preventDefault();init();return;}
+    if(e.key==='ArrowLeft'||e.key==='a')player.x=Math.max(player.size,player.x-20);
+    if(e.key==='ArrowRight'||e.key==='d')player.x=Math.min(W-player.size,player.x+20);
+  });
+
+  document.getElementById('rb').addEventListener('click',init);
+  init();
+})();
+</script>
+</body>
+</html>

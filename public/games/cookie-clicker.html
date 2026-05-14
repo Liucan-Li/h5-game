@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Cookie Clicker</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #1a1a2e; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px;
+    -webkit-user-select: none; user-select: none;
+  }
+  .container { text-align: center; width: 100%; max-width: 400px; }
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  h1 { font-size: 1.8em; font-weight: 800; background: linear-gradient(135deg, #f39c12, #e67e22); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .cookie-display { font-size: 2em; font-weight: 700; color: #f39c12; margin: 8px 0; }
+  .cps-display { font-size: 0.85em; color: #7f8c8d; margin-bottom: 12px; }
+  .cookie-btn {
+    width: 180px; height: 180px; border-radius: 50%; border: none;
+    background: radial-gradient(circle at 35% 35%, #f39c12, #d35400);
+    cursor: pointer; transition: transform 0.1s; font-size: 4em;
+    box-shadow: 0 8px 30px rgba(243,156,18,0.3);
+    touch-action: manipulation; margin: 8px auto; display: block;
+  }
+  .cookie-btn:active { transform: scale(0.92); }
+  .shop { margin-top: 16px; }
+  .shop h2 { font-size: 1em; margin-bottom: 8px; color: #e0e0e0; }
+  .upgrade {
+    display: flex; justify-content: space-between; align-items: center;
+    background: #16213e; border-radius: 10px; padding: 10px 14px; margin-bottom: 8px;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .upgrade:active { background: #0f3460; }
+  .upgrade.locked { opacity: 0.4; cursor: not-allowed; }
+  .upgrade-name { font-size: 0.9em; font-weight: 600; }
+  .upgrade-desc { font-size: 0.75em; color: #7f8c8d; }
+  .upgrade-cost { font-size: 0.9em; color: #f39c12; font-weight: 700; }
+  .upgrade-count { font-size: 0.75em; color: #636e72; margin-left: 4px; }
+  button { -webkit-tap-highlight-color: transparent; }
+  .reset-btn {
+    margin-top: 12px; padding: 8px 20px; border-radius: 8px; border: 1px solid #7f8c8d;
+    background: transparent; color: #7f8c8d; font-size: 0.8em; cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header"><h1>Cookie Clicker</h1></div>
+  <div class="cookie-display" id="cookieDisplay">🍪 0</div>
+  <div class="cps-display" id="cpsDisplay">每秒：0 个饼干</div>
+  <button class="cookie-btn" id="cookieBtn">🍪</button>
+  <div class="shop" id="shop"></div>
+  <button class="reset-btn" id="resetBtn">重新开始</button>
+</div>
+<script>
+(function(){
+  const cd=document.getElementById('cookieDisplay');
+  const cpd=document.getElementById('cpsDisplay');
+  const shop=document.getElementById('shop');
+  const cb=document.getElementById('cookieBtn');
+  const rb=document.getElementById('resetBtn');
+
+  const UPGRADES = [
+    {id:'cursor',name:'🖱️ 自动点击器',desc:'每秒自动点击 1 次',cost:15,cps:1},
+    {id:'grandma',name:'👵 老奶奶',desc:'每秒生产 5 个饼干',cost:100,cps:5},
+    {id:'farm',name:'🌾 饼干农场',desc:'每秒生产 20 个饼干',cost:500,cps:20},
+    {id:'mine',name:'⛏️ 饼干矿场',desc:'每秒生产 100 个饼干',cost:2000,cps:100},
+    {id:'factory',name:'🏭 饼干工厂',desc:'每秒生产 500 个饼干',cost:10000,cps:500},
+    {id:'bank',name:'🏦 饼干银行',desc:'每秒生产 2000 个饼干',cost:50000,cps:2000},
+    {id:'temple',name:'⛩️ 饼干神殿',desc:'每秒生产 10000 个饼干',cost:200000,cps:10000},
+  ];
+
+  let cookies=0,totalCookies=0,cps=0;
+  let owned={};
+
+  function load() {
+    try {
+      const d=JSON.parse(localStorage.getItem('cc_data'));
+      if(d) { cookies=d.cookies||0; totalCookies=d.totalCookies||0; owned=d.owned||{}; }
+    } catch(e) {}
+    recalc();
+  }
+
+  function save() {
+    try { localStorage.setItem('cc_data',JSON.stringify({cookies,totalCookies,owned})); } catch(e) {}
+  }
+
+  function recalc() {
+    cps=0;
+    UPGRADES.forEach(u=>{cps+=(owned[u.id]||0)*u.cps;});
+    updateUI();
+  }
+
+  function updateUI() {
+    cd.textContent='🍪 '+Math.floor(cookies);
+    cpd.textContent='每秒：'+cps+' 个饼干';
+    renderShop();
+  }
+
+  function renderShop() {
+    shop.innerHTML='<h2>🏪 商店</h2>';
+    UPGRADES.forEach(u=>{
+      const count=owned[u.id]||0;
+      const cost=Math.floor(u.cost*Math.pow(1.15,count));
+      const div=document.createElement('div');
+      div.className='upgrade'+(cookies<cost?' locked':'');
+      div.innerHTML=`
+        <div>
+          <div class="upgrade-name">${u.name} <span class="upgrade-count">(${count})</span></div>
+          <div class="upgrade-desc">${u.desc}</div>
+        </div>
+        <div class="upgrade-cost">🍪 ${Math.floor(cost)}</div>
+      `;
+      if(cookies>=cost) {
+        div.addEventListener('click',()=>{
+          cookies-=cost; owned[u.id]=(owned[u.id]||0)+1;
+          recalc(); save(); updateUI();
+        });
+      }
+      shop.appendChild(div);
+    });
+  }
+
+  cb.addEventListener('click',()=>{cookies+=1+cps*0.1;totalCookies+=1;updateUI();save();});
+
+  setInterval(()=>{
+    cookies+=cps/10; updateUI(); save();
+  },100);
+
+  rb.addEventListener('click',()=>{
+    if(confirm('确定要重新开始吗？')){cookies=0;totalCookies=0;owned={};recalc();save();}
+  });
+
+  load();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Soccer Stars</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #1a1a2e; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px;
+    -webkit-user-select: none; user-select: none; touch-action: none;
+  }
+  .container { text-align: center; width: 100%; max-width: 450px; }
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  h1 { font-size: 1.5em; font-weight: 800; background: linear-gradient(135deg, #2ecc71, #f1c40f); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .hud { display: flex; gap: 8px; }
+  .hud-item { background: #16213e; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; text-align: center; min-width: 50px; }
+  .hud-item .lbl { color: #7f8c8d; font-size: 0.65em; }
+  .hud-item .val { color: #fff; font-weight: 700; }
+  canvas { display: block; width: 100%; aspect-ratio: 1.5; background: #2d7d46; border-radius: 12px; touch-action: none; }
+  .overlay { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); border-radius: 12px; z-index: 10; }
+  .overlay.active { display: flex; }
+  .overlay h2 { font-size: 1.5em; color: #fff; margin-bottom: 4px; }
+  .overlay p { color: #ccc; margin-bottom: 12px; }
+  .overlay button { background: #2ecc71; color: #1a1a2e; border: none; padding: 10px 28px; border-radius: 8px; font-size: 1em; font-weight: 700; cursor: pointer; }
+  .game-wrapper { position: relative; }
+  .controls-info { color:#7f8c8d; font-size:0.75em; margin-top:8px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header"><h1>⚽ Soccer Stars</h1>
+    <div class="hud">
+      <div class="hud-item"><div class="lbl">你</div><div class="val" id="myScore">0</div></div>
+      <div class="hud-item"><div class="lbl">AI</div><div class="val" id="aiScore">0</div></div>
+    </div>
+  </div>
+  <div class="game-wrapper">
+    <canvas id="gc" width="600" height="400"></canvas>
+    <div class="overlay" id="overlay"><h2 id="ot">比赛结束</h2><p id="os">你 0 - 0 AI</p><button id="rb">重新开始</button></div>
+  </div>
+  <div class="controls-info">WASD / 方向键控制球员移动</div>
+</div>
+<script>
+(function(){
+  const c=document.getElementById('gc'),ctx=c.getContext('2d');
+  const ms=document.getElementById('myScore'),as=document.getElementById('aiScore');
+  const ov=document.getElementById('overlay'),ot=document.getElementById('ot'),os=document.getElementById('os');
+
+  const W=600,H=400,GOAL_W=80,GOAL_H=20;
+  let player,ai,ball,myScore,aiScore,gameOver,keys,frame;
+
+  function init(){
+    player={x:150,y:200,r:15,speed:3};
+    ai={x:450,y:200,r:15,speed:2.2};
+    ball={x:300,y:200,r:8,vx:0,vy:0};
+    myScore=0;aiScore=0;gameOver=false;keys={};frame=0;
+    ov.classList.remove('active');
+    updateScore();
+    requestAnimationFrame(loop);
+  }
+
+  function updateScore(){ms.textContent=myScore;as.textContent=aiScore;}
+
+  function loop(){
+    if(gameOver)return;
+    frame++;
+
+    // Player movement
+    let px=0,py=0;
+    if(keys['w']||keys['ArrowUp'])py=-1;
+    if(keys['s']||keys['ArrowDown'])py=1;
+    if(keys['a']||keys['ArrowLeft'])px=-1;
+    if(keys['d']||keys['ArrowRight'])px=1;
+    if(px&&py){px*=0.707;py*=0.707;}
+    player.x+=px*player.speed;
+    player.y+=py*player.speed;
+    player.x=Math.max(player.r,Math.min(W/2-10,player.x));
+    player.y=Math.max(40+player.r,Math.min(H-40-player.r,player.y));
+
+    // AI movement
+    const dx=ball.x-ai.x,dy=ball.y-ai.y;
+    const dist=Math.hypot(dx,dy);
+    if(dist>0){
+      const targetX=ball.x+(ball.x>W/2?0:50),targetY=ball.y;
+      const adx=targetX-ai.x,ady=targetY-ai.y;
+      const adist=Math.hypot(adx,ady);
+      if(adist>0){
+        ai.x+=adx/adist*ai.speed;
+        ai.y+=ady/adist*ai.speed;
+      }
+      // Return to position if ball is in player's half
+      if(ball.x<W/2){
+        ai.x+=(W-100-ai.x)*0.02;
+        ai.y+=(200-ai.y)*0.02;
+      }
+    }
+    ai.x=Math.max(W/2+10,Math.min(W-ai.r,ai.x));
+    ai.y=Math.max(40+ai.r,Math.min(H-40-ai.r,ai.y));
+
+    // Ball physics
+    ball.x+=ball.vx;ball.y+=ball.vy;
+    ball.vx*=0.98;ball.vy*=0.98;
+    if(Math.abs(ball.vx)<0.01)ball.vx=0;
+    if(Math.abs(ball.vy)<0.01)ball.vy=0;
+
+    // Ball boundaries
+    if(ball.y<40+ball.r){ball.y=40+ball.r;ball.vy*=-0.8;}
+    if(ball.y>H-40-ball.r){ball.y=H-40-ball.r;ball.vy*=-0.8;}
+
+    // Goal detection
+    if(ball.x<ball.r){
+      if(ball.y>H/2-GOAL_W/2&&ball.y<H/2+GOAL_W/2){
+        aiScore++;updateScore();
+        if(aiScore>=5){
+          gameOver=true;ot.textContent='😵 你输了！';os.textContent=myScore+' - '+aiScore;ov.classList.add('active');
+        }else resetBall(1);
+      }else{ball.x=ball.r;ball.vx*=-0.5;}
+    }
+    if(ball.x>W-ball.r){
+      if(ball.y>H/2-GOAL_W/2&&ball.y<H/2+GOAL_W/2){
+        myScore++;updateScore();
+        if(myScore>=5){
+          gameOver=true;ot.textContent='🎉 你赢了！';os.textContent=myScore+' - '+aiScore;ov.classList.add('active');
+        }else resetBall(-1);
+      }else{ball.x=W-ball.r;ball.vx*=-0.5;}
+    }
+
+    // Player-ball collision
+    if(Math.hypot(player.x-ball.x,player.y-ball.y)<player.r+ball.r){
+      const dx=ball.x-player.x,dy=ball.y-player.y;
+      const d=Math.hypot(dx,dy);
+      if(d>0){ball.vx=dx/d*6;ball.vy=dy/d*6;}
+    }
+
+    // AI-ball collision
+    if(Math.hypot(ai.x-ball.x,ai.y-ball.y)<ai.r+ball.r){
+      const dx=ball.x-ai.x,dy=ball.y-ai.y;
+      const d=Math.hypot(dx,dy);
+      const targetX=player.x, targetY=player.y;
+      const kx=targetX-ai.x,ky=targetY-ai.y;
+      const kd=Math.hypot(kx,ky);
+      if(kd>0){ball.vx=kx/kd*5;ball.vy=ky/kd*5;}
+    }
+
+    render();
+    requestAnimationFrame(loop);
+  }
+
+  function resetBall(dir){
+    ball.x=300;ball.y=200;
+    ball.vx=dir*3;ball.vy=(Math.random()-0.5)*2;
+  }
+
+  function render(){
+    // Field
+    ctx.fillStyle='#2d7d46';ctx.fillRect(0,0,W,H);
+    // Border
+    ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=2;
+    ctx.strokeRect(5,40,W-10,H-80);
+    // Center line
+    ctx.setLineDash([8,8]);
+    ctx.beginPath();ctx.moveTo(W/2,45);ctx.lineTo(W/2,H-45);ctx.stroke();
+    ctx.setLineDash([]);
+    // Center circle
+    ctx.beginPath();ctx.arc(W/2,H/2,40,0,Math.PI*2);ctx.stroke();
+    // Goals
+    ctx.fillStyle='rgba(255,255,255,0.1)';
+    ctx.fillRect(-5,H/2-GOAL_W/2,10,GOAL_W);
+    ctx.fillRect(W-5,H/2-GOAL_W/2,10,GOAL_W);
+    // Goal posts
+    ctx.strokeStyle='#fff';ctx.lineWidth=3;
+    ctx.beginPath();ctx.moveTo(0,H/2-GOAL_W/2);ctx.lineTo(0,H/2+GOAL_W/2);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(W,H/2-GOAL_W/2);ctx.lineTo(W,H/2+GOAL_W/2);ctx.stroke();
+    // Ball
+    ctx.fillStyle='#fff';
+    ctx.beginPath();ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#333';ctx.lineWidth=1;
+    ctx.beginPath();ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);ctx.stroke();
+    // Ball pattern
+    ctx.strokeStyle='rgba(0,0,0,0.1)';
+    ctx.beginPath();ctx.moveTo(ball.x,ball.y-ball.r);ctx.lineTo(ball.x,ball.y+ball.r);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(ball.x-ball.r,ball.y);ctx.lineTo(ball.x+ball.r,ball.y);ctx.stroke();
+    // Player
+    ctx.fillStyle='#3498db';
+    ctx.beginPath();ctx.arc(player.x,player.y,player.r,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff';ctx.font='12px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('⚽',player.x,player.y);
+    // AI
+    ctx.fillStyle='#e74c3c';
+    ctx.beginPath();ctx.arc(ai.x,ai.y,ai.r,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff';
+    ctx.fillText('🤖',ai.x,ai.y);
+  }
+
+  document.addEventListener('keydown',e=>{keys[e.key]=true;});
+  document.addEventListener('keyup',e=>{keys[e.key]=false;});
+
+  document.getElementById('rb').addEventListener('click',init);
+  init();
+})();
+</script>
+</body>
+</html>

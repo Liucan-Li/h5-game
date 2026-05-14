@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Tower Defense</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #1a1a2e; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px;
+    -webkit-user-select: none; user-select: none;
+  }
+  .container { text-align: center; width: 100%; max-width: 440px; }
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  h1 { font-size: 1.5em; font-weight: 800; background: linear-gradient(135deg, #e74c3c, #f39c12); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .hud { display: flex; gap: 8px; }
+  .hud-item { background: #16213e; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; }
+  .hud-item .lbl { color: #7f8c8d; font-size: 0.7em; }
+  .hud-item .val { color: #fff; font-weight: 700; }
+  canvas { display: block; width: 100%; aspect-ratio: 1; background: #0f3460; border-radius: 12px; }
+  .actions { display: flex; gap: 6px; margin-top: 8px; justify-content: center; flex-wrap: wrap; }
+  .actions button {
+    background: #16213e; color: #e0e0e0; border: 2px solid #0f3460;
+    padding: 8px 14px; border-radius: 10px; font-size: 0.8em; cursor: pointer; font-weight: 600;
+    transition: all 0.15s;
+  }
+  .actions button:active { transform: scale(0.95); }
+  .actions button.selected { border-color: #f39c12; background: #1a3f6a; }
+  .actions button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .status { color:#7f8c8d; font-size:0.8em; margin-top:6px; min-height:20px; }
+  .overlay { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); border-radius: 12px; z-index: 10; }
+  .overlay.active { display: flex; }
+  .overlay h2 { font-size: 1.5em; color: #fff; margin-bottom: 4px; }
+  .overlay p { color: #ccc; margin-bottom: 12px; }
+  .overlay button { background: #f39c12; color: #1a1a2e; border: none; padding: 10px 28px; border-radius: 8px; font-size: 1em; font-weight: 700; cursor: pointer; }
+  .game-wrapper { position: relative; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header"><h1>Tower Defense</h1>
+    <div class="hud">
+      <div class="hud-item"><div class="lbl">💰</div><div class="val" id="gold">100</div></div>
+      <div class="hud-item"><div class="lbl">❤️</div><div class="val" id="lives">10</div></div>
+      <div class="hud-item"><div class="lbl">🌊</div><div class="val" id="wave">1</div></div>
+    </div>
+  </div>
+  <div class="game-wrapper">
+    <canvas id="gc" width="400" height="400"></canvas>
+    <div class="overlay" id="overlay"><h2 id="ot">游戏结束</h2><p id="os">坚持到第 1 波</p><button id="rb">重新开始</button></div>
+  </div>
+  <div class="actions" id="actions">
+    <button data-tool="tower">🏰 造塔 ($50)</button>
+    <button data-tool="upgrade">⬆️ 升级 ($80)</button>
+    <button id="startWave">▶️ 开始下一波</button>
+  </div>
+  <div class="status" id="status">点击空地建造防御塔</div>
+</div>
+<script>
+(function(){
+  const c=document.getElementById('gc'),ctx=c.getContext('2d');
+  const gd=document.getElementById('gold'),ld=document.getElementById('lives');
+  const wd=document.getElementById('wave'),st=document.getElementById('status');
+  const ov=document.getElementById('overlay'),ot=document.getElementById('ot'),os=document.getElementById('os');
+
+  const W=400,CELL=40,COLS=10,ROWS=10;
+  const PATH=[{x:0,y:2},{x:4,y:2},{x:4,y:6},{x:8,y:6},{x:8,y:8},{x:9,y:8}];
+
+  let gold,lives,wave,gameOver,waveActive,selectedTool,towers,enemies,projectiles,enemiesSpawned,enemiesThisWave,spawnTimer,waveCooldown;
+  let grid=[];
+
+  function init(){
+    gold=100;lives=10;wave=0;gameOver=false;waveActive=false;
+    selectedTool=null;towers=[];enemies=[];projectiles=[];
+    grid=Array.from({length:ROWS},()=>Array(COLS).fill(0));
+    // Mark path
+    for(let i=0;i<PATH.length-1;i++){
+      const p=Math.abs(PATH[i+1].x-PATH[i].x)>0;
+      const steps=Math.max(Math.abs(PATH[i+1].x-PATH[i].x),Math.abs(PATH[i+1].y-PATH[i].y));
+      for(let s=0;s<=steps;s++){
+        const x=PATH[i].x+(PATH[i+1].x-PATH[i].x)*s/steps;
+        const y=PATH[i].y+(PATH[i+1].y-PATH[i].y)*s/steps;
+        grid[Math.round(y)][Math.round(x)]=1;
+      }
+    }
+    ov.classList.remove('active');
+    updateHUD();
+    render();
+    updateToolButtons();
+  }
+
+  function updateHUD(){
+    gd.textContent=Math.floor(gold);ld.textContent=lives;wd.textContent=wave;
+  }
+
+  function updateToolButtons(){
+    document.querySelectorAll('[data-tool]').forEach(b=>{
+      b.classList.toggle('selected',b.dataset.tool===selectedTool);
+    });
+  }
+
+  function getPathProgress(pos){
+    let minDist=Infinity,minIdx=0;
+    for(let i=0;i<PATH.length;i++){
+      const d=Math.hypot(pos.x-PATH[i].x,pos.y-PATH[i].y);
+      if(d<minDist){minDist=d;minIdx=i;}
+    }
+    return minIdx;
+  }
+
+  function spawnEnemy(){
+    const hp=30+wave*5;
+    const speed=0.008+wave*0.001;
+    enemies.push({
+      x:0,y:2,pathIdx:1,hp, maxHp:hp, speed, gold:10+wave*2,
+    });
+  }
+
+  function startWave(){
+    if(waveActive)return;
+    wave++;waveActive=true;enemiesSpawned=0;
+    enemiesThisWave=5+wave*3;spawnTimer=0;
+    st.textContent='🌊 第 '+wave+' 波来袭！';
+    document.getElementById('startWave').disabled=true;
+  }
+
+  function tick(){
+    if(gameOver)return;
+    if(waveActive){
+      spawnTimer++;
+      if(spawnTimer>Math.max(15,40-wave*2)&&enemiesSpawned<enemiesThisWave){
+        spawnEnemy();enemiesSpawned++;spawnTimer=0;
+      }
+    }
+
+    // Move enemies
+    enemies.forEach(e=>{
+      const target=PATH[e.pathIdx];
+      const dx=target.x+0.5-e.x,dy=target.y+0.5-e.y;
+      const dist=Math.hypot(dx,dy);
+      if(dist<e.speed*50){
+        e.x=target.x+0.5;e.y=target.y+0.5;
+        e.pathIdx++;
+        if(e.pathIdx>=PATH.length){
+          e.reachedEnd=true;
+          lives--;
+          updateHUD();
+          if(lives<=0){gameOver=true;ot.textContent='😵 游戏结束';os.textContent='坚持到第 '+wave+' 波';ov.classList.add('active');}
+        }
+      }else{
+        e.x+=dx/dist*e.speed*50;e.y+=dy/dist*e.speed*50;
+      }
+    });
+    enemies=enemies.filter(e=>!e.reachedEnd);
+
+    // Towers shoot
+    towers.forEach(t=>{
+      t.cooldown=(t.cooldown||0)-1;
+      if(t.cooldown<=0){
+        const target=enemies.find(e=>Math.hypot(e.x-t.x,e.y-t.y)<t.range);
+        if(target){
+          t.cooldown=20-t.level*2;
+          projectiles.push({x:t.x*CELL+CELL/2,y:t.y*CELL+CELL/2,target,damage:t.damage,speed:5});
+        }
+      }
+    });
+
+    // Move projectiles
+    projectiles=projectiles.filter(p=>{
+      if(!p.target||!enemies.includes(p.target))return false;
+      const dx=p.target.x*CELL+CELL/2-p.x,dy=p.target.y*CELL+CELL/2-p.y;
+      const dist=Math.hypot(dx,dy);
+      if(dist<p.speed*2){
+        p.target.hp-=p.damage;
+        if(p.target.hp<=0){
+          gold+=p.target.gold;
+          enemies=enemies.filter(e=>e!==p.target);
+          updateHUD();
+        }
+        return false;
+      }
+      p.x+=dx/dist*p.speed;p.y+=dy/dist*p.speed;
+      return true;
+    });
+
+    // Check wave complete
+    if(waveActive&&enemiesSpawned>=enemiesThisWave&&enemies.length===0){
+      waveActive=false;
+      document.getElementById('startWave').disabled=false;
+      gold+=wave*10;
+      updateHUD();
+      st.textContent='✅ 第 '+wave+' 波完成！获得 '+wave*10+' 奖励金币';
+    }
+
+    render();
+    requestAnimationFrame(tick);
+  }
+
+  function render(){
+    ctx.fillStyle='#0f3460';ctx.fillRect(0,0,W,W);
+    // Grid
+    for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+      if(grid[r][c]===1){
+        ctx.fillStyle='#1a3f6a';ctx.fillRect(c*CELL,r*CELL,CELL,CELL);
+      }else{
+        ctx.strokeStyle='rgba(255,255,255,0.04)';ctx.strokeRect(c*CELL+0.5,r*CELL+0.5,CELL,CELL);
+      }
+    }
+    // Towers
+    towers.forEach(t=>{
+      const cx=t.x*CELL+CELL/2,cy=t.y*CELL+CELL/2;
+      ctx.fillStyle=t.color;
+      ctx.beginPath();ctx.roundRect(cx-12,cy-12,24,24,4);ctx.fill();
+      ctx.fillStyle='#fff';ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText('🏰',cx,cy);
+      // Range circle
+      if(selectedTool==='upgrade'||t===hoveredTower){
+        ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=1;
+        ctx.beginPath();ctx.arc(cx,cy,t.range*CELL,0,Math.PI*2);ctx.stroke();
+      }
+    });
+    // Enemies
+    enemies.forEach(e=>{
+      const x=e.x*CELL,y=e.y*CELL;
+      ctx.fillStyle='#e74c3c';ctx.beginPath();ctx.arc(x,y,12,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#c0392b';ctx.beginPath();ctx.arc(x-3,y-3,5,0,Math.PI*2);ctx.fill();
+      // HP bar
+      const bw=24,bh=3;
+      ctx.fillStyle='#333';ctx.fillRect(x-bw/2,y-20,bw,bh);
+      ctx.fillStyle='#2ecc71';ctx.fillRect(x-bw/2,y-20,bw*(e.hp/e.maxHp),bh);
+    });
+    // Projectiles
+    projectiles.forEach(p=>{
+      ctx.fillStyle='#f1c40f';ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fill();
+    });
+  }
+
+  let hoveredTower=null;
+
+  c.addEventListener('click',e=>{
+    if(gameOver)return;
+    const r=c.getBoundingClientRect();
+    const ex=(e.clientX-r.left)/r.width*W,ey=(e.clientY-r.top)/r.height*W;
+    const col=Math.floor(ex/CELL),row=Math.floor(ey/CELL);
+    if(col<0||col>=COLS||row<0||row>=ROWS)return;
+
+    if(selectedTool==='tower'){
+      if(grid[row][col]===1){st.textContent='❌ 不能建在路上';return;}
+      if(towers.some(t=>t.x===col&&t.y===row)){st.textContent='❌ 这里已有塔';return;}
+      if(gold<50){st.textContent='❌ 金币不够';return;}
+      towers.push({x:col,y:row,level:1,damage:15,range:2.5,color:'#3498db',cooldown:0});
+      gold-=50;updateHUD();st.textContent='✅ 防御塔已建造';
+    }else if(selectedTool==='upgrade'){
+      const tower=towers.find(t=>t.x===col&&t.y===row);
+      if(!tower){st.textContent='❌ 选择一座塔升级';return;}
+      if(gold<80){st.textContent='❌ 金币不够';return;}
+      tower.level++;tower.damage+=10;tower.range+=0.3;
+      gold-=80;updateHUD();st.textContent='✅ 防御塔升级到 '+tower.level+' 级';
+    }
+    updateToolButtons();render();
+  });
+
+  document.querySelectorAll('[data-tool]').forEach(b=>{
+    b.addEventListener('click',()=>{
+      if(selectedTool===b.dataset.tool)selectedTool=null;
+      else selectedTool=b.dataset.tool;
+      updateToolButtons();
+    });
+  });
+
+  document.getElementById('startWave').addEventListener('click',startWave);
+  document.getElementById('rb').addEventListener('click',init);
+
+  init();
+  setInterval(tick,50);
+})();
+</script>
+</body>
+</html>

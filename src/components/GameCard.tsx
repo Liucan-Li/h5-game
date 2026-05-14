@@ -7,16 +7,7 @@ interface Props {
 }
 
 export default function GameCard({ game, locale }: Props) {
-  const categoryClass = game.category === "Action" ? "cat-action"
-    : game.category === "Puzzle" ? "cat-puzzle"
-    : game.category === "Arcade" ? "cat-arcade"
-    : game.category === "Sports" ? "cat-sports"
-    : game.category === "Racing" ? "cat-racing"
-    : game.category === "Casual" ? "cat-casual"
-    : game.category === "Strategy" ? "cat-strategy"
-    : game.category === "Adventure" ? "cat-adventure"
-    : game.category === "Board" ? "cat-board"
-    : "cat-casual"
+  const categoryClass = `cat-${game.category}`
 
   return (
     <Link
