@@ -216,24 +216,6 @@
     "createdAt": "2025-01-13"
   },
   {
-    "id": "14",
-    "slug": "sudoku",
-    "title": "数独",
-    "description": "经典数独游戏。填入数字 1-9，使每行每列和每个宫格数字不重复。",
-    "url": "/games/sudoku.html",
-    "thumbnail": "/images/games/sudoku.svg",
-    "category": "puzzle",
-    "tags": [
-      "puzzle",
-      "numbers",
-      "logic"
-    ],
-    "featured": false,
-    "width": 450,
-    "height": 550,
-    "createdAt": "2025-01-14"
-  },
-  {
     "id": "15",
     "slug": "racing-game",
     "title": "极速赛车",
@@ -250,23 +232,6 @@
     "width": 400,
     "height": 600,
     "createdAt": "2025-01-15"
-  },
-  {
-    "id": "16",
-    "slug": "wordle",
-    "title": "猜单词",
-    "description": "Wordle 风格猜词游戏。五次机会猜出隐藏的五个字母单词！",
-    "url": "/games/wordle.html",
-    "thumbnail": "/images/games/wordle.svg",
-    "category": "puzzle",
-    "tags": [
-      "word",
-      "puzzle"
-    ],
-    "featured": false,
-    "width": 400,
-    "height": 500,
-    "createdAt": "2025-01-16"
   },
   {
     "id": "17",
@@ -356,24 +321,6 @@
     "featured": true,
     "width": 400,
     "height": 520,
-    "createdAt": "2025-05-02"
-  },
-  {
-    "id": "23",
-    "slug": "sokoban",
-    "title": "推箱子",
-    "description": "经典的仓库推箱子谜题。将所有的箱子推到目标位置，规划好你的每一步！",
-    "url": "/games/sokoban.html",
-    "thumbnail": "/images/games/sokoban.svg",
-    "category": "puzzle",
-    "tags": [
-      "puzzle",
-      "logic",
-      "classic"
-    ],
-    "featured": false,
-    "width": 400,
-    "height": 450,
     "createdAt": "2025-05-02"
   },
   {

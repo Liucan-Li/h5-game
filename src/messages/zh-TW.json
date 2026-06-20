@@ -318,17 +318,9 @@
       "title": "乒乓球",
       "description": "經典乒乓球遊戲。與 AI 對戰，誰能先得到 7 分？"
     },
-    "sudoku": {
-      "title": "數獨",
-      "description": "經典數獨遊戲。填入數字 1-9，使每行每列和每個宮格數字不重複。"
-    },
     "racing-game": {
       "title": "極速賽車",
       "description": "躲避車流，極速狂飆！測試你的反應和駕駛技巧。"
-    },
-    "wordle": {
-      "title": "猜單詞",
-      "description": "Wordle 風格猜詞遊戲。五次機會猜出隱藏的五個字母單詞！"
     },
     "whack-a-mole": {
       "title": "打地鼠",
@@ -349,10 +341,6 @@
     "match-three": {
       "title": "消消樂",
       "description": "經典三消遊戲。交換相鄰寶石，三個或以上同色連成一線即可消除得分！"
-    },
-    "sokoban": {
-      "title": "推箱子",
-      "description": "經典的倉庫推箱子謎題。將所有的箱子推到目標位置，規劃好你的每一步！"
     },
     "rhythm-tap": {
       "title": "節奏敲擊",

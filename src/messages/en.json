@@ -342,23 +342,11 @@
       "metaTitle": "Pong - Free Online Classic Sports Game | LeYou",
       "metaDesc": "Play Pong online for free against AI. Battle the computer in this timeless table tennis game. First to 7 points wins — no download."
     },
-    "sudoku": {
-      "title": "Sudoku",
-      "description": "Classic Sudoku. Fill in numbers 1-9 so each row, column, and box has no repeats.",
-      "metaTitle": "Sudoku - Free Online Daily Puzzle Game | LeYou",
-      "metaDesc": "Play Sudoku online for free. Fill the 9x9 grid so each row, column, and box contains 1-9. Daily puzzles with no download or sign-up needed."
-    },
     "racing-game": {
       "title": "Speed Racing",
       "description": "Dodge traffic and race at top speed! Test your reflexes and driving skills.",
       "metaTitle": "Racing Game - Free Online Speed Racing Game | LeYou",
       "metaDesc": "Play Racing Game online for free. Dodge traffic and race at top speed in this thrilling driving game. Test your reflexes — no download."
-    },
-    "wordle": {
-      "title": "Wordle",
-      "description": "Wordle-style word guessing. You have 5 attempts to guess the hidden 5-letter word!",
-      "metaTitle": "Wordle - Free Daily Word Game Online | LeYou",
-      "metaDesc": "Play Wordle online for free. Guess the hidden 5-letter word in 5 tries. A new daily puzzle every day — no download, no sign-up needed."
     },
     "whack-a-mole": {
       "title": "Whack-a-Mole",
@@ -389,12 +377,6 @@
       "description": "Classic match-3. Swap adjacent gems to line up three or more and score points!",
       "metaTitle": "Match Three - Free Online Puzzle Game | LeYou",
       "metaDesc": "Play Match Three online for free. Swap adjacent gems to line up three or more and score. Classic match-3 puzzle fun, no download needed."
-    },
-    "sokoban": {
-      "title": "Sokoban",
-      "description": "Classic warehouse puzzle. Push all crates onto the target spots — plan every move!",
-      "metaTitle": "Sokoban - Free Online Warehouse Puzzle Game | LeYou",
-      "metaDesc": "Play Sokoban online for free. Push all crates onto target spots in this classic warehouse puzzle. Plan every move — no download needed."
     },
     "rhythm-tap": {
       "title": "Rhythm Tap",
