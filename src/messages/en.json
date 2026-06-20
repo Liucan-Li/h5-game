@@ -76,8 +76,14 @@
       "description": "Fast-paced action games to test your reflexes",
       "intro": "Get your heart pumping with our collection of fast-paced action games. From precision aim trainers and zombie shooters to classic Contra run-and-gun action, each game tests your reflexes and hand-eye coordination. No downloads, no sign-ups — just instant browser-based thrills.",
       "faq": [
-        { "q": "What action games can I play for free?", "a": "LeYou offers a wide range of action games including Aim Trainer, Zombie Shooter, Contra, Space Shooter, Tank Battle, and Boxing. All are free to play in your browser with no download required." },
-        { "q": "Are these action games suitable for quick sessions?", "a": "Absolutely — most action games on LeYou are designed for quick pick-up-and-play sessions. Games like Aim Trainer and Asteroid Dodge last 30-60 seconds per round, perfect for short breaks." }
+        {
+          "q": "What action games can I play for free?",
+          "a": "LeYou offers a wide range of action games including Aim Trainer, Zombie Shooter, Contra, Space Shooter, Tank Battle, and Boxing. All are free to play in your browser with no download required."
+        },
+        {
+          "q": "Are these action games suitable for quick sessions?",
+          "a": "Absolutely — most action games on LeYou are designed for quick pick-up-and-play sessions. Games like Aim Trainer and Asteroid Dodge last 30-60 seconds per round, perfect for short breaks."
+        }
       ]
     },
     "puzzle": {
@@ -85,9 +91,18 @@
       "description": "Brain-training puzzle and logic games",
       "intro": "Challenge your mind with our collection of free online puzzle games. From classic Sudoku and 2048 to daily Wordle challenges, each game sharpens your logic, memory, and problem-solving skills. No download needed — just click and play in your browser.",
       "faq": [
-        { "q": "What are the best free puzzle games to play online?", "a": "LeYou offers 15+ free online puzzle games including 2048, Sudoku, Tetris, Minesweeper, and Wordle. All games run directly in your browser with no download required." },
-        { "q": "Can I play puzzle games without downloading anything?", "a": "Yes — every puzzle game on LeYou is HTML5 based and works instantly in your browser. No downloads, no plugins, no sign-ups needed." },
-        { "q": "Are there daily puzzle challenges?", "a": "Yes! Try our daily Wordle challenge and daily Sudoku — a new puzzle every day to keep your brain sharp." }
+        {
+          "q": "What are the best free puzzle games to play online?",
+          "a": "LeYou offers 15+ free online puzzle games including 2048, Sudoku, Tetris, Minesweeper, and Wordle. All games run directly in your browser with no download required."
+        },
+        {
+          "q": "Can I play puzzle games without downloading anything?",
+          "a": "Yes — every puzzle game on LeYou is HTML5 based and works instantly in your browser. No downloads, no plugins, no sign-ups needed."
+        },
+        {
+          "q": "Are there daily puzzle challenges?",
+          "a": "Yes! Try our daily Wordle challenge and daily Sudoku — a new puzzle every day to keep your brain sharp."
+        }
       ]
     },
     "arcade": {
@@ -95,8 +110,14 @@
       "description": "Classic arcade-style games",
       "intro": "Relive the golden age of gaming with our collection of classic arcade games. Play Pac-Man, Space Invaders, Breakout, Pinball, and Fruit Ninja — all faithfully recreated for your browser. Instant play, zero downloads, endless nostalgia.",
       "faq": [
-        { "q": "What classic arcade games are available?", "a": "LeYou features classic arcade games like Pac-Man, Space Invaders, Breakout, Pinball, Bomberman, and Fruit Ninja. All are browser-based with no download needed." },
-        { "q": "Can I play arcade games on my phone?", "a": "Yes — all LeYou arcade games are mobile-friendly HTML5 games that work on smartphones, tablets, and desktop browsers." }
+        {
+          "q": "What classic arcade games are available?",
+          "a": "LeYou features classic arcade games like Pac-Man, Space Invaders, Breakout, Pinball, Bomberman, and Fruit Ninja. All are browser-based with no download needed."
+        },
+        {
+          "q": "Can I play arcade games on my phone?",
+          "a": "Yes — all LeYou arcade games are mobile-friendly HTML5 games that work on smartphones, tablets, and desktop browsers."
+        }
       ]
     },
     "sports": {
@@ -104,8 +125,14 @@
       "description": "Competitive sports games",
       "intro": "Compete in a variety of sports games online for free. Play Soccer Stars, Bowling, Air Hockey, Boxing, and Pong against AI opponents. Each game captures the thrill of real sports competition in quick, browser-based sessions.",
       "faq": [
-        { "q": "What sports games can I play online?", "a": "LeYou offers Soccer Stars, Bowling, Air Hockey, Boxing, Pong, and more. All sports games are free and playable directly in your browser." },
-        { "q": "Do I need special equipment to play sports games?", "a": "No — all LeYou sports games use just your keyboard or touchscreen. No controllers, no downloads, no special hardware needed." }
+        {
+          "q": "What sports games can I play online?",
+          "a": "LeYou offers Soccer Stars, Bowling, Air Hockey, Boxing, Pong, and more. All sports games are free and playable directly in your browser."
+        },
+        {
+          "q": "Do I need special equipment to play sports games?",
+          "a": "No — all LeYou sports games use just your keyboard or touchscreen. No controllers, no downloads, no special hardware needed."
+        }
       ]
     },
     "racing": {
@@ -113,8 +140,14 @@
       "description": "Speed and thrills on the racetrack",
       "intro": "Feel the need for speed with our collection of racing and driving games. Dodge traffic in Speed Racing, race down endless slopes in Slope Run, and push your reflexes to the limit. All games are instant-play HTML5 with no download.",
       "faq": [
-        { "q": "What racing games are available on LeYou?", "a": "LeYou features Speed Racing, Slope Run, and other driving challenges. Each game tests your reflexes and driving skills in fast-paced races." },
-        { "q": "Can I play racing games on mobile?", "a": "Yes — all racing games are fully optimized for mobile browsers. Tilt, tap, or use keyboard controls depending on the game." }
+        {
+          "q": "What racing games are available on LeYou?",
+          "a": "LeYou features Speed Racing, Slope Run, and other driving challenges. Each game tests your reflexes and driving skills in fast-paced races."
+        },
+        {
+          "q": "Can I play racing games on mobile?",
+          "a": "Yes — all racing games are fully optimized for mobile browsers. Tilt, tap, or use keyboard controls depending on the game."
+        }
       ]
     },
     "casual": {
@@ -122,8 +155,14 @@
       "description": "Fun and relaxing casual games",
       "intro": "Unwind with our collection of casual games perfect for relaxing breaks. From addictive idle games like Cookie Clicker and Idle Miner to classic favorites like Doodle Jump and Flappy Bird, there's something for everyone. Play instantly in your browser.",
       "faq": [
-        { "q": "What casual games can I play to relax?", "a": "LeYou offers relaxing casual games like Cookie Clicker, Idle Miner, Doodle Jump, Flappy Bird, and Color Match. All are free and require no download." },
-        { "q": "Are idle games really free to play?", "a": "Yes — all idle games on LeYou including Cookie Clicker and Idle Miner are completely free. No in-app purchases, no hidden fees." }
+        {
+          "q": "What casual games can I play to relax?",
+          "a": "LeYou offers relaxing casual games like Cookie Clicker, Idle Miner, Doodle Jump, Flappy Bird, and Color Match. All are free and require no download."
+        },
+        {
+          "q": "Are idle games really free to play?",
+          "a": "Yes — all idle games on LeYou including Cookie Clicker and Idle Miner are completely free. No in-app purchases, no hidden fees."
+        }
       ]
     },
     "strategy": {
@@ -131,9 +170,18 @@
       "description": "Games that require strategic thinking",
       "intro": "Put your strategic thinking to the test with our collection of strategy games. Command armies in Tank Battle, build defenses in Tower Defense, and outmaneuver opponents in Chess and Checkers. Every move counts in these browser-based brain teasers.",
       "faq": [
-        { "q": "What strategy games are available online?", "a": "LeYou offers strategy games including Chess variants, Checkers, Tower Defense, Tank Battle, Connect Four, and Battleship. All are free to play in your browser." },
-        { "q": "Do strategy games have AI opponents?", "a": "Most LeYou strategy games feature AI opponents with adjustable difficulty, letting you practice and improve at your own pace." },
-        { "q": "Can I play strategy games against friends?", "a": "Many LeYou strategy games support pass-and-play on the same device, letting you challenge friends and family in classic board games." }
+        {
+          "q": "What strategy games are available online?",
+          "a": "LeYou offers strategy games including Chess variants, Checkers, Tower Defense, Tank Battle, Connect Four, and Battleship. All are free to play in your browser."
+        },
+        {
+          "q": "Do strategy games have AI opponents?",
+          "a": "Most LeYou strategy games feature AI opponents with adjustable difficulty, letting you practice and improve at your own pace."
+        },
+        {
+          "q": "Can I play strategy games against friends?",
+          "a": "Many LeYou strategy games support pass-and-play on the same device, letting you challenge friends and family in classic board games."
+        }
       ]
     },
     "adventure": {
@@ -141,8 +189,14 @@
       "description": "Explore exciting adventure worlds",
       "intro": "Embark on thrilling adventures with our collection of adventure games. Navigate platforming challenges in Platform Runner, solve mysteries in Escape Room, and explore pixel-art worlds. Each game offers a unique journey — all from your browser.",
       "faq": [
-        { "q": "What adventure games can I play for free?", "a": "LeYou features Platform Runner, Escape Room, Dino Runner, and more adventure games. All are HTML5 games that run instantly in any browser." },
-        { "q": "Are adventure games suitable for kids?", "a": "Yes — LeYou adventure games are family-friendly with no violent content. Games like Dino Runner and Platform Runner are great for players of all ages." }
+        {
+          "q": "What adventure games can I play for free?",
+          "a": "LeYou features Platform Runner, Escape Room, Dino Runner, and more adventure games. All are HTML5 games that run instantly in any browser."
+        },
+        {
+          "q": "Are adventure games suitable for kids?",
+          "a": "Yes — LeYou adventure games are family-friendly with no violent content. Games like Dino Runner and Platform Runner are great for players of all ages."
+        }
       ]
     },
     "board": {
@@ -150,9 +204,18 @@
       "description": "Chess and card game battles of wit",
       "intro": "Challenge your wits with classic board and card games. Play Chess, Checkers, Gomoku, Reversi, Solitaire, Poker, and Blackjack against AI opponents. Every game is a battle of strategy and skill — free, no download, instant play.",
       "faq": [
-        { "q": "What board and card games are available?", "a": "LeYou offers Chess, Checkers, Gomoku, Reversi, Solitaire (Klondike), Blackjack, Texas Hold'em Poker, Battleship, Connect Four, and more. All free." },
-        { "q": "Can I play card games against AI?", "a": "Yes — all card and board games on LeYou feature AI opponents, allowing you to practice and improve your skills anytime." },
-        { "q": "Is there a way to play card games with friends?", "a": "Yes — many board games support pass-and-play mode on the same device, perfect for playing with friends and family." }
+        {
+          "q": "What board and card games are available?",
+          "a": "LeYou offers Chess, Checkers, Gomoku, Reversi, Solitaire (Klondike), Blackjack, Texas Hold'em Poker, Battleship, Connect Four, and more. All free."
+        },
+        {
+          "q": "Can I play card games against AI?",
+          "a": "Yes — all card and board games on LeYou feature AI opponents, allowing you to practice and improve your skills anytime."
+        },
+        {
+          "q": "Is there a way to play card games with friends?",
+          "a": "Yes — many board games support pass-and-play mode on the same device, perfect for playing with friends and family."
+        }
       ]
     }
   },
@@ -249,12 +312,6 @@
       "metaTitle": "Breakout - Free Online Classic Arcade Game | LeYou",
       "metaDesc": "Play Breakout online for free. Control the paddle, bounce the ball, and destroy all bricks in this classic arcade game. No download needed."
     },
-    "dino-runner": {
-      "title": "Dino Runner",
-      "description": "Enhanced Chrome dino game. Jump to dodge obstacles and run as far as possible!",
-      "metaTitle": "Dino Runner - Free Online Running Game | LeYou",
-      "metaDesc": "Play Dino Runner online for free. Jump to dodge obstacles and run as far as possible in this enhanced endless runner. No download, instant play."
-    },
     "flappy-bird": {
       "title": "Flappy Bird",
       "description": "Classic Flappy Bird. Tap to keep the bird flying and navigate through pipe gaps!",
@@ -309,12 +366,6 @@
       "metaTitle": "Whack a Mole - Free Online Arcade Game | LeYou",
       "metaDesc": "Play Whack a Mole online for free. Moles pop up randomly — smash them with a hammer for points. Classic arcade fun, no download needed."
     },
-    "doodle-jump": {
-      "title": "Doodle Jump",
-      "description": "Control the doodle character jumping upward, land on platforms, and don't fall!",
-      "metaTitle": "Doodle Jump - Free Online Jumping Game | LeYou",
-      "metaDesc": "Play Doodle Jump online for free. Control the doodle character jumping upward, land on platforms, and don't fall. No download."
-    },
     "color-match": {
       "title": "Color Match",
       "description": "Match the color of the text, not the word itself. A true test of attention!",
@@ -345,23 +396,11 @@
       "metaTitle": "Sokoban - Free Online Warehouse Puzzle Game | LeYou",
       "metaDesc": "Play Sokoban online for free. Push all crates onto target spots in this classic warehouse puzzle. Plan every move — no download needed."
     },
-    "aim-trainer": {
-      "title": "Aim Trainer",
-      "description": "Sharpen your aim and reaction speed! Hit as many targets as possible in limited time.",
-      "metaTitle": "Aim Trainer - Free Online Aim Practice Game | LeYou",
-      "metaDesc": "Play Aim Trainer online for free. Sharpen your aim and reaction speed by hitting targets in limited time. No download, instant browser play."
-    },
     "rhythm-tap": {
       "title": "Rhythm Tap",
       "description": "Tap to the beat as notes reach the target zone! Challenge your sense of rhythm.",
       "metaTitle": "Rhythm Tap - Free Online Music Game | LeYou",
       "metaDesc": "Play Rhythm Tap online for free. Tap to the beat as notes reach the target zone. Challenge your sense of rhythm — no download needed."
-    },
-    "asteroid-dodge": {
-      "title": "Asteroid Dodge",
-      "description": "Navigate your ship through the meteor shower! The longer you survive, the higher your score!",
-      "metaTitle": "Asteroid Dodge - Free Online Space Game | LeYou",
-      "metaDesc": "Play Asteroid Dodge online for free. Navigate your ship through the meteor shower and survive as long as possible. No download needed."
     },
     "gomoku": {
       "title": "Gomoku",
@@ -404,12 +443,6 @@
       "description": "Classic Tank Battle. Command your tank, defend the base, and destroy all enemy tanks!",
       "metaTitle": "Tank Battle - Free Online Combat Game | LeYou",
       "metaDesc": "Play Tank Battle online for free. Command your tank, defend the base, and destroy all enemy tanks in this classic combat game."
-    },
-    "fruit-ninja": {
-      "title": "Fruit Ninja",
-      "description": "Classic Fruit Ninja. Slice flying fruit but don't hit the bombs!",
-      "metaTitle": "Fruit Ninja - Free Online Slicing Game | LeYou",
-      "metaDesc": "Play Fruit Ninja online for free. Slice flying fruit but don't hit the bombs. Classic arcade action in your browser — no download needed."
     },
     "connect-four": {
       "title": "Connect Four",

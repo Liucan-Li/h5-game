@@ -126,24 +126,6 @@
     "createdAt": "2025-01-07"
   },
   {
-    "id": "8",
-    "slug": "dino-runner",
-    "title": "恐龙快跑",
-    "description": "Chrome 恐龙游戏增强版。控制恐龙跳跃躲避障碍物，跑得越远越好！",
-    "url": "/games/dino-runner.html",
-    "thumbnail": "/images/games/dino-runner.svg",
-    "category": "action",
-    "tags": [
-      "parkour",
-      "action",
-      "classic"
-    ],
-    "featured": true,
-    "width": 600,
-    "height": 300,
-    "createdAt": "2025-01-08"
-  },
-  {
     "id": "9",
     "slug": "flappy-bird",
     "title": "Flappy Bird",
@@ -305,24 +287,6 @@
     "createdAt": "2025-01-17"
   },
   {
-    "id": "18",
-    "slug": "doodle-jump",
-    "title": "涂鸦跳跃",
-    "description": "控制涂鸦小人不断向上跳跃，踩中平台，小心不要掉下去！",
-    "url": "/games/doodle-jump.html",
-    "thumbnail": "/images/games/doodle-jump.svg",
-    "category": "action",
-    "tags": [
-      "jump",
-      "action",
-      "casual"
-    ],
-    "featured": false,
-    "width": 400,
-    "height": 600,
-    "createdAt": "2025-01-18"
-  },
-  {
     "id": "19",
     "slug": "color-match",
     "title": "颜色配配配",
@@ -413,24 +377,6 @@
     "createdAt": "2025-05-02"
   },
   {
-    "id": "24",
-    "slug": "aim-trainer",
-    "title": "瞄准射击",
-    "description": "测试你的瞄准和反应速度！在限定时间内击中尽可能多的目标。",
-    "url": "/games/aim-trainer.html",
-    "thumbnail": "/images/games/aim-trainer.svg",
-    "category": "action",
-    "tags": [
-      "shooter",
-      "reflex",
-      "action"
-    ],
-    "featured": false,
-    "width": 500,
-    "height": 500,
-    "createdAt": "2025-05-02"
-  },
-  {
     "id": "25",
     "slug": "rhythm-tap",
     "title": "节奏敲击",
@@ -445,24 +391,6 @@
     ],
     "featured": false,
     "width": 400,
-    "height": 550,
-    "createdAt": "2025-05-02"
-  },
-  {
-    "id": "26",
-    "slug": "asteroid-dodge",
-    "title": "躲避陨石",
-    "description": "控制飞船在陨石雨中穿梭！坚持越久，分数越高！",
-    "url": "/games/asteroid-dodge.html",
-    "thumbnail": "/images/games/asteroid-dodge.svg",
-    "category": "action",
-    "tags": [
-      "dodge",
-      "space",
-      "action"
-    ],
-    "featured": false,
-    "width": 450,
     "height": 550,
     "createdAt": "2025-05-02"
   },
@@ -591,24 +519,6 @@
     "featured": true,
     "width": 480,
     "height": 520,
-    "createdAt": "2025-05-03"
-  },
-  {
-    "id": "34",
-    "slug": "fruit-ninja",
-    "title": "水果忍者",
-    "description": "经典水果忍者游戏。滑动切开飞出的水果，小心不要切到炸弹！",
-    "url": "/games/fruit-ninja.html",
-    "thumbnail": "/images/games/fruit-ninja.svg",
-    "category": "action",
-    "tags": [
-      "action",
-      "casual",
-      "reflex"
-    ],
-    "featured": false,
-    "width": 400,
-    "height": 560,
     "createdAt": "2025-05-03"
   },
   {
