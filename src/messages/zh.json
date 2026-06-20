@@ -29,6 +29,12 @@
     "notFound": "游戏未找到",
     "exitFullscreen": "退出全屏"
   },
+  "gameEvent": {
+    "score": "得分 +{score}",
+    "victory": "恭喜过关！",
+    "gameOver": "游戏结束",
+    "finalScore": "最终得分：{score}"
+  },
   "breadcrumb": {
     "home": "首页",
     "games": "游戏"

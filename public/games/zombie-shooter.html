@@ -1,58 +1,45 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-game-id="zombie-shooter">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Zombie Shooter</title>
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: #1a1a2e; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px;
-    -webkit-user-select: none; user-select: none; touch-action: none;
-  }
-  .container { text-align: center; width: 100%; max-width: 450px; }
-  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  h1 { font-size: 1.5em; font-weight: 800; background: linear-gradient(135deg, #2ecc71, #27ae60); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .hud { display: flex; gap: 8px; }
-  .hud-item { background: #16213e; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; text-align: center; }
-  .hud-item .lbl { color: #7f8c8d; font-size: 0.65em; }
-  .hud-item .val { color: #fff; font-weight: 700; }
-  canvas { display: block; width: 100%; aspect-ratio: 1; background: #1a1a2e; border-radius: 12px; cursor: crosshair; }
-  .overlay { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.8); border-radius: 12px; z-index: 10; }
-  .overlay.active { display: flex; }
-  .overlay h2 { font-size: 1.5em; color: #e74c3c; margin-bottom: 4px; }
-  .overlay p { color: #ccc; margin-bottom: 12px; }
-  .overlay button { background: #2ecc71; color: #1a1a2e; border: none; padding: 10px 28px; border-radius: 8px; font-size: 1em; font-weight: 700; cursor: pointer; }
-  .game-wrapper { position: relative; }
-  .controls-info { color:#7f8c8d; font-size:0.75em; margin-top:8px; }
-</style>
+<link rel="stylesheet" href="framework.css">
+<style>canvas{cursor:crosshair}</style>
 </head>
 <body>
-<div class="container">
-  <div class="header"><h1>🧟 Zombie Shooter</h1>
-    <div class="hud">
-      <div class="hud-item"><div class="lbl">击杀</div><div class="val" id="score">0</div></div>
-      <div class="hud-item"><div class="lbl">❤️</div><div class="val" id="lives">5</div></div>
-      <div class="hud-item"><div class="lbl">🌊</div><div class="val" id="wave">1</div></div>
+<div class="fw-container">
+  <div class="fw-header"><h1 class="fw-title">🧟 Zombie Shooter</h1>
+    <div class="fw-scores">
+      <div class="fw-score-box"><div class="fw-score-label">击杀</div><div class="fw-score-value" id="score">0</div></div>
+      <div class="fw-score-box"><div class="fw-score-label">❤️</div><div class="fw-score-value" id="lives">5</div></div>
+      <div class="fw-score-box"><div class="fw-score-label">🌊</div><div class="fw-score-value" id="wave">1</div></div>
     </div>
   </div>
-  <div class="game-wrapper">
-    <canvas id="gc" width="400" height="400"></canvas>
-    <div class="overlay" id="overlay"><h2 id="ot">游戏结束</h2><p id="os">击杀：0</p><button id="rb">重新开始</button></div>
+  <div class="fw-game-area">
+    <canvas class="fw-canvas" id="gc" width="400" height="400" style="cursor:crosshair"></canvas>
+    <div class="fw-overlay" id="overlay">
+      <div class="fw-overlay-box">
+        <div class="fw-overlay-title" id="ot">游戏结束</div>
+        <div class="fw-overlay-text" id="os">击杀：0</div>
+        <button class="fw-btn fw-btn-primary" id="rb">重新开始</button>
+      </div>
+    </div>
   </div>
-  <div class="controls-info">点击/触摸射击僵尸，WASD 移动</div>
+  <div class="fw-status">点击/触摸射击僵尸，WASD 移动</div>
 </div>
+<script src="framework.js"></script>
 <script>
 (function(){
-  const c=document.getElementById('gc'),ctx=c.getContext('2d');
-  const sd=document.getElementById('score'),ld=document.getElementById('lives');
-  const wd=document.getElementById('wave'),ov=document.getElementById('overlay');
-  const ot=document.getElementById('ot'),os=document.getElementById('os');
+  var FW = window.GameFramework;
+  var c=document.getElementById('gc'),ctx=c.getContext('2d');
+  var sd=document.getElementById('score'),ld=document.getElementById('lives');
+  var wd=document.getElementById('wave'),ov=document.getElementById('overlay');
+  var ot=document.getElementById('ot'),os=document.getElementById('os');
 
-  const W=400;
-  let player,zombies,bullets,score,lives,wave,gameOver,frame,spawnTimer,zombiesInWave,zombiesSpawned,waveActive;
-  let keys={},mx,my;
+  var W=400;
+  var player,zombies,bullets,score,lives,wave,gameOver,frame,spawnTimer,zombiesInWave,zombiesSpawned,waveActive;
+  var keys={},mx,my;
 
   function init(){
     player={x:200,y:200,size:12,speed:2};
@@ -69,8 +56,9 @@
 
   function shoot(tx,ty){
     if(gameOver)return;
-    const dx=tx-player.x,dy=ty-player.y;
-    const dist=Math.hypot(dx,dy);
+    FW.audio.sfx('click');
+    var dx=tx-player.x,dy=ty-player.y;
+    var dist=Math.hypot(dx,dy);
     if(dist===0)return;
     bullets.push({x:player.x,y:player.y,dx:dx/dist,dy:dy/dist,speed:6,life:0});
   }
@@ -78,10 +66,10 @@
   function loop(){
     if(gameOver)return;
     frame++;
-    const speedBoost=1+wave*0.1;
+    var speedBoost=1+wave*0.1;
 
     // Player movement
-    let px=0,py=0;
+    var px=0,py=0;
     if(keys['w']||keys['ArrowUp'])py=-1;
     if(keys['s']||keys['ArrowDown'])py=1;
     if(keys['a']||keys['ArrowLeft'])px=-1;
@@ -95,33 +83,36 @@
     // Spawn zombies
     if(waveActive){
       spawnTimer++;
-      const rate=Math.max(10,50-wave*2);
+      var rate=Math.max(10,50-wave*2);
       if(spawnTimer>rate&&zombiesSpawned<zombiesInWave){
-        const side=Math.floor(Math.random()*4);
-        let x,y;
+        var side=Math.floor(Math.random()*4);
+        var x,y;
         if(side===0){x=Math.random()*W;y=-20;}
         else if(side===1){x=W+20;y=Math.random()*W;}
         else if(side===2){x=Math.random()*W;y=W+20;}
         else{x=-20;y=Math.random()*W;}
-        zombies.push({x,y,size:14,hp:20+wave*5,speed:0.5+wave*0.08,damage:1});
+        zombies.push({x:x,y:y,size:14,hp:20+wave*5,speed:0.5+wave*0.08,damage:1});
         zombiesSpawned++;spawnTimer=0;
       }
     }
 
     // Move zombies toward player
-    zombies.forEach(z=>{
-      const dx=player.x-z.x,dy=player.y-z.y;
-      const dist=Math.hypot(dx,dy);
+    zombies.forEach(function(z){
+      var dx=player.x-z.x,dy=player.y-z.y;
+      var dist=Math.hypot(dx,dy);
       if(dist>0){z.x+=dx/dist*z.speed;z.y+=dy/dist*z.speed;}
     });
 
     // Zombie-player collision
-    zombies.forEach(z=>{
+    zombies.forEach(function(z){
       if(Math.hypot(z.x-player.x,z.y-player.y)<player.size+z.size){
         lives-=z.damage;
         if(lives<=0){
           gameOver=true;
-          ot.textContent='💀 你被感染了！';os.textContent='击杀：'+score+' 第 '+wave+' 波';
+          FW.audio.sfx('gameover');
+          FW.storage.setHighScore(score);
+          FW.events.reportComplete(score,{won:false});
+          ot.textContent='💀 你被感染了！';os.textContent='击杀：'+score+' 第 '+wave+' 波  最高分：'+FW.storage.getHighScore();
           ov.classList.add('active');
         }
         updateHUD();
@@ -129,14 +120,14 @@
     });
 
     // Move bullets
-    bullets=bullets.filter(b=>{
+    bullets=bullets.filter(function(b){
       b.x+=b.dx*b.speed;b.y+=b.dy*b.speed;b.life++;
       if(b.life>60||b.x<0||b.x>W||b.y<0||b.y>W)return false;
-      let hit=false;
-      zombies=zombies.filter(z=>{
+      var hit=false;
+      zombies=zombies.filter(function(z){
         if(Math.hypot(b.x-z.x,b.y-z.y)<z.size){
           z.hp-=15;
-          if(z.hp<=0){score++;hit=true;return false;}
+          if(z.hp<=0){score++;FW.audio.sfx('score');FW.events.reportScore(score);hit=true;return false;}
           return true;
         }
         return true;
@@ -148,7 +139,7 @@
     if(waveActive&&zombiesSpawned>=zombiesInWave&&zombies.length===0){
       waveActive=false;
       wave++;zombiesInWave=5+wave*3;
-      setTimeout(()=>{if(!gameOver){waveActive=true;zombiesSpawned=0;spawnTimer=0;}},2000);
+      setTimeout(function(){if(!gameOver){FW.audio.sfx('win');waveActive=true;zombiesSpawned=0;spawnTimer=0;}},2000);
     }
 
     updateHUD();
@@ -159,12 +150,12 @@
   function render(){
     ctx.fillStyle='#1a1a2e';ctx.fillRect(0,0,W,W);
     // Ground texture
-    for(let i=0;i<20;i++)for(let j=0;j<20;j++){
+    for(var i=0;i<20;i++)for(var j=0;j<20;j++){
       ctx.fillStyle=(i+j)%2===0?'rgba(255,255,255,0.02)':'rgba(0,0,0,0.02)';
       ctx.fillRect(i*20,j*20,20,20);
     }
     // Zombies
-    zombies.forEach(z=>{
+    zombies.forEach(function(z){
       ctx.fillStyle='#4a7c59';
       ctx.beginPath();ctx.arc(z.x,z.y,z.size,0,Math.PI*2);ctx.fill();
       ctx.fillStyle='#3d6b4b';
@@ -174,7 +165,7 @@
       ctx.beginPath();ctx.arc(z.x+5,z.y-5,2,0,Math.PI*2);ctx.fill();
       // HP bar
       if(z.hp<20+wave*5){
-        const bw=30,bh=3;
+        var bw=30,bh=3;
         ctx.fillStyle='#333';ctx.fillRect(z.x-bw/2,z.y-22,bw,bh);
         ctx.fillStyle='#e74c3c';ctx.fillRect(z.x-bw/2,z.y-22,bw*(z.hp/(20+wave*5)),bh);
       }
@@ -189,7 +180,7 @@
     ctx.beginPath();ctx.arc(player.x-4,player.y-3,1.5,0,Math.PI*2);ctx.fill();
     ctx.beginPath();ctx.arc(player.x+4,player.y-3,1.5,0,Math.PI*2);ctx.fill();
     // Bullets
-    ctx.fillStyle='#f1c40f';bullets.forEach(b=>{ctx.beginPath();ctx.arc(b.x,b.y,3,0,Math.PI*2);ctx.fill();});
+    ctx.fillStyle='#f1c40f';bullets.forEach(function(b){ctx.beginPath();ctx.arc(b.x,b.y,3,0,Math.PI*2);ctx.fill();});
     // Crosshair
     ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=1;
     ctx.beginPath();ctx.arc(mx,my,8,0,Math.PI*2);ctx.stroke();
@@ -197,22 +188,22 @@
     ctx.beginPath();ctx.moveTo(mx,my-12);ctx.lineTo(mx,my-5);ctx.moveTo(mx,my+5);ctx.lineTo(mx,my+12);ctx.stroke();
   }
 
-  c.addEventListener('click',e=>{
-    const r=c.getBoundingClientRect();
+  c.addEventListener('click',function(e){
+    var r=c.getBoundingClientRect();
     shoot((e.clientX-r.left)/r.width*W,(e.clientY-r.top)/r.height*W);
   });
-  c.addEventListener('touchstart',e=>{
+  c.addEventListener('touchstart',function(e){
     e.preventDefault();
-    const r=c.getBoundingClientRect(),t=e.touches[0];
+    var r=c.getBoundingClientRect(),t=e.touches[0];
     shoot((t.clientX-r.left)/r.width*W,(t.clientY-r.top)/r.height*W);
   },{passive:false});
-  c.addEventListener('mousemove',e=>{
-    const r=c.getBoundingClientRect();
+  c.addEventListener('mousemove',function(e){
+    var r=c.getBoundingClientRect();
     mx=(e.clientX-r.left)/r.width*W;my=(e.clientY-r.top)/r.height*W;
   });
 
-  document.addEventListener('keydown',e=>{keys[e.key]=true;if(e.key===' ')e.preventDefault();});
-  document.addEventListener('keyup',e=>{keys[e.key]=false;});
+  document.addEventListener('keydown',function(e){keys[e.key]=true;if(e.key===' ')e.preventDefault();});
+  document.addEventListener('keyup',function(e){keys[e.key]=false;});
 
   document.getElementById('rb').addEventListener('click',init);
   init();

@@ -1,23 +1,11 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-game-id="memory">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>记忆翻牌</title>
+<link rel="stylesheet" href="framework.css">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: #1a1a2e; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px;
-    -webkit-user-select: none; user-select: none;
-  }
-  .container { text-align: center; width: 100%; max-width: 420px; }
-  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
-  h1 { font-size: 2em; font-weight: 800; background: linear-gradient(135deg, #a78bfa, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .stats { display: flex; gap: 8px; }
-  .stat-box { background: #16213e; padding: 6px 14px; border-radius: 8px; min-width: 65px; }
-  .stat-label { font-size: 0.65em; text-transform: uppercase; color: #7f8c8d; letter-spacing: 1px; }
-  .stat-value { font-size: 1.2em; font-weight: 700; color: #fff; }
   .grid {
     display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
     width: 100%; max-width: 420px; margin: 0 auto;
@@ -28,59 +16,52 @@
   .card-inner {
     position: relative; width: 100%; height: 100%;
     transition: transform 0.4s ease; transform-style: preserve-3d;
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
   }
   .card.flipped .card-inner, .card.matched .card-inner { transform: rotateY(180deg); }
   .card-face {
     position: absolute; inset: 0; backface-visibility: hidden;
-    border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center;
     border: 2px solid transparent;
   }
   .card-front {
-    background: linear-gradient(135deg, #7c3aed, #6d28d9);
-    border-color: rgba(255,255,255,0.1);
+    background: linear-gradient(135deg, var(--accent-2), #6d28d9);
+    border-color: var(--glass-border);
   }
   .card-front::after {
     content: '?'; font-size: 2em; font-weight: 800; color: rgba(255,255,255,0.4);
   }
   .card-back {
-    background: #16213e; border-color: #a78bfa; transform: rotateY(180deg);
+    background: var(--bg-secondary); border-color: var(--accent-2); transform: rotateY(180deg);
     font-size: 2.2em;
   }
-  .card.matched .card-back { border-color: #4ecca3; background: #0a2a1e; }
+  .card.matched .card-back { border-color: var(--accent-1); background: #0a2a1e; }
   .card:not(.flipped):not(.matched):active .card-inner { transform: scale(0.95); }
-  .card.matched { cursor: default; animation: matchPulse 0.4s ease; }
-  @keyframes matchPulse { 0% { transform: scale(1); } 50% { transform: scale(1.08); } 100% { transform: scale(1); } }
-  button {
-    background: linear-gradient(135deg, #a78bfa, #7c3aed); color: #fff;
-    border: none; padding: 10px 28px; border-radius: 8px; font-size: 1em;
-    font-weight: 700; cursor: pointer; margin-top: 16px; transition: transform 0.1s;
-  }
-  button:active { transform: scale(0.95); }
-  .status { color: #7f8c8d; font-size: 0.8em; margin-top: 10px; }
+  .card.matched { cursor: default; animation: fw-pop 0.4s ease; }
   @media (max-width: 420px) {
     .grid { gap: 8px; }
     .card-front::after { font-size: 1.5em; }
     .card-back { font-size: 1.6em; }
-    h1 { font-size: 1.6em; }
   }
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="header">
-    <h1>记忆翻牌</h1>
-    <div class="stats">
-      <div class="stat-box"><div class="stat-label">步数</div><div class="stat-value" id="moves">0</div></div>
-      <div class="stat-box"><div class="stat-label">时间</div><div class="stat-value" id="timer">0s</div></div>
+<div class="fw-container fw-cat-puzzle">
+  <div class="fw-header">
+    <h1 class="fw-title">记忆翻牌</h1>
+    <div class="fw-scores">
+      <div class="fw-score-box"><div class="fw-score-label">步数</div><div class="fw-score-value" id="moves">0</div></div>
+      <div class="fw-score-box"><div class="fw-score-label">时间</div><div class="fw-score-value" id="timer">0s</div></div>
     </div>
   </div>
   <div class="grid" id="grid"></div>
-  <button id="restartBtn">新游戏</button>
-  <div class="status" id="statusMsg">翻出所有配对的卡片即可获胜！</div>
+  <button class="fw-btn fw-btn-primary" id="restartBtn" style="margin-top:14px;">新游戏</button>
+  <div class="fw-status" id="statusMsg" style="margin-top:8px;">翻出所有配对的卡片即可获胜！</div>
 </div>
+<script src="framework.js"></script>
 <script>
 (function() {
+  const FW = window.GameFramework;
   const EMOJIS = ['🚀','🌟','💎','🎯','🔥','🌈','🍀','🎵'];
   let cards, flipped, matched, moves, timer, timerInterval;
   let gameStarted, lockBoard;
@@ -92,31 +73,25 @@
 
   function init() {
     grid.innerHTML = '';
-    flipped = [];
-    matched = 0;
-    moves = 0;
-    timer = 0;
-    gameStarted = false;
-    lockBoard = false;
-    movesEl.textContent = '0';
-    timerEl.textContent = '0s';
+    flipped = []; matched = 0; moves = 0; timer = 0;
+    gameStarted = false; lockBoard = false;
+    movesEl.textContent = '0'; timerEl.textContent = '0s';
     statusMsg.textContent = '翻出所有配对的卡片即可获胜！';
     if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
 
-    // Create and shuffle cards
     const pairs = [...EMOJIS, ...EMOJIS];
     for (let i = pairs.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [pairs[i], pairs[j]] = [pairs[j], pairs[i]];
     }
 
-    pairs.forEach((emoji, index) => {
+    pairs.forEach(function(emoji, index) {
       const card = document.createElement('div');
       card.className = 'card';
       card.dataset.index = index;
       card.dataset.emoji = emoji;
-      card.innerHTML = `<div class="card-inner"><div class="card-face card-front"></div><div class="card-face card-back">${emoji}</div></div>`;
-      card.addEventListener('click', () => flipCard(card));
+      card.innerHTML = '<div class="card-inner"><div class="card-face card-front"></div><div class="card-face card-back">' + emoji + '</div></div>';
+      card.addEventListener('click', function() { flipCard(card); });
       grid.appendChild(card);
     });
   }
@@ -128,12 +103,10 @@
 
     if (!gameStarted) {
       gameStarted = true;
-      timerInterval = setInterval(() => {
-        timer++;
-        timerEl.textContent = timer + 's';
-      }, 1000);
+      timerInterval = setInterval(function() { timer++; timerEl.textContent = timer + 's'; }, 1000);
     }
 
+    FW.audio.sfx('click');
     card.classList.add('flipped');
     flipped.push(card);
 
@@ -146,23 +119,23 @@
 
   function checkMatch() {
     lockBoard = true;
-    const [a, b] = flipped;
+    var a = flipped[0], b = flipped[1];
     if (a.dataset.emoji === b.dataset.emoji) {
       a.classList.add('matched');
       b.classList.add('matched');
       matched++;
-      flipped = [];
-      lockBoard = false;
+      flipped = []; lockBoard = false;
+      FW.audio.sfx('score');
       if (matched === EMOJIS.length) {
         clearInterval(timerInterval);
         statusMsg.innerHTML = '🎉 你赢了！共 ' + moves + ' 步，用时 ' + timer + ' 秒！';
+        FW.audio.sfx('win');
+        FW.events.reportComplete(moves, { time: timer, won: true });
       }
     } else {
-      setTimeout(() => {
-        a.classList.remove('flipped');
-        b.classList.remove('flipped');
-        flipped = [];
-        lockBoard = false;
+      setTimeout(function() {
+        a.classList.remove('flipped'); b.classList.remove('flipped');
+        flipped = []; lockBoard = false;
       }, 800);
     }
   }

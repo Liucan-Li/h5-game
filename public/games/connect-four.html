@@ -1,161 +1,104 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-game-id="connect-four">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>四子棋</title>
+<link rel="stylesheet" href="framework.css">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: #f5f6fa;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    overflow: hidden;
-    touch-action: none;
-    user-select: none;
-    -webkit-user-select: none;
-  }
-  .game-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    padding: 10px;
-  }
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 420px;
-    max-width: 100%;
-    padding: 0 4px;
-  }
-  .header h1 {
-    font-size: 22px;
-    font-weight: 700;
-    color: #2d3436;
-  }
   .turn-display {
     font-size: 15px;
-    color: #636e72;
+    color: var(--text-muted);
     padding: 4px 12px;
-    border-radius: 8px;
-    background: #dfe6e9;
+    border-radius: var(--radius-md);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
     font-weight: 600;
+    white-space: nowrap;
   }
   .turn-display.active-red { background: #ff7675; color: #fff; }
   .turn-display.active-yellow { background: #fdcb6e; color: #2d3436; }
 
-  canvas {
+  canvas.fw-canvas {
     display: block;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-    width: 420px;
-    height: 440px;
-    max-width: 100%;
     cursor: pointer;
-    background: #0984e3;
+    margin: 0 auto;
   }
 
   .info-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 420px;
-    max-width: 100%;
+    width: 100%;
     padding: 0 4px;
+    margin-top: 8px;
   }
-  .score-display {
-    display: flex;
-    gap: 16px;
-    font-size: 14px;
-    color: #636e72;
-  }
-  .score-display span { font-weight: 700; }
-  .score-display .red-score { color: #d63031; }
-  .score-display .yellow-score { color: #f39c12; }
-  .score-display .draw-score { color: #636e72; }
   .status-msg {
     font-size: 14px;
     font-weight: 600;
-    color: #2d3436;
+    color: var(--text-primary);
   }
-  .status-msg.win { color: #00b894; }
-  .status-msg.draw { color: #636e72; }
-  .status-msg.lose { color: #d63031; }
-
-  .controls-row {
-    display: flex;
-    gap: 8px;
-  }
-  .ctrl-btn {
-    padding: 8px 20px;
-    border: none;
-    border-radius: 10px;
-    background: #6c5ce7;
-    color: #fff;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    touch-action: manipulation;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    transition: background 0.1s;
-  }
-  .ctrl-btn:active { background: #5a4bd1; }
-  .ctrl-btn.secondary { background: #b2bec3; color: #2d3436; }
-  .ctrl-btn.secondary:active { background: #95a5a6; }
+  .status-msg.win { color: var(--accent-1); }
+  .status-msg.draw { color: var(--text-muted); }
+  .status-msg.lose { color: var(--accent-4); }
 
   @media (max-width: 440px) {
-    canvas { width: 100%; height: auto; aspect-ratio: 420/440; }
-    .header, .info-bar { width: 100%; }
+    canvas.fw-canvas { width: 100%; height: auto; aspect-ratio: 420/440; }
   }
 </style>
 </head>
 <body>
-<div class="game-container">
-  <div class="header">
-    <h1>四子棋</h1>
+<div class="fw-container fw-cat-board">
+  <div class="fw-header">
+    <h1 class="fw-title">四子棋</h1>
     <div class="turn-display" id="turnDisplay">红方回合</div>
   </div>
-  <canvas id="gameCanvas" width="420" height="440"></canvas>
+  <canvas id="gameCanvas" class="fw-canvas" width="420" height="440"></canvas>
   <div class="info-bar">
-    <div class="score-display">
-      <span>🔴 胜: <span class="red-score" id="winsDisplay">0</span></span>
-      <span>🟡 负: <span class="yellow-score" id="lossesDisplay">0</span></span>
-      <span>平: <span class="draw-score" id="drawsDisplay">0</span></span>
+    <div class="fw-scores">
+      <div class="fw-score-box"><div class="fw-score-label">胜</div><div class="fw-score-value" id="winsDisplay">0</div></div>
+      <div class="fw-score-box"><div class="fw-score-label">负</div><div class="fw-score-value" id="lossesDisplay">0</div></div>
+      <div class="fw-score-box"><div class="fw-score-label">平</div><div class="fw-score-value" id="drawsDisplay">0</div></div>
     </div>
     <div class="status-msg" id="statusMsg">点击列下落棋子</div>
   </div>
-  <div class="controls-row">
-    <button class="ctrl-btn" id="restartBtn">重新开始</button>
-    <button class="ctrl-btn secondary" id="resetScoresBtn">重置分数</button>
+  <div class="fw-controls-row" style="margin-top:8px;">
+    <button class="fw-btn fw-btn-primary" id="restartBtn">重新开始</button>
+    <button class="fw-btn fw-btn-ghost" id="resetScoresBtn">重置分数</button>
   </div>
 </div>
+<div class="fw-overlay" id="gameOverlay">
+  <div class="fw-overlay-box">
+    <div class="fw-overlay-title" id="overlayTitle">游戏结束</div>
+    <div class="fw-overlay-text" id="overlayText"></div>
+    <button class="fw-btn fw-btn-primary" id="overlayRestartBtn">重新开始</button>
+  </div>
+</div>
+<script src="framework.js"></script>
 <script>
 (function() {
   'use strict';
 
+  var FW = window.GameFramework;
+
   // ============================================================
   // CONSTANTS
   // ============================================================
-  const COLS = 7;
-  const ROWS = 6;
-  const CANVAS_W = 420;
-  const CANVAS_H = 440;
-  const HEADER_H = 40; // top space for column indicators
-  const CELL_SIZE = (CANVAS_H - HEADER_H) / ROWS; // ~66.67
-  const GRID_LEFT = (CANVAS_W - COLS * CELL_SIZE) / 2;
-  const GRID_TOP = HEADER_H;
-  const EMPTY = 0;
-  const RED = 1;     // player
-  const YELLOW = 2;  // AI
-  const ANIM_FRAMES = 20; // frames for piece drop animation
+  var COLS = 7;
+  var ROWS = 6;
+  var CANVAS_W = 420;
+  var CANVAS_H = 440;
+  var HEADER_H = 40; // top space for column indicators
+  var CELL_SIZE = (CANVAS_H - HEADER_H) / ROWS; // ~66.67
+  var GRID_LEFT = (CANVAS_W - COLS * CELL_SIZE) / 2;
+  var GRID_TOP = HEADER_H;
+  var EMPTY = 0;
+  var RED = 1;     // player
+  var YELLOW = 2;  // AI
+  var ANIM_FRAMES = 20; // frames for piece drop animation
 
   // Win directions
-  const DIRECTIONS = [
+  var DIRECTIONS = [
     { dx: 1, dy: 0 },  // horizontal
     { dx: 0, dy: 1 },  // vertical
     { dx: 1, dy: 1 },  // diagonal down-right
@@ -165,55 +108,54 @@
   // ============================================================
   // DOM REFERENCES
   // ============================================================
-  const canvas = document.getElementById('gameCanvas');
-  const ctx = canvas.getContext('2d');
-  const turnDisplay = document.getElementById('turnDisplay');
-  const statusMsg = document.getElementById('statusMsg');
-  const winsSpan = document.getElementById('winsDisplay');
-  const lossesSpan = document.getElementById('lossesDisplay');
-  const drawsSpan = document.getElementById('drawsDisplay');
-  const restartBtn = document.getElementById('restartBtn');
-  const resetScoresBtn = document.getElementById('resetScoresBtn');
+  var canvas = document.getElementById('gameCanvas');
+  var ctx = canvas.getContext('2d');
+  var turnDisplay = document.getElementById('turnDisplay');
+  var statusMsg = document.getElementById('statusMsg');
+  var winsSpan = document.getElementById('winsDisplay');
+  var lossesSpan = document.getElementById('lossesDisplay');
+  var drawsSpan = document.getElementById('drawsDisplay');
+  var restartBtn = document.getElementById('restartBtn');
+  var resetScoresBtn = document.getElementById('resetScoresBtn');
+  var overlay = document.getElementById('gameOverlay');
+  var overlayTitle = document.getElementById('overlayTitle');
+  var overlayText = document.getElementById('overlayText');
+  var overlayRestartBtn = document.getElementById('overlayRestartBtn');
 
   // ============================================================
   // GAME STATE
   // ============================================================
-  let grid = [];
-  let currentPlayer = RED; // RED starts
-  let gameOver = false;
-  let winner = EMPTY; // EMPTY = ongoing, RED = player win, YELLOW = AI win, 3 = draw
-  let scores = loadScores();
-  let winCells = []; // array of {col, row} for winning line
-  let winAnimFrame = 0;
+  var grid = [];
+  var currentPlayer = RED; // RED starts
+  var gameOver = false;
+  var winner = EMPTY; // EMPTY = ongoing, RED = player win, YELLOW = AI win, 3 = draw
+  var scores = loadScores();
+  var winCells = []; // array of {col, row} for winning line
+  var winAnimFrame = 0;
 
   // Animation state
-  let dropping = false;
-  let dropCol = -1;
-  let dropRow = -1;
-  let dropFrame = 0;
-  let dropPlayer = RED;
+  var dropping = false;
+  var dropCol = -1;
+  var dropRow = -1;
+  var dropFrame = 0;
+  var dropPlayer = RED;
 
   // Hover
-  let hoverCol = -1;
+  var hoverCol = -1;
 
   // AI thinking delay
-  let aiThinking = false;
-  let aiTimer = 0;
+  var aiThinking = false;
+  var aiTimer = 0;
 
   // ============================================================
   // SCORES
   // ============================================================
   function loadScores() {
-    const data = localStorage.getItem('connect4_wins');
-    if (data) {
-      try { return JSON.parse(data); }
-      catch(e) { /* ignore */ }
-    }
-    return { wins: 0, losses: 0, draws: 0 };
+    return FW.storage.load('scores', { wins: 0, losses: 0, draws: 0 });
   }
 
   function saveScores() {
-    localStorage.setItem('connect4_wins', JSON.stringify(scores));
+    FW.storage.save('scores', scores);
   }
 
   function updateScoreUI() {
@@ -226,7 +168,9 @@
   // GRID OPERATIONS
   // ============================================================
   function createGrid() {
-    return Array.from({ length: ROWS }, () => Array(COLS).fill(EMPTY));
+    return Array.from({ length: ROWS }, function() {
+      return Array(COLS).fill(EMPTY);
+    });
   }
 
   function isValidCol(col) {
@@ -234,14 +178,14 @@
   }
 
   function getDropRow(col) {
-    for (let r = ROWS - 1; r >= 0; r--) {
+    for (var r = ROWS - 1; r >= 0; r--) {
       if (grid[r][col] === EMPTY) return r;
     }
     return -1;
   }
 
   function dropPiece(col, player) {
-    const row = getDropRow(col);
+    var row = getDropRow(col);
     if (row === -1) return -1;
     grid[row][col] = player;
     return row;
@@ -251,20 +195,21 @@
   // WIN DETECTION
   // ============================================================
   function checkWin(row, col, player) {
-    for (const d of DIRECTIONS) {
-      const cells = [{ col, row }];
+    for (var di = 0; di < DIRECTIONS.length; di++) {
+      var d = DIRECTIONS[di];
+      var cells = [{ col: col, row: row }];
       // Forward direction
-      for (let i = 1; i < 4; i++) {
-        const c = col + d.dx * i;
-        const r = row + d.dy * i;
+      for (var i = 1; i < 4; i++) {
+        var c = col + d.dx * i;
+        var r = row + d.dy * i;
         if (r < 0 || r >= ROWS || c < 0 || c >= COLS) break;
         if (grid[r][c] !== player) break;
         cells.push({ col: c, row: r });
       }
       // Backward direction
-      for (let i = 1; i < 4; i++) {
-        const c = col - d.dx * i;
-        const r = row - d.dy * i;
+      for (var i = 1; i < 4; i++) {
+        var c = col - d.dx * i;
+        var r = row - d.dy * i;
         if (r < 0 || r >= ROWS || c < 0 || c >= COLS) break;
         if (grid[r][c] !== player) break;
         cells.push({ col: c, row: r });
@@ -275,18 +220,20 @@
   }
 
   function isDraw() {
-    return grid[0].every(cell => cell !== EMPTY);
+    return grid[0].every(function(cell) {
+      return cell !== EMPTY;
+    });
   }
 
   // ============================================================
   // AI - SIMPLE HEURISTIC
   // ============================================================
   function evaluateWindow(window, player) {
-    const opp = player === YELLOW ? RED : YELLOW;
-    let score = 0;
-    const count = window.filter(c => c === player).length;
-    const empty = window.filter(c => c === EMPTY).length;
-    const oppCount = window.filter(c => c === opp).length;
+    var opp = player === YELLOW ? RED : YELLOW;
+    var score = 0;
+    var count = window.filter(function(c) { return c === player; }).length;
+    var empty = window.filter(function(c) { return c === EMPTY; }).length;
+    var oppCount = window.filter(function(c) { return c === opp; }).length;
 
     // Win
     if (count === 4) score += 100000;
@@ -304,22 +251,23 @@
   }
 
   function getWindowScore(col, row, player) {
-    let score = 0;
-    for (const d of DIRECTIONS) {
-      const window = [];
+    var score = 0;
+    for (var di = 0; di < DIRECTIONS.length; di++) {
+      var d = DIRECTIONS[di];
+      var window = [];
       // Center the window around (col, row) — take up to 4 cells
       // Start from the far end of the window
-      for (let i = -3; i <= 3; i++) {
-        const c = col + d.dx * i;
-        const r = row + d.dy * i;
+      for (var i = -3; i <= 3; i++) {
+        var c = col + d.dx * i;
+        var r = row + d.dy * i;
         if (r >= 0 && r < ROWS && c >= 0 && c < COLS) {
           window.push(grid[r][c]);
         }
       }
       // Evaluate all overlapping windows of size 4
       if (window.length >= 4) {
-        for (let i = 0; i <= window.length - 4; i++) {
-          const sub = window.slice(i, i + 4);
+        for (var j = 0; j <= window.length - 4; j++) {
+          var sub = window.slice(j, j + 4);
           score += evaluateWindow(sub, player);
         }
       }
@@ -328,11 +276,11 @@
   }
 
   function getAIScore(player) {
-    let score = 0;
+    var score = 0;
     // Center column preference
-    const centerCol = Math.floor(COLS / 2);
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
+    var centerCol = Math.floor(COLS / 2);
+    for (var r = 0; r < ROWS; r++) {
+      for (var c = 0; c < COLS; c++) {
         if (grid[r][c] === player) {
           // Prefer center
           score += (COLS - Math.abs(c - centerCol)) * 3;
@@ -344,17 +292,17 @@
   }
 
   function getAIMove() {
-    let bestScore = -Infinity;
-    let bestCol = Math.floor(COLS / 2); // default center
+    var bestScore = -Infinity;
+    var bestCol = Math.floor(COLS / 2); // default center
 
-    for (let c = 0; c < COLS; c++) {
+    for (var c = 0; c < COLS; c++) {
       if (!isValidCol(c)) continue;
-      const r = getDropRow(c);
+      var r = getDropRow(c);
       if (r === -1) continue;
 
       // Temporarily place piece
       grid[r][c] = YELLOW;
-      let score = getAIScore(YELLOW) * 2; // offense weight
+      var score = getAIScore(YELLOW) * 2; // offense weight
       grid[r][c] = EMPTY;
 
       // Also check defense: what would opponent score here?
@@ -388,9 +336,28 @@
     aiThinking = false;
     aiTimer = 0;
     hoverCol = -1;
+    FW.ui.hideOverlay(overlay);
     updateTurnUI();
     statusMsg.textContent = '点击列下落棋子';
     statusMsg.className = 'status-msg';
+  }
+
+  function showGameOverOverlay() {
+    var title = '';
+    var text = '';
+    if (winner === RED) {
+      title = '你赢了!';
+      text = '恭喜获胜！';
+    } else if (winner === YELLOW) {
+      title = 'AI 赢了!';
+      text = '再接再厉！';
+    } else if (winner === 3) {
+      title = '平局!';
+      text = '势均力敌！';
+    }
+    overlayTitle.textContent = title;
+    overlayText.textContent = text;
+    FW.ui.showOverlay(overlay);
   }
 
   function handleDrop(col) {
@@ -398,8 +365,10 @@
     if (!isValidCol(col)) return;
 
     // Player drop
-    const row = getDropRow(col);
+    var row = getDropRow(col);
     if (row === -1) return;
+
+    FW.audio.sfx('click');
 
     // Start drop animation
     dropping = true;
@@ -413,7 +382,7 @@
     grid[row][col] = player;
 
     // Check win
-    const winResult = checkWin(row, col, player);
+    var winResult = checkWin(row, col, player);
     if (winResult) {
       winCells = winResult;
       gameOver = true;
@@ -423,13 +392,20 @@
         scores.wins++;
         statusMsg.textContent = '你赢了!';
         statusMsg.className = 'status-msg win';
+        FW.audio.sfx('score');
+        FW.audio.sfx('win');
+        FW.events.reportScore(scores.wins);
+        FW.events.reportComplete(scores.wins, { won: true });
       } else {
         scores.losses++;
         statusMsg.textContent = 'AI 赢了!';
         statusMsg.className = 'status-msg lose';
+        FW.audio.sfx('gameover');
+        FW.events.reportComplete(scores.wins, { won: false });
       }
       saveScores();
       updateScoreUI();
+      showGameOverOverlay();
       return;
     }
 
@@ -442,6 +418,8 @@
       statusMsg.className = 'status-msg draw';
       saveScores();
       updateScoreUI();
+      FW.events.reportComplete(scores.wins, { won: false });
+      showGameOverOverlay();
       return;
     }
 
@@ -457,10 +435,10 @@
 
   function doAIMove() {
     if (gameOver) return;
-    const col = getAIMove();
+    var col = getAIMove();
     if (col === -1 || !isValidCol(col)) return;
 
-    const row = getDropRow(col);
+    var row = getDropRow(col);
     if (row === -1) return;
 
     dropping = true;
@@ -500,9 +478,9 @@
     ctx.font = 'bold 22px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    for (let c = 0; c < COLS; c++) {
-      const cx = GRID_LEFT + c * CELL_SIZE + CELL_SIZE / 2;
-      const cy = GRID_TOP / 2;
+    for (var c = 0; c < COLS; c++) {
+      var cx = GRID_LEFT + c * CELL_SIZE + CELL_SIZE / 2;
+      var cy = GRID_TOP / 2;
 
       // Hover highlight
       if (c === hoverCol && !gameOver && !dropping && isValidCol(c)) {
@@ -517,19 +495,19 @@
     }
 
     // Draw grid background
-    const gridW = COLS * CELL_SIZE;
-    const gridH = ROWS * CELL_SIZE;
+    var gridW = COLS * CELL_SIZE;
+    var gridH = ROWS * CELL_SIZE;
     ctx.fillStyle = '#0652DD';
     ctx.beginPath();
     ctx.roundRect(GRID_LEFT, GRID_TOP, gridW, gridH, 8);
     ctx.fill();
 
     // Draw cells (holes)
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
-        const cx = GRID_LEFT + c * CELL_SIZE + CELL_SIZE / 2;
-        const cy = GRID_TOP + r * CELL_SIZE + CELL_SIZE / 2;
-        const radius = CELL_SIZE / 2 - 5;
+    for (var r = 0; r < ROWS; r++) {
+      for (var c = 0; c < COLS; c++) {
+        var cx = GRID_LEFT + c * CELL_SIZE + CELL_SIZE / 2;
+        var cy = GRID_TOP + r * CELL_SIZE + CELL_SIZE / 2;
+        var radius = CELL_SIZE / 2 - 5;
 
         // Hole background
         ctx.fillStyle = '#1a1a2e';
@@ -547,16 +525,16 @@
         // Dropping piece
         if (dropping && c === dropCol && r <= dropRow) {
           // Calculate position for the dropping piece
-          const targetY = GRID_TOP + dropRow * CELL_SIZE + CELL_SIZE / 2;
-          const startY = GRID_TOP - CELL_SIZE;
-          const progress = dropFrame / ANIM_FRAMES;
-          const easeProgress = progress * progress; // ease-in
-          const py = startY + (targetY - startY) * easeProgress;
+          var targetY = GRID_TOP + dropRow * CELL_SIZE + CELL_SIZE / 2;
+          var startY = GRID_TOP - CELL_SIZE;
+          var progress = dropFrame / ANIM_FRAMES;
+          var easeProgress = progress * progress; // ease-in
+          var py = startY + (targetY - startY) * easeProgress;
 
           // Only draw if the piece's current position overlaps this row
-          const rowCenterY = GRID_TOP + r * CELL_SIZE + CELL_SIZE / 2;
-          const pieceTop = py - radius - 2;
-          const pieceBottom = py + radius + 2;
+          var rowCenterY = GRID_TOP + r * CELL_SIZE + CELL_SIZE / 2;
+          var pieceTop = py - radius - 2;
+          var pieceBottom = py + radius + 2;
 
           if (rowCenterY >= pieceTop && rowCenterY <= pieceBottom && r <= dropRow) {
             // Clear the underlying piece for rows above current drop position
@@ -571,8 +549,8 @@
               ctx.fill();
             }
 
-            const color = dropPlayer === RED ? '#d63031' : '#f39c12';
-            const highlight = dropPlayer === RED ? '#ff7675' : '#ffeaa7';
+            var color = dropPlayer === RED ? '#d63031' : '#f39c12';
+            var highlight = dropPlayer === RED ? '#ff7675' : '#ffeaa7';
             drawPiece(cx, py, radius, color, highlight, true);
           }
         }
@@ -582,40 +560,18 @@
     // Win line animation
     if (winCells.length > 0) {
       winAnimFrame++;
-      for (const cell of winCells) {
-        const cx = GRID_LEFT + cell.col * CELL_SIZE + CELL_SIZE / 2;
-        const cy = GRID_TOP + cell.row * CELL_SIZE + CELL_SIZE / 2;
-        const radius = CELL_SIZE / 2 - 5;
-        const pulse = Math.sin(winAnimFrame * 0.15) * 0.3 + 0.7;
-        ctx.strokeStyle = `rgba(255, 255, 255, ${pulse})`;
+      for (var wi = 0; wi < winCells.length; wi++) {
+        var cell = winCells[wi];
+        var cx = GRID_LEFT + cell.col * CELL_SIZE + CELL_SIZE / 2;
+        var cy = GRID_TOP + cell.row * CELL_SIZE + CELL_SIZE / 2;
+        var radius = CELL_SIZE / 2 - 5;
+        var pulse = Math.sin(winAnimFrame * 0.15) * 0.3 + 0.7;
+        ctx.strokeStyle = 'rgba(255, 255, 255, ' + pulse + ')';
         ctx.lineWidth = 4;
         ctx.beginPath();
         ctx.arc(cx, cy, radius + 3, 0, Math.PI * 2);
         ctx.stroke();
       }
-    }
-
-    // Game over overlay
-    if (gameOver) {
-      ctx.fillStyle = 'rgba(0,0,0,0.3)';
-      ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
-
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-
-      let msg = '';
-      let color = '#fff';
-      if (winner === RED) { msg = '你赢了!'; color = '#ff7675'; }
-      else if (winner === YELLOW) { msg = 'AI 赢了!'; color = '#ffeaa7'; }
-      else if (winner === 3) { msg = '平局!'; color = '#dfe6e9'; }
-
-      ctx.fillStyle = color;
-      ctx.font = 'bold 36px sans-serif';
-      ctx.fillText(msg, CANVAS_W / 2, CANVAS_H / 2 - 10);
-
-      ctx.fillStyle = '#dfe6e9';
-      ctx.font = '16px sans-serif';
-      ctx.fillText('点击"重新开始"再来一局', CANVAS_W / 2, CANVAS_H / 2 + 40);
     }
   }
 
@@ -627,7 +583,7 @@
     ctx.fill();
 
     // Main body
-    const grad = ctx.createRadialGradient(cx - radius * 0.3, cy - radius * 0.3, radius * 0.1, cx, cy, radius);
+    var grad = ctx.createRadialGradient(cx - radius * 0.3, cy - radius * 0.3, radius * 0.1, cx, cy, radius);
     grad.addColorStop(0, highlight);
     grad.addColorStop(1, color);
     ctx.fillStyle = grad;
@@ -690,59 +646,59 @@
   // INPUT HANDLING
   // ============================================================
   function getColumnFromCanvas(clientX, clientY) {
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-    const x = (clientX - rect.left) * scaleX;
-    const y = (clientY - rect.top) * scaleY;
+    var rect = canvas.getBoundingClientRect();
+    var scaleX = canvas.width / rect.width;
+    var scaleY = canvas.height / rect.height;
+    var x = (clientX - rect.left) * scaleX;
+    var y = (clientY - rect.top) * scaleY;
 
     if (y < GRID_TOP || y > GRID_TOP + ROWS * CELL_SIZE) return -1;
-    const col = Math.floor((x - GRID_LEFT) / CELL_SIZE);
+    var col = Math.floor((x - GRID_LEFT) / CELL_SIZE);
     if (col < 0 || col >= COLS) return -1;
     return col;
   }
 
-  canvas.addEventListener('mousemove', (e) => {
-    const col = getColumnFromCanvas(e.clientX, e.clientY);
+  canvas.addEventListener('mousemove', function(e) {
+    var col = getColumnFromCanvas(e.clientX, e.clientY);
     hoverCol = col;
   });
 
-  canvas.addEventListener('mouseleave', () => {
+  canvas.addEventListener('mouseleave', function() {
     hoverCol = -1;
   });
 
-  canvas.addEventListener('click', (e) => {
-    const col = getColumnFromCanvas(e.clientX, e.clientY);
+  canvas.addEventListener('click', function(e) {
+    var col = getColumnFromCanvas(e.clientX, e.clientY);
     if (col >= 0) {
       handleDrop(col);
     }
   });
 
   // Touch support
-  canvas.addEventListener('touchstart', (e) => {
+  canvas.addEventListener('touchstart', function(e) {
     e.preventDefault();
-    const t = e.touches[0];
-    const col = getColumnFromCanvas(t.clientX, t.clientY);
+    var t = e.touches[0];
+    var col = getColumnFromCanvas(t.clientX, t.clientY);
     if (col >= 0) {
       handleDrop(col);
     }
   }, { passive: false });
 
-  canvas.addEventListener('touchmove', (e) => {
+  canvas.addEventListener('touchmove', function(e) {
     e.preventDefault();
-    const t = e.touches[0];
-    const col = getColumnFromCanvas(t.clientX, t.clientY);
+    var t = e.touches[0];
+    var col = getColumnFromCanvas(t.clientX, t.clientY);
     hoverCol = col;
   }, { passive: false });
 
-  canvas.addEventListener('touchend', (e) => {
+  canvas.addEventListener('touchend', function(e) {
     hoverCol = -1;
   });
 
   // Keyboard: number keys 1-7 for columns
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', function(e) {
     if (e.key >= '1' && e.key <= '7') {
-      const col = parseInt(e.key, 10) - 1;
+      var col = parseInt(e.key, 10) - 1;
       handleDrop(col);
     }
     if (e.key === 'r' || e.key === 'R') {
@@ -754,7 +710,8 @@
   // BUTTONS
   // ============================================================
   restartBtn.addEventListener('click', resetGame);
-  resetScoresBtn.addEventListener('click', () => {
+  overlayRestartBtn.addEventListener('click', resetGame);
+  resetScoresBtn.addEventListener('click', function() {
     scores = { wins: 0, losses: 0, draws: 0 };
     saveScores();
     updateScoreUI();
@@ -765,8 +722,8 @@
   // RESPONSIVE
   // ============================================================
   function resizeCanvas() {
-    const container = canvas.parentElement;
-    const maxW = container.clientWidth;
+    var container = canvas.parentElement;
+    var maxW = container.clientWidth;
     if (maxW < 420) {
       canvas.style.width = maxW + 'px';
       canvas.style.height = (maxW * 440 / 420) + 'px';

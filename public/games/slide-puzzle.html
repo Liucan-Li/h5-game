@@ -1,81 +1,64 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-game-id="slide-puzzle">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>滑块拼图</title>
+<link rel="stylesheet" href="framework.css">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#f5f6fa;color:#2d2d44;min-height:100vh;display:flex;justify-content:center;align-items:center;overflow:hidden;touch-action:manipulation;-webkit-user-select:none;user-select:none}
-.game-container{text-align:center;padding:20px;max-width:500px;width:100%}
-h1{font-size:1.8rem;margin-bottom:6px;background:linear-gradient(135deg,#667eea,#764ba2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.subtitle{color:#888;font-size:.85rem;margin-bottom:16px}
-.stats{display:flex;justify-content:center;gap:24px;margin-bottom:16px}
-.stat{background:#fff;border-radius:12px;padding:8px 18px;box-shadow:0 2px 8px rgba(0,0,0,.06);font-size:.9rem}
-.stat-label{color:#888;margin-right:6px}
-.stat-value{font-weight:700;color:#2d2d44}
-.puzzle-wrapper{position:relative;display:inline-block;background:#fff;border-radius:16px;padding:12px;box-shadow:0 4px 20px rgba(0,0,0,.08)}
+.puzzle-wrapper{position:relative;display:inline-block;background:var(--glass-bg);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));border:1px solid var(--glass-border);border-radius:var(--radius-xl);padding:12px;box-shadow:var(--glass-shadow)}
 .puzzle-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:min(70vw,360px);height:min(70vw,360px)}
-.tile{display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;border-radius:10px;cursor:pointer;transition:transform .15s ease,box-shadow .15s ease,opacity .15s ease;position:relative;aspect-ratio:1;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.2)}
+.tile{display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;border-radius:var(--radius-md);cursor:pointer;transition:transform .15s ease,box-shadow .15s ease,opacity .15s ease;position:relative;aspect-ratio:1;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.2)}
 .tile:active{transform:scale(.95)}
 .tile.empty{opacity:0;cursor:default;pointer-events:none}
 .tile.win-anim{animation:tilePop .4s ease}
 @keyframes tilePop{0%{transform:scale(1)}50%{transform:scale(1.1)}100%{transform:scale(1)}}
-.controls{margin-top:16px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
-.btn{background:#fff;border:none;border-radius:10px;padding:10px 24px;font-size:.95rem;color:#2d2d44;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.06);transition:all .15s;font-weight:500}
-.btn:hover{box-shadow:0 4px 14px rgba(0,0,0,.1);transform:translateY(-1px)}
-.btn:active{transform:translateY(0);box-shadow:0 1px 4px rgba(0,0,0,.06)}
-.btn-primary{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;box-shadow:0 3px 12px rgba(102,126,234,.35)}
-.btn-primary:hover{box-shadow:0 5px 18px rgba(102,126,234,.45);transform:translateY(-1px)}
-.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:100;opacity:0;pointer-events:none;transition:opacity .3s}
-.overlay.show{opacity:1;pointer-events:auto}
-.overlay-content{background:#fff;border-radius:20px;padding:36px 44px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.15);transform:scale(.9);transition:transform .3s}
-.overlay.show .overlay-content{transform:scale(1)}
-.overlay-content h2{font-size:1.8rem;margin-bottom:8px}
-.overlay-content p{color:#888;margin-bottom:20px}
-.overlay-content .btn+.btn{margin-left:10px}
-.high-score{font-size:.8rem;color:#888;margin-top:8px}
+.controls{margin-top:16px}
+.high-score{font-size:.8rem;color:var(--text-muted);margin-top:8px}
 @media(max-width:400px){.puzzle-grid{width:85vw;height:85vw}.tile{font-size:1.2rem}}
 </style>
 </head>
 <body>
-<div class="game-container">
-  <h1>滑块拼图</h1>
-  <p class="subtitle">将数字按顺序排列</p>
-  <div class="stats">
-    <div class="stat"><span class="stat-label">步数</span><span class="stat-value" id="moves">0</span></div>
-    <div class="stat"><span class="stat-label">时间</span><span class="stat-value" id="timer">00:00</span></div>
-    <div class="stat"><span class="stat-label">最高分</span><span class="stat-value" id="highScore">-</span></div>
+<div class="fw-container fw-cat-puzzle">
+  <div class="fw-header">
+    <h1 class="fw-title">滑块拼图</h1>
+    <div class="fw-scores">
+      <div class="fw-score-box"><div class="fw-score-label">步数</div><div class="fw-score-value" id="moves">0</div></div>
+      <div class="fw-score-box"><div class="fw-score-label">时间</div><div class="fw-score-value" id="timer">00:00</div></div>
+      <div class="fw-score-box"><div class="fw-score-label">最高分</div><div class="fw-score-value" id="highScore">-</div></div>
+    </div>
   </div>
+  <p class="fw-status">将数字按顺序排列</p>
   <div class="puzzle-wrapper">
     <div class="puzzle-grid" id="puzzleGrid"></div>
   </div>
   <div class="controls">
-    <button class="btn btn-primary" id="newGameBtn">新游戏</button>
+    <button class="fw-btn fw-btn-primary" id="newGameBtn">新游戏</button>
   </div>
-  <div class="high-score" id="highScoreMsg">最快完成: --</div>
+  <p class="high-score" id="highScoreMsg">最快完成: --</p>
 </div>
 
-<div class="overlay" id="winOverlay">
-  <div class="overlay-content">
-    <h2>&#127881; 拼图完成!</h2>
-    <p id="winMessage">用时 00:00，共 0 步</p>
-    <div>
-      <button class="btn btn-primary" id="playAgainBtn">再来一局</button>
-    </div>
+<div class="fw-overlay" id="winOverlay">
+  <div class="fw-overlay-box">
+    <div class="fw-overlay-title">拼图完成!</div>
+    <div class="fw-overlay-text" id="winMessage">用时 00:00，共 0 步</div>
+    <button class="fw-btn fw-btn-primary" id="playAgainBtn">再来一局</button>
   </div>
 </div>
 
+<script src="framework.js"></script>
 <script>
 (function(){
   'use strict';
 
+  const FW = window.GameFramework;
   const SIZE = 4;
   const TOTAL = SIZE * SIZE;
-  const EMPTY = TOTAL; // 16 represents the empty slot (1-indexed)
-  const WIN_SEQUENCE = Array.from({length: TOTAL}, (_, i) => i + 1);
+  const EMPTY = TOTAL;
+  const WIN_SEQUENCE = Array.from({length: TOTAL}, function(_, i) { return i + 1; });
 
-  let state = {
+  var state = {
     tiles: [],
     emptyIndex: 15,
     moves: 0,
@@ -85,43 +68,42 @@ h1{font-size:1.8rem;margin-bottom:6px;background:linear-gradient(135deg,#667eea,
     isWin: false
   };
 
-  const gridEl = document.getElementById('puzzleGrid');
-  const movesEl = document.getElementById('moves');
-  const timerEl = document.getElementById('timer');
-  const highScoreEl = document.getElementById('highScore');
-  const highScoreMsg = document.getElementById('highScoreMsg');
-  const winOverlay = document.getElementById('winOverlay');
-  const winMessage = document.getElementById('winMessage');
+  var gridEl = document.getElementById('puzzleGrid');
+  var movesEl = document.getElementById('moves');
+  var timerEl = document.getElementById('timer');
+  var highScoreEl = document.getElementById('highScore');
+  var highScoreMsg = document.getElementById('highScoreMsg');
+  var winOverlay = document.getElementById('winOverlay');
+  var winMessage = document.getElementById('winMessage');
 
   function formatTime(sec) {
-    const m = String(Math.floor(sec / 60)).padStart(2, '0');
-    const s = String(sec % 60).padStart(2, '0');
+    var m = String(Math.floor(sec / 60)).padStart(2, '0');
+    var s = String(sec % 60).padStart(2, '0');
     return m + ':' + s;
   }
 
   function tileColor(value) {
-    const ratio = (value - 1) / (TOTAL - 2); // 0..1, skipping empty
-    const r = Math.round(102 + ratio * (118 - 102));
-    const g = Math.round(126 + ratio * (75 - 126));
-    const b = Math.round(234 + ratio * (162 - 234));
-    const lightness = 55 + ratio * 15;
+    var ratio = (value - 1) / (TOTAL - 2);
+    var r = Math.round(102 + ratio * (118 - 102));
+    var g = Math.round(126 + ratio * (75 - 126));
+    var b = Math.round(234 + ratio * (162 - 234));
+    var lightness = 55 + ratio * 15;
     return 'hsl(' + ((r+g+b)/3 * 0.6) + ', 55%, ' + lightness + '%)';
   }
 
   function getTileHsl(value) {
-    // Generate gradient from light to deep based on value
-    const t = (value - 1) / (TOTAL - 2);
-    const hue = 230 - t * 40;
-    const sat = 50 + t * 30;
-    const lig = 65 - t * 15;
+    var t = (value - 1) / (TOTAL - 2);
+    var hue = 230 - t * 40;
+    var sat = 50 + t * 30;
+    var lig = 65 - t * 15;
     return 'hsl(' + hue + ', ' + sat + '%, ' + lig + '%)';
   }
 
   function render() {
     gridEl.innerHTML = '';
-    for (let i = 0; i < TOTAL; i++) {
-      const val = state.tiles[i];
-      const tile = document.createElement('div');
+    for (var i = 0; i < TOTAL; i++) {
+      var val = state.tiles[i];
+      var tile = document.createElement('div');
       tile.className = 'tile' + (val === EMPTY ? ' empty' : '');
       tile.dataset.index = i;
       if (val !== EMPTY) {
@@ -134,24 +116,24 @@ h1{font-size:1.8rem;margin-bottom:6px;background:linear-gradient(135deg,#667eea,
   }
 
   function highlightWin() {
-    const tiles = gridEl.querySelectorAll('.tile:not(.empty)');
-    tiles.forEach(t => t.classList.add('win-anim'));
+    var tiles = gridEl.querySelectorAll('.tile:not(.empty)');
+    tiles.forEach(function(t) { t.classList.add('win-anim'); });
   }
 
   function canSwap(idx) {
-    const ei = state.emptyIndex;
-    const r1 = Math.floor(idx / SIZE);
-    const c1 = idx % SIZE;
-    const r2 = Math.floor(ei / SIZE);
-    const c2 = ei % SIZE;
+    var ei = state.emptyIndex;
+    var r1 = Math.floor(idx / SIZE);
+    var c1 = idx % SIZE;
+    var r2 = Math.floor(ei / SIZE);
+    var c2 = ei % SIZE;
     return (Math.abs(r1 - r2) + Math.abs(c1 - c2)) === 1;
   }
 
   function swap(idx) {
     if (state.isWin) return;
     if (!canSwap(idx)) return;
-    const ei = state.emptyIndex;
-    const newTiles = state.tiles.slice();
+    var ei = state.emptyIndex;
+    var newTiles = state.tiles.slice();
     newTiles[ei] = state.tiles[idx];
     newTiles[idx] = EMPTY;
     state.tiles = newTiles;
@@ -162,12 +144,13 @@ h1{font-size:1.8rem;margin-bottom:6px;background:linear-gradient(135deg,#667eea,
     }
     state.moves++;
     movesEl.textContent = state.moves;
+    FW.events.reportScore(state.moves);
     render();
     checkWin();
   }
 
   function checkWin() {
-    for (let i = 0; i < TOTAL; i++) {
+    for (var i = 0; i < TOTAL; i++) {
       if (state.tiles[i] !== WIN_SEQUENCE[i]) return;
     }
     state.isWin = true;
@@ -177,23 +160,26 @@ h1{font-size:1.8rem;margin-bottom:6px;background:linear-gradient(135deg,#667eea,
       state.timerInterval = null;
     }
     highlightWin();
-    const timeStr = formatTime(state.timerSeconds);
+    var timeStr = formatTime(state.timerSeconds);
     winMessage.textContent = '用时 ' + timeStr + '，共 ' + state.moves + ' 步';
-    winOverlay.classList.add('show');
+    FW.ui.showOverlay(winOverlay);
+    FW.audio.sfx('win');
 
     // Update high score
-    const existing = loadHighScore();
-    const scoreSeconds = state.timerSeconds;
+    var existing = loadHighScore();
+    var scoreSeconds = state.timerSeconds;
     if (existing === null || scoreSeconds < existing) {
       saveHighScore(scoreSeconds);
+      FW.audio.sfx('score');
     }
     updateHighScoreDisplay();
+    FW.events.reportComplete(state.moves, {won: true});
   }
 
   function countInversions(arr) {
-    let inv = 0;
-    for (let i = 0; i < arr.length; i++) {
-      for (let j = i + 1; j < arr.length; j++) {
+    var inv = 0;
+    for (var i = 0; i < arr.length; i++) {
+      for (var j = i + 1; j < arr.length; j++) {
         if (arr[i] !== EMPTY && arr[j] !== EMPTY && arr[i] > arr[j]) inv++;
       }
     }
@@ -201,10 +187,9 @@ h1{font-size:1.8rem;margin-bottom:6px;background:linear-gradient(135deg,#667eea,
   }
 
   function shuffleArray(arr) {
-    // Fisher-Yates, but we need solvable result
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      const tmp = arr[i];
+    for (var i = arr.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = arr[i];
       arr[i] = arr[j];
       arr[j] = tmp;
     }
@@ -212,39 +197,33 @@ h1{font-size:1.8rem;margin-bottom:6px;background:linear-gradient(135deg,#667eea,
   }
 
   function generateSolvablePuzzle() {
-    const tiles = [];
-    for (let i = 1; i <= TOTAL; i++) tiles.push(i);
-    // Shuffle until solvable
-    let shuffled;
-    let inv;
-    let emptyRow;
-    let iters = 0;
+    var tiles = [];
+    for (var i = 1; i <= TOTAL; i++) tiles.push(i);
+    var shuffled;
+    var inv;
+    var emptyRow;
+    var iters = 0;
     do {
       shuffled = shuffleArray(tiles.slice());
-      const ei = shuffled.indexOf(EMPTY);
+      var ei = shuffled.indexOf(EMPTY);
       emptyRow = Math.floor(ei / SIZE);
       inv = countInversions(shuffled);
       iters++;
       if (iters > 2000) break;
     } while ((inv % 2 !== 0) || (inv === 0 && emptyRow === SIZE - 1));
-    // If inv is odd and empty row from bottom (SIZE-1 - emptyRow) parity
-    // For even-sized grid, puzzle is solvable if (inv % 2 === 0) === ((emptyRowFromBottom) % 2 === 0)
-    // Actually for 4x4: solvable if (inv + emptyRowFromBottom) % 2 === 0
-    // Let's just use the standard condition
     return shuffled;
   }
 
   function generateSolvablePuzzleCorrect() {
-    // For NxN with N even: solvable if (inversions + row of empty from bottom) is even
-    const tiles = [];
-    for (let i = 1; i <= TOTAL; i++) tiles.push(i);
-    let shuffled;
-    let inv;
-    let emptyRowFromBottom;
+    var tiles = [];
+    for (var i = 1; i <= TOTAL; i++) tiles.push(i);
+    var shuffled;
+    var inv;
+    var emptyRowFromBottom;
     do {
       shuffled = shuffleArray(tiles.slice());
-      const ei = shuffled.indexOf(EMPTY);
-      const emptyRow = Math.floor(ei / SIZE);
+      var ei = shuffled.indexOf(EMPTY);
+      var emptyRow = Math.floor(ei / SIZE);
       emptyRowFromBottom = SIZE - 1 - emptyRow;
       inv = countInversions(shuffled);
     } while ((inv + emptyRowFromBottom) % 2 !== 0);
@@ -252,12 +231,12 @@ h1{font-size:1.8rem;margin-bottom:6px;background:linear-gradient(135deg,#667eea,
   }
 
   function newGame() {
-    winOverlay.classList.remove('show');
+    FW.ui.hideOverlay(winOverlay);
     if (state.timerInterval) {
       clearInterval(state.timerInterval);
       state.timerInterval = null;
     }
-    const tiles = generateSolvablePuzzleCorrect();
+    var tiles = generateSolvablePuzzleCorrect();
     state.tiles = tiles;
     state.emptyIndex = tiles.indexOf(EMPTY);
     state.moves = 0;
@@ -277,16 +256,16 @@ h1{font-size:1.8rem;margin-bottom:6px;background:linear-gradient(135deg,#667eea,
   }
 
   function loadHighScore() {
-    const val = localStorage.getItem('slidePuzzle_highScore');
-    return val ? parseInt(val, 10) : null;
+    var val = FW.storage.load('hi', null);
+    return val !== null ? parseInt(val, 10) : null;
   }
 
   function saveHighScore(seconds) {
-    localStorage.setItem('slidePuzzle_highScore', String(seconds));
+    FW.storage.save('hi', seconds);
   }
 
   function updateHighScoreDisplay() {
-    const hs = loadHighScore();
+    var hs = loadHighScore();
     if (hs !== null) {
       highScoreEl.textContent = formatTime(hs);
       highScoreMsg.textContent = '最快完成: ' + formatTime(hs);
@@ -298,9 +277,10 @@ h1{font-size:1.8rem;margin-bottom:6px;background:linear-gradient(135deg,#667eea,
 
   // Events
   gridEl.addEventListener('click', function(e) {
-    const tile = e.target.closest('.tile');
+    var tile = e.target.closest('.tile');
     if (!tile || tile.classList.contains('empty')) return;
-    const idx = parseInt(tile.dataset.index, 10);
+    var idx = parseInt(tile.dataset.index, 10);
+    FW.audio.sfx('click');
     swap(idx);
   });
 
@@ -308,18 +288,22 @@ h1{font-size:1.8rem;margin-bottom:6px;background:linear-gradient(135deg,#667eea,
     // Allow default but we handle click
   }, {passive: true});
 
-  document.getElementById('newGameBtn').addEventListener('click', newGame);
-  document.getElementById('playAgainBtn').addEventListener('click', newGame);
+  document.getElementById('newGameBtn').addEventListener('click', function() {
+    newGame();
+  });
+  document.getElementById('playAgainBtn').addEventListener('click', function() {
+    newGame();
+  });
 
   // Keyboard support
   document.addEventListener('keydown', function(e) {
     if (state.isWin) return;
-    const ei = state.emptyIndex;
-    const row = Math.floor(ei / SIZE);
-    const col = ei % SIZE;
-    let targetIdx = -1;
+    var ei = state.emptyIndex;
+    var row = Math.floor(ei / SIZE);
+    var col = ei % SIZE;
+    var targetIdx = -1;
     switch (e.key) {
-      case 'ArrowUp':    targetIdx = ei + SIZE; break; // tile below empty
+      case 'ArrowUp':    targetIdx = ei + SIZE; break;
       case 'ArrowDown':  targetIdx = ei - SIZE; break;
       case 'ArrowLeft':  targetIdx = ei + 1; break;
       case 'ArrowRight': targetIdx = ei - 1; break;
@@ -327,6 +311,7 @@ h1{font-size:1.8rem;margin-bottom:6px;background:linear-gradient(135deg,#667eea,
     }
     e.preventDefault();
     if (targetIdx >= 0 && targetIdx < TOTAL) {
+      FW.audio.sfx('click');
       swap(targetIdx);
     }
   });

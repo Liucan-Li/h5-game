@@ -1,25 +1,13 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-game-id="2048">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>2048 合成数字</title>
+<link rel="stylesheet" href="framework.css">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: #1a1a2e; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px;
-    -webkit-user-select: none; user-select: none; touch-action: none;
-  }
-  .container { text-align: center; width: 100%; max-width: 400px; }
-  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-  h1 { font-size: 2.2em; font-weight: 800; background: linear-gradient(135deg, #f7971e, #ffd200); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .scores { display: flex; gap: 8px; }
-  .score-box { background: #16213e; padding: 6px 14px; border-radius: 8px; min-width: 70px; }
-  .score-label { font-size: 0.7em; text-transform: uppercase; color: #7f8c8d; letter-spacing: 1px; }
-  .score-value { font-size: 1.3em; font-weight: 700; color: #fff; }
   .grid-container {
-    position: relative; background: #0f3460; border-radius: 12px; padding: 8px;
+    position: relative; background: var(--game-bg); border-radius: var(--radius-lg); padding: 8px;
     aspect-ratio: 1; width: 100%; max-width: 400px; margin: 0 auto;
   }
   .grid-background {
@@ -34,11 +22,9 @@
     position: absolute; display: flex; align-items: center; justify-content: center;
     font-weight: 800; font-size: 2em; border-radius: 6px;
     transition: top 0.12s ease, left 0.12s ease;
-    animation: appear 0.2s ease;
+    animation: fw-pop 0.2s ease;
   }
-  @keyframes appear { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-  @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
-  .tile-merged { animation: pop 0.2s ease; }
+  .tile-merged { animation: fw-pop 0.2s ease; }
   .tile-2 { background: #eee4da; color: #776e65; }
   .tile-4 { background: #ede0c8; color: #776e65; }
   .tile-8 { background: #f2b179; color: #f9f6f2; }
@@ -51,24 +37,10 @@
   .tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 1.3em; }
   .tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 1.3em; }
   .tile-super { background: #3c3a3e; color: #f9f6f2; font-size: 1.1em; }
-  .game-overlay {
-    position: absolute; inset: 0; display: none; flex-direction: column;
-    align-items: center; justify-content: center; background: rgba(0,0,0,0.7);
-    border-radius: 12px; z-index: 10;
-  }
-  .game-overlay.active { display: flex; }
-  .game-overlay h2 { font-size: 2em; color: #fff; margin-bottom: 8px; }
-  .game-overlay p { color: #ccc; margin-bottom: 16px; }
-  button {
-    background: linear-gradient(135deg, #f7971e, #ffd200); color: #1a1a2e;
-    border: none; padding: 10px 28px; border-radius: 8px; font-size: 1em;
-    font-weight: 700; cursor: pointer; transition: transform 0.1s;
-  }
-  button:active { transform: scale(0.95); }
-  .instructions { color: #7f8c8d; font-size: 0.8em; margin-top: 12px; }
+  .instructions { color: var(--text-muted); font-size: 0.8em; margin-top: 12px; }
   @media (max-width: 420px) {
-    .container { max-width: 320px; }
-    h1 { font-size: 1.8em; }
+    .fw-container { max-width: 320px; }
+    .fw-title { font-size: 1.5em; }
     .tile { font-size: 1.5em; }
     .tile-128, .tile-256, .tile-512 { font-size: 1.3em; }
     .tile-1024, .tile-2048 { font-size: 1em; }
@@ -76,27 +48,31 @@
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="header">
-    <h1>2048</h1>
-    <div class="scores">
-      <div class="score-box"><div class="score-label">分数</div><div class="score-value" id="score">0</div></div>
-      <div class="score-box"><div class="score-label">最高分</div><div class="score-value" id="best">0</div></div>
+<div class="fw-container fw-cat-puzzle">
+  <div class="fw-header">
+    <h1 class="fw-title">2048</h1>
+    <div class="fw-scores">
+      <div class="fw-score-box"><div class="fw-score-label">分数</div><div class="fw-score-value" id="score">0</div></div>
+      <div class="fw-score-box"><div class="fw-score-label">最高分</div><div class="fw-score-value" id="best">0</div></div>
     </div>
   </div>
   <div class="grid-container" id="gridContainer">
     <div class="grid-background" id="gridBg"></div>
     <div class="tile-container" id="tileContainer"></div>
-    <div class="game-overlay" id="gameOverlay">
-      <h2 id="overlayTitle">游戏结束！</h2>
-      <p id="overlayScore">分数：0</p>
-      <button id="restartBtn">重新开始</button>
-    </div>
   </div>
-  <div class="instructions">使用方向键或滑动来移动方块</div>
+  <div class="fw-status instructions">使用方向键或滑动来移动方块</div>
 </div>
+<div class="fw-overlay" id="gameOverlay">
+  <div class="fw-overlay-box">
+    <div class="fw-overlay-title" id="overlayTitle">游戏结束！</div>
+    <div class="fw-overlay-text" id="overlayScore">分数：0</div>
+    <button class="fw-btn fw-btn-primary" id="restartBtn">重新开始</button>
+  </div>
+</div>
+<script src="framework.js"></script>
 <script>
 (function() {
+  const FW = window.GameFramework;
   const SIZE = 4;
   let grid, score, best;
   let gameOver, won, keepPlaying;
@@ -115,6 +91,10 @@
     gridBg.appendChild(cell);
   }
 
+  // Load best score
+  best = FW.storage.getHighScore();
+  bestEl.textContent = best;
+
   function initGrid() {
     grid = Array.from({length: SIZE}, () => Array(SIZE).fill(null));
     score = 0;
@@ -122,6 +102,7 @@
     won = false;
     keepPlaying = false;
     updateScore();
+    FW.ui.hideOverlay(overlay);
     addRandomTile();
     addRandomTile();
     render();
@@ -139,69 +120,6 @@
     grid[r][c] = Math.random() < 0.9 ? 2 : 4;
   }
 
-  function slide(row) {
-    const arr = row.filter(v => v !== null);
-    const merged = [];
-    let i = 0;
-    while (i < arr.length) {
-      if (i + 1 < arr.length && arr[i] === arr[i + 1]) {
-        merged.push(arr[i] * 2);
-        score += arr[i] * 2;
-        i += 2;
-      } else {
-        merged.push(arr[i]);
-        i++;
-      }
-    }
-    while (merged.length < SIZE) merged.push(null);
-    return merged;
-  }
-
-  function transpose(g) {
-    return g[0].map((_, i) => g.map(row => row[i]));
-  }
-
-  function reverse(g) {
-    return g.map(row => [...row].reverse());
-  }
-
-  function moveLeft() {
-    let moved = false;
-    for (let r = 0; r < SIZE; r++) {
-      const original = [...grid[r]];
-      const slid = slide(grid[r]);
-      if (original.some((v, i) => v !== slid[i])) moved = true;
-      grid[r] = slid;
-    }
-    return moved;
-  }
-
-  function moveRight() {
-    let moved = false;
-    for (let r = 0; r < SIZE; r++) {
-      const original = [...grid[r]];
-      const reversed = slide([...grid[r]].reverse());
-      const result = reversed.reverse();
-      if (original.some((v, i) => v !== result[i])) moved = true;
-      grid[r] = result;
-    }
-    return moved;
-  }
-
-  function moveUp() {
-    grid = transpose(grid);
-    const moved = moveLeft();
-    grid = transpose(grid);
-    return moved;
-  }
-
-  function moveDown() {
-    grid = transpose(grid);
-    const moved = moveRight();
-    grid = transpose(grid);
-    return moved;
-  }
-
   function canMove() {
     for (let r = 0; r < SIZE; r++) {
       for (let c = 0; c < SIZE; c++) {
@@ -213,43 +131,19 @@
     return false;
   }
 
-  function handleMove(dir) {
+  function doMove(dir) {
     if (gameOver) return;
     let moved = false;
-    score = score; // reset for slide scoring
-    switch (dir) {
-      case 'left': moved = moveLeft(); break;
-      case 'right': moved = moveRight(); break;
-      case 'up': moved = moveUp(); break;
-      case 'down': moved = moveDown(); break;
-    }
-    if (moved) {
-      // Recalculate score correctly: slide sets score directly
-      let actualScore = 0;
-      // Actually slide() already added to score. So we need a different approach.
-      // Let me redo this properly.
-    }
-    if (moved) {
-      addRandomTile();
-      updateScore();
-      render();
-      checkGameState();
-    }
-  }
+    let prevScore = score;
 
-  // Fixed: Let's handle score differently - track delta per move
-  let prevScore;
-
-  function moveLeftFn() {
-    let localScore = 0;
-    for (let r = 0; r < SIZE; r++) {
-      const arr = grid[r].filter(v => v !== null);
+    function slideRow(row) {
+      const arr = row.filter(v => v !== null);
       const merged = [];
       let i = 0;
       while (i < arr.length) {
         if (i + 1 < arr.length && arr[i] === arr[i + 1]) {
           merged.push(arr[i] * 2);
-          localScore += arr[i] * 2;
+          score += arr[i] * 2;
           i += 2;
         } else {
           merged.push(arr[i]);
@@ -257,62 +151,26 @@
         }
       }
       while (merged.length < SIZE) merged.push(null);
-      const changed = grid[r].some((v, i) => v !== merged[i]);
-      grid[r] = merged;
-      if (!changed && r === SIZE - 1) return false;
-      if (changed) moved = true;
+      return merged;
     }
-    score += localScore;
-    return moved;
-  }
 
-  let moved;
+    function transpose(g) {
+      return g[0].map((_, i) => g.map(row => row[i]));
+    }
 
-  function doMove(dir) {
-    if (gameOver) return;
-    moved = false;
-    prevScore = score;
     switch (dir) {
       case 'left': {
         for (let r = 0; r < SIZE; r++) {
-          const arr = grid[r].filter(v => v !== null);
-          const merged = [];
-          let i = 0;
-          while (i < arr.length) {
-            if (i + 1 < arr.length && arr[i] === arr[i + 1]) {
-              merged.push(arr[i] * 2);
-              score += arr[i] * 2;
-              i += 2;
-            } else {
-              merged.push(arr[i]);
-              i++;
-            }
-          }
-          while (merged.length < SIZE) merged.push(null);
-          const changed = grid[r].some((v, idx) => v !== merged[idx]);
-          if (changed) moved = true;
-          grid[r] = merged;
+          const original = [...grid[r]];
+          grid[r] = slideRow(grid[r]);
+          if (original.some((v, idx) => v !== grid[r][idx])) moved = true;
         }
         break;
       }
       case 'right': {
         for (let r = 0; r < SIZE; r++) {
           const rev = [...grid[r]].reverse();
-          const arr = rev.filter(v => v !== null);
-          const merged = [];
-          let i = 0;
-          while (i < arr.length) {
-            if (i + 1 < arr.length && arr[i] === arr[i + 1]) {
-              merged.push(arr[i] * 2);
-              score += arr[i] * 2;
-              i += 2;
-            } else {
-              merged.push(arr[i]);
-              i++;
-            }
-          }
-          while (merged.length < SIZE) merged.push(null);
-          const result = merged.reverse();
+          const result = slideRow(rev).reverse();
           const changed = grid[r].some((v, idx) => v !== result[idx]);
           if (changed) moved = true;
           grid[r] = result;
@@ -322,23 +180,9 @@
       case 'up': {
         grid = transpose(grid);
         for (let r = 0; r < SIZE; r++) {
-          const arr = grid[r].filter(v => v !== null);
-          const merged = [];
-          let i = 0;
-          while (i < arr.length) {
-            if (i + 1 < arr.length && arr[i] === arr[i + 1]) {
-              merged.push(arr[i] * 2);
-              score += arr[i] * 2;
-              i += 2;
-            } else {
-              merged.push(arr[i]);
-              i++;
-            }
-          }
-          while (merged.length < SIZE) merged.push(null);
-          const changed = grid[r].some((v, idx) => v !== merged[idx]);
-          if (changed) moved = true;
-          grid[r] = merged;
+          const original = [...grid[r]];
+          grid[r] = slideRow(grid[r]);
+          if (original.some((v, idx) => v !== grid[r][idx])) moved = true;
         }
         grid = transpose(grid);
         break;
@@ -347,21 +191,7 @@
         grid = transpose(grid);
         for (let r = 0; r < SIZE; r++) {
           const rev = [...grid[r]].reverse();
-          const arr = rev.filter(v => v !== null);
-          const merged = [];
-          let i = 0;
-          while (i < arr.length) {
-            if (i + 1 < arr.length && arr[i] === arr[i + 1]) {
-              merged.push(arr[i] * 2);
-              score += arr[i] * 2;
-              i += 2;
-            } else {
-              merged.push(arr[i]);
-              i++;
-            }
-          }
-          while (merged.length < SIZE) merged.push(null);
-          const result = merged.reverse();
+          const result = slideRow(rev).reverse();
           const changed = grid[r].some((v, idx) => v !== result[idx]);
           if (changed) moved = true;
           grid[r] = result;
@@ -370,7 +200,9 @@
         break;
       }
     }
+
     if (moved) {
+      FW.audio.sfx('move');
       addRandomTile();
       updateScore();
       render();
@@ -380,11 +212,11 @@
 
   function updateScore() {
     scoreEl.textContent = score;
-    best = Math.max(best || 0, score);
+    const isNew = FW.storage.setHighScore(score);
+    best = FW.storage.getHighScore();
     bestEl.textContent = best;
-    if (typeof localStorage !== 'undefined') {
-      try { localStorage.setItem('2048_hi', String(best)); } catch(e) {}
-    }
+    if (isNew && score > 0) FW.audio.sfx('score');
+    if (score > 0) FW.events.reportScore(score);
   }
 
   function checkGameState() {
@@ -393,9 +225,11 @@
         for (let c = 0; c < SIZE; c++) {
           if (grid[r][c] >= 2048) {
             won = true;
+            FW.audio.sfx('win');
             overlayTitle.textContent = '你赢了！';
             overlayScore.textContent = '分数：' + score;
-            overlay.classList.add('active');
+            FW.ui.showOverlay(overlay);
+            FW.events.reportComplete(score, { won: true });
             return;
           }
         }
@@ -403,19 +237,20 @@
     }
     if (!canMove()) {
       gameOver = true;
+      FW.audio.sfx('gameover');
       overlayTitle.textContent = '游戏结束！';
       overlayScore.textContent = '分数：' + score;
-      overlay.classList.add('active');
+      FW.ui.showOverlay(overlay);
+      FW.events.reportComplete(score, { won: false });
     }
   }
 
   function render() {
     tileContainer.innerHTML = '';
-    const containerRect = tileContainer.getBoundingClientRect();
+    const rect = tileContainer.getBoundingClientRect();
     const gap = 8;
     const totalGap = (SIZE + 1) * gap;
-    const size = containerRect.width;
-    const tileSize = (size - totalGap) / SIZE;
+    const tileSize = (rect.width - totalGap) / SIZE;
 
     for (let r = 0; r < SIZE; r++) {
       for (let c = 0; c < SIZE; c++) {
@@ -435,50 +270,32 @@
     }
   }
 
-  let touchStartX = 0, touchStartY = 0;
-
-  document.addEventListener('keydown', (e) => {
-    const map = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down' };
-    if (map[e.key]) {
+  // Keyboard input via framework
+  const keyMap = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down' };
+  FW.input.onKey(function(key, pressed, e) {
+    if (pressed && keyMap[key]) {
       e.preventDefault();
-      doMove(map[e.key]);
+      doMove(keyMap[key]);
     }
   });
 
-  const gridContainer = document.getElementById('gridContainer');
-  gridContainer.addEventListener('touchstart', (e) => {
-    const t = e.touches[0];
-    touchStartX = t.clientX;
-    touchStartY = t.clientY;
-  }, { passive: true });
+  // Touch swipe via framework
+  FW.input.attachSwipe(document.getElementById('gridContainer'));
 
-  gridContainer.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive: false });
-
-  gridContainer.addEventListener('touchend', (e) => {
-    const t = e.changedTouches[0];
-    const dx = t.clientX - touchStartX;
-    const dy = t.clientY - touchStartY;
-    const absDx = Math.abs(dx), absDy = Math.abs(dy);
-    if (Math.max(absDx, absDy) < 20) return;
-    if (absDx > absDy) {
-      doMove(dx > 0 ? 'right' : 'left');
-    } else {
-      doMove(dy > 0 ? 'down' : 'up');
-    }
-  }, { passive: true });
-
-  document.getElementById('restartBtn').addEventListener('click', () => {
-    overlay.classList.remove('active');
-    initGrid();
+  // Register swipe handler
+  FW.input.onSwipe(function(dir) {
+    doMove(dir);
   });
 
-  // Load best
-  try { best = parseInt(localStorage.getItem('2048_hi')) || 0; bestEl.textContent = best; } catch(e) { best = 0; }
+  // Restart
+  document.getElementById('restartBtn').addEventListener('click', initGrid);
 
+  // Init
   initGrid();
+
   // Re-render on resize
   let resizeTimer;
-  window.addEventListener('resize', () => {
+  window.addEventListener('resize', function() {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(render, 100);
   });

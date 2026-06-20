@@ -1,140 +1,34 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-game-id="hole-io">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Hole.io</title>
+<link rel="stylesheet" href="framework.css">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: #1a1a2e; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px;
-    -webkit-user-select: none; user-select: none; touch-action: none;
-  }
-  .container { text-align: center; width: 100%; max-width: 450px; }
-  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-  h1 { font-size: 1.8em; font-weight: 800; background: linear-gradient(135deg, #6c5ce7, #a29bfe); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .score-box { background: #16213e; padding: 6px 14px; border-radius: 8px; min-width: 70px; }
-  .score-label { font-size: 0.7em; color: #7f8c8d; }
-  .score-value { font-size: 1.3em; font-weight: 700; color: #fff; }
-  canvas { display: block; width: 100%; aspect-ratio: 1; background: #2d3436; border-radius: 12px; touch-action: none; }
-  .overlay { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); border-radius: 12px; z-index: 10; }
-  .overlay.active { display: flex; }
-  .overlay h2 { font-size: 1.8em; color: #fff; margin-bottom: 8px; }
-  .overlay p { color: #ccc; margin-bottom: 16px; }
-  .overlay button { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: #fff; border: none; padding: 10px 28px; border-radius: 8px; font-size: 1em; font-weight: 700; cursor: pointer; }
-  .game-wrapper { position: relative; }
-  .instructions { color:#7f8c8d; font-size:0.8em; margin-top:12px; }
+canvas{display:block;width:100%;aspect-ratio:1;background:#2d3436;border-radius:var(--radius-lg);touch-action:none}
+.game-wrapper{position:relative}
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="header"><h1>Hole.io</h1><div class="score-box"><div class="score-label">分数</div><div class="score-value" id="score">0</div></div></div>
-  <div class="game-wrapper">
-    <canvas id="gc" width="400" height="400"></canvas>
-    <div class="overlay" id="overlay"><h2 id="ot">时间到！</h2><p id="os">分数：0</p><button id="rb">重新开始</button></div>
-  </div>
-  <div class="instructions">拖动屏幕移动黑洞，吞噬物体变大</div>
+<div class="fw-container" style="max-width:450px;">
+  <div class="fw-header"><h1 class="fw-title">Hole.io</h1><div class="fw-score-box"><div class="fw-score-label">分数</div><div class="fw-score-value" id="score">0</div></div></div>
+  <div class="game-wrapper"><canvas id="gc" width="400" height="400"></canvas><div class="fw-overlay" id="overlay"><div class="fw-overlay-box"><div class="fw-overlay-title" id="ot">时间到！</div><div class="fw-overlay-text" id="os">分数：0</div><button class="fw-btn fw-btn-primary" id="rb">重新开始</button></div></div></div>
+  <div class="fw-status">拖动屏幕移动黑洞，吞噬物体变大</div>
 </div>
+<script src="framework.js"></script>
 <script>
-(function(){
-  const c=document.getElementById('gc'),ctx=c.getContext('2d');
-  const s=document.getElementById('score'),ov=document.getElementById('overlay');
-  const ot=document.getElementById('ot'),os=document.getElementById('os');
-
-  const W=400,R=20;
-  let hx,hy,hr,score,timeLeft,objs,gameOver,loop;
-
-  const OBJECT_TYPES = [
-    {color:'#e74c3c',size:4,points:1},
-    {color:'#f39c12',size:6,points:2},
-    {color:'#2ecc71',size:8,points:3},
-    {color:'#3498db',size:10,points:5},
-    {color:'#9b59b6',size:14,points:8},
-  ];
-
-  function init() {
-    hx=200; hy=200; hr=R; score=0; timeLeft=60; gameOver=false;
-    objs=[];
-    for(let i=0;i<30;i++) spawnObj();
-    ov.classList.remove('active');
-    updateUI();
-    if(loop) clearInterval(loop);
-    loop=setInterval(tick,50);
-  }
-
-  function spawnObj() {
-    const t=OBJECT_TYPES[Math.floor(Math.random()*OBJECT_TYPES.length)];
-    objs.push({
-      x:Math.random()*W,y:Math.random()*W,
-      size:t.size,color:t.color,points:t.points,
-      dx:(Math.random()-0.5)*2,dy:(Math.random()-0.5)*2
-    });
-  }
-
-  function tick() {
-    if(gameOver) return;
-    timeLeft-=0.05;
-    if(timeLeft<=0) { timeLeft=0; endGame(); return; }
-    // Move objects
-    objs.forEach(o=>{
-      o.x+=o.dx; o.y+=o.dy;
-      if(o.x<0||o.x>W)o.dx*=-1;
-      if(o.y<0||o.y>W)o.dy*=-1;
-    });
-    // Eat
-    objs=objs.filter(o=>{
-      const d=Math.hypot(o.x-hx,o.y-hy);
-      if(d<hr) {
-        score+=o.points;
-        hr=Math.min(60,hr+o.size*0.3);
-        updateUI();
-        return false;
-      }
-      return true;
-    });
-    // Respawn
-    while(objs.length<25) spawnObj();
-    render();
-  }
-
-  function updateUI() { s.textContent=Math.floor(score); }
-
-  function endGame() {
-    gameOver=true; clearInterval(loop);
-    ot.textContent='时间到！'; os.textContent='分数：'+Math.floor(score);
-    ov.classList.add('active'); render();
-  }
-
-  function render() {
-    ctx.fillStyle='#2d3436'; ctx.fillRect(0,0,W,W);
-    // Objects
-    objs.forEach(o=>{
-      ctx.fillStyle=o.color; ctx.beginPath(); ctx.arc(o.x,o.y,o.size,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle='rgba(0,0,0,0.2)'; ctx.beginPath(); ctx.arc(o.x+2,o.y+2,o.size,0,Math.PI*2); ctx.fill();
-    });
-    // Hole
-    const grad=ctx.createRadialGradient(hx,hy,0,hx,hy,hr);
-    grad.addColorStop(0,'#0a0a0a'); grad.addColorStop(0.7,'#1a1a2e'); grad.addColorStop(1,'rgba(26,26,46,0)');
-    ctx.fillStyle=grad; ctx.beginPath(); ctx.arc(hx,hy,hr,0,Math.PI*2); ctx.fill();
-    // Hole edge glow
-    ctx.strokeStyle='rgba(108,92,231,0.3)'; ctx.lineWidth=2;
-    ctx.beginPath(); ctx.arc(hx,hy,hr,0,Math.PI*2); ctx.stroke();
-    // Timer
-    ctx.fillStyle='#fff'; ctx.font='14px sans-serif'; ctx.textAlign='center';
-    ctx.fillText('⏱ '+Math.ceil(timeLeft)+'s',W/2,20);
-  }
-
-  let mx=200,my=200;
-  c.addEventListener('mousemove',e=>{const r=c.getBoundingClientRect();mx=e.clientX-r.left;my=e.clientY-r.top;});
-  c.addEventListener('touchmove',e=>{e.preventDefault();const r=c.getBoundingClientRect(),t=e.touches[0];mx=t.clientX-r.left;my=t.clientY-r.top;},{passive:false});
-
-  // Update hole pos every tick
-  setInterval(()=>{if(!gameOver){hx+=((mx/W*400)-hx)*0.15;hy+=((my/W*400)-hy)*0.15;hx=Math.max(hr,Math.min(W-hr,hx));hy=Math.max(hr,Math.min(W-hr,hy));}},30);
-
-  document.getElementById('rb').addEventListener('click',init);
-  init();
-})();
+(function(){const FW=window.GameFramework;var c=document.getElementById('gc'),ctx=c.getContext('2d');var s=document.getElementById('score'),ov=document.getElementById('overlay'),ot=document.getElementById('ot'),os=document.getElementById('os');
+var W=400,R=20,hx,hy,hr,score,timeLeft,objs,gameOver,loop;
+var TYPES=[{color:'#e74c3c',size:4,points:1},{color:'#f39c12',size:6,points:2},{color:'#2ecc71',size:8,points:3},{color:'#3498db',size:10,points:5},{color:'#9b59b6',size:14,points:8}];
+function init(){hx=200;hy=200;hr=R;score=0;timeLeft=60;gameOver=false;objs=[];for(var i=0;i<30;i++)spawnObj();FW.ui.hideOverlay(ov);s.textContent='0';if(loop)clearInterval(loop);loop=setInterval(tick,50);}
+function spawnObj(){var t=TYPES[Math.floor(Math.random()*TYPES.length)];objs.push({x:Math.random()*W,y:Math.random()*W,size:t.size,color:t.color,points:t.points,dx:(Math.random()-0.5)*2,dy:(Math.random()-0.5)*2});}
+function tick(){if(gameOver)return;timeLeft-=0.05;if(timeLeft<=0){timeLeft=0;endGame();return;}objs.forEach(function(o){o.x+=o.dx;o.y+=o.dy;if(o.x<0||o.x>W)o.dx*=-1;if(o.y<0||o.y>W)o.dy*=-1;});objs=objs.filter(function(o){var d=Math.hypot(o.x-hx,o.y-hy);if(d<hr){score+=o.points;hr=Math.min(60,hr+o.size*0.3);s.textContent=Math.floor(score);FW.audio.sfx('score');return false;}return true;});while(objs.length<25)spawnObj();render();}
+function endGame(){gameOver=true;clearInterval(loop);FW.storage.setHighScore(Math.floor(score));FW.audio.sfx('gameover');FW.events.reportComplete(Math.floor(score),{won:false});ot.textContent='时间到！';os.textContent='分数：'+Math.floor(score);FW.ui.showOverlay(ov);render();}
+function render(){ctx.fillStyle='#2d3436';ctx.fillRect(0,0,W,W);objs.forEach(function(o){ctx.fillStyle=o.color;ctx.beginPath();ctx.arc(o.x,o.y,o.size,0,Math.PI*2);ctx.fill();ctx.fillStyle='rgba(0,0,0,0.2)';ctx.beginPath();ctx.arc(o.x+2,o.y+2,o.size,0,Math.PI*2);ctx.fill();});var gr=ctx.createRadialGradient(hx,hy,0,hx,hy,hr);gr.addColorStop(0,'#0a0a0a');gr.addColorStop(0.7,'#1a1a2e');gr.addColorStop(1,'rgba(26,26,46,0)');ctx.fillStyle=gr;ctx.beginPath();ctx.arc(hx,hy,hr,0,Math.PI*2);ctx.fill();ctx.strokeStyle='rgba(108,92,231,0.3)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(hx,hy,hr,0,Math.PI*2);ctx.stroke();ctx.fillStyle='#fff';ctx.font='14px sans-serif';ctx.textAlign='center';ctx.fillText('⏱ '+Math.ceil(timeLeft)+'s',W/2,20);}
+var mx=200,my=200;c.addEventListener('mousemove',function(e){var r=c.getBoundingClientRect();mx=e.clientX-r.left;my=e.clientY-r.top;});c.addEventListener('touchmove',function(e){e.preventDefault();var r=c.getBoundingClientRect(),t=e.touches[0];mx=t.clientX-r.left;my=t.clientY-r.top;},{passive:false});
+setInterval(function(){if(!gameOver){hx+=((mx/W*400)-hx)*0.15;hy+=((my/W*400)-hy)*0.15;hx=Math.max(hr,Math.min(W-hr,hx));hy=Math.max(hr,Math.min(W-hr,hy));}},30);
+document.getElementById('rb').addEventListener('click',init);init();})();
 </script>
 </body>
 </html>

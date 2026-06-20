@@ -1,95 +1,45 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-game-id="snake">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>贪吃蛇</title>
+<link rel="stylesheet" href="framework.css">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: #1a1a2e; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px;
-    -webkit-user-select: none; user-select: none; touch-action: none;
-  }
-  .container { text-align: center; width: 100%; max-width: 400px; }
-  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-  h1 { font-size: 2.2em; font-weight: 800; color: #4ecca3; }
-  .score-box { background: #16213e; padding: 6px 14px; border-radius: 8px; min-width: 70px; }
-  .score-label { font-size: 0.7em; text-transform: uppercase; color: #7f8c8d; letter-spacing: 1px; }
-  .score-value { font-size: 1.3em; font-weight: 700; color: #fff; }
   #gameCanvas {
     display: block; width: 100%; aspect-ratio: 1; max-width: 400px; margin: 0 auto;
-    border-radius: 12px; background: #0f3460;
+    border-radius: var(--radius-lg); background: var(--game-bg);
   }
-  .controls { margin-top: 16px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-  .controls-row { display: flex; gap: 4px; }
-  .ctrl-btn {
-    width: 60px; height: 60px; border: none; border-radius: 12px;
-    background: #16213e; color: #4ecca3; font-size: 1.5em; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: background 0.15s; touch-action: manipulation;
-  }
-  .ctrl-btn:active { background: #1a3a5c; }
-  .ctrl-btn.blank { visibility: hidden; }
-  .status { color: #7f8c8d; font-size: 0.85em; margin-top: 8px; }
-  button.restart {
-    background: linear-gradient(135deg, #4ecca3, #36b37e); color: #1a1a2e;
-    border: none; padding: 8px 24px; border-radius: 8px; font-size: 0.9em;
-    font-weight: 700; cursor: pointer; margin-top: 8px; transition: transform 0.1s;
-  }
-  button.restart:active { transform: scale(0.95); }
-  .overlay {
-    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-    justify-content: center; align-items: center; z-index: 100;
-  }
-  .overlay.active { display: flex; }
-  .overlay-box {
-    background: #1a1a2e; border: 2px solid #4ecca3; border-radius: 16px;
-    padding: 32px; text-align: center; max-width: 300px; width: 90%;
-  }
-  .overlay-box h2 { color: #4ecca3; font-size: 1.8em; margin-bottom: 8px; }
-  .overlay-box p { color: #ccc; margin-bottom: 16px; font-size: 1.1em; }
+  .fw-controls-row { margin-top: 12px; }
   @media (max-width: 420px) {
-    .ctrl-btn { width: 50px; height: 50px; font-size: 1.2em; }
-    h1 { font-size: 1.8em; }
+    .fw-title { font-size: 1.5em; }
   }
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="header">
-    <h1>贪吃蛇</h1>
-    <div class="score-box"><div class="score-label">分数</div><div class="score-value" id="score">0</div></div><div class="score-box"><div class="score-label">最高分</div><div class="score-value" id="hiScore">0</div></div>
+<div class="fw-container fw-cat-arcade">
+  <div class="fw-header">
+    <h1 class="fw-title">贪吃蛇</h1>
+    <div class="fw-scores">
+      <div class="fw-score-box"><div class="fw-score-label">分数</div><div class="fw-score-value" id="score">0</div></div>
+      <div class="fw-score-box"><div class="fw-score-label">最高分</div><div class="fw-score-value" id="hiScore">0</div></div>
+    </div>
   </div>
   <canvas id="gameCanvas" width="400" height="400"></canvas>
-  <div class="controls" id="mobileControls">
-    <div class="controls-row">
-      <button class="ctrl-btn blank"></button>
-      <button class="ctrl-btn" data-dir="up">&#x25B2;</button>
-      <button class="ctrl-btn blank"></button>
-    </div>
-    <div class="controls-row">
-      <button class="ctrl-btn" data-dir="left">&#x25C0;</button>
-      <button class="ctrl-btn blank"></button>
-      <button class="ctrl-btn" data-dir="right">&#x25B6;</button>
-    </div>
-    <div class="controls-row">
-      <button class="ctrl-btn blank"></button>
-      <button class="ctrl-btn" data-dir="down">&#x25BC;</button>
-      <button class="ctrl-btn blank"></button>
-    </div>
-  </div>
-  <div class="status">方向键或屏幕按钮操作 &middot; <button class="restart" id="restartBtn">重新开始</button></div>
+  <div class="fw-controls-row" id="mobileControls"></div>
+  <div class="fw-status">方向键控制 &middot; <button class="fw-btn fw-btn-ghost" id="restartBtn" style="padding:4px 16px;font-size:0.85em;">重新开始</button></div>
 </div>
-<div class="overlay" id="gameOverlay">
-  <div class="overlay-box">
-    <h2>游戏结束！</h2>
-    <p>分数：<span id="finalScore">0</span></p>
-    <button class="restart" id="restartOverlayBtn">重新开始</button>
+<div class="fw-overlay" id="gameOverlay">
+  <div class="fw-overlay-box">
+    <div class="fw-overlay-title">游戏结束！</div>
+    <div class="fw-overlay-text">分数：<span id="finalScore">0</span></div>
+    <button class="fw-btn fw-btn-primary" id="restartOverlayBtn">重新开始</button>
   </div>
 </div>
+<script src="framework.js"></script>
 <script>
 (function() {
+  const FW = window.GameFramework;
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
   const scoreEl = document.getElementById('score');
@@ -98,12 +48,13 @@
   const overlay = document.getElementById('gameOverlay');
   const overlayRestart = document.getElementById('restartOverlayBtn');
 
-  const GRID_SIZE = 20;
   const CELLS = 20;
   let cellSize = 20;
-
   let snake, food, direction, nextDirection;
-  let gameRunning, gameLoop, score;
+  let gameRunning, score;
+
+  // Load high score
+  hiScoreEl.textContent = FW.storage.getHighScore();
 
   function init() {
     snake = [{x: 10, y: 10}];
@@ -111,14 +62,13 @@
     nextDirection = {x: 1, y: 0};
     score = 0;
     gameRunning = true;
-    overlay.classList.remove('active');
+    FW.ui.hideOverlay(overlay);
     scoreEl.textContent = '0';
-    // Load high score
-    try { hiScoreEl.textContent = parseInt(localStorage.getItem('snake_hi')) || 0; } catch(e) {}
+    hiScoreEl.textContent = FW.storage.getHighScore();
     spawnFood();
     draw();
-    if (gameLoop) clearInterval(gameLoop);
-    gameLoop = setInterval(update, 130);
+    FW.loop.stop();
+    FW.loop.startInterval(update, 130);
   }
 
   function spawnFood() {
@@ -155,6 +105,8 @@
     if (head.x === food.x && head.y === food.y) {
       score++;
       scoreEl.textContent = score;
+      FW.audio.sfx('score');
+      FW.events.reportScore(score);
       spawnFood();
     } else {
       snake.pop();
@@ -165,17 +117,17 @@
 
   function gameOver() {
     gameRunning = false;
-    clearInterval(gameLoop);
+    FW.loop.stop();
     finalScoreEl.textContent = score;
-    // Save high score
-    try {
-      const hi = parseInt(localStorage.getItem('snake_hi')) || 0;
-      if (score > hi) {
-        localStorage.setItem('snake_hi', score);
-        hiScoreEl.textContent = score;
-      }
-    } catch(e) {}
-    overlay.classList.add('active');
+    const isNew = FW.storage.setHighScore(score);
+    if (isNew) {
+      hiScoreEl.textContent = score;
+      FW.audio.sfx('win');
+    } else {
+      FW.audio.sfx('gameover');
+    }
+    FW.ui.showOverlay(overlay);
+    FW.events.reportComplete(score, { won: false });
   }
 
   function draw() {
@@ -201,15 +153,27 @@
       ctx.stroke();
     }
 
-    // Snake
+    // Snake body
     for (let i = 0; i < snake.length; i++) {
       const s = snake[i];
       const hue = 140 + (i / snake.length) * 30;
       const lightness = i === 0 ? 65 : 50;
-      ctx.fillStyle = `hsl(${hue}, 80%, ${lightness}%)`;
+      ctx.fillStyle = 'hsl(' + hue + ', 80%, ' + lightness + '%)';
       const pad = 1;
+      const x = s.x * cellSize + pad;
+      const y = s.y * cellSize + pad;
+      const size = cellSize - pad * 2;
+      const r = 4;
       ctx.beginPath();
-      ctx.roundRect(s.x * cellSize + pad, s.y * cellSize + pad, cellSize - pad * 2, cellSize - pad * 2, 4);
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + size - r, y);
+      ctx.quadraticCurveTo(x + size, y, x + size, y + r);
+      ctx.lineTo(x + size, y + size - r);
+      ctx.quadraticCurveTo(x + size, y + size, x + size - r, y + size);
+      ctx.lineTo(x + r, y + size);
+      ctx.quadraticCurveTo(x, y + size, x, y + size - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
       ctx.fill();
     }
 
@@ -245,34 +209,16 @@
     ctx.fill();
   }
 
-  // roundRect polyfill for canvas
-  if (!CanvasRenderingContext2D.prototype.roundRect) {
-    CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
-      if (r > w / 2) r = w / 2;
-      if (r > h / 2) r = h / 2;
-      this.moveTo(x + r, y);
-      this.lineTo(x + w - r, y);
-      this.quadraticCurveTo(x + w, y, x + w, y + r);
-      this.lineTo(x + w, y + h - r);
-      this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-      this.lineTo(x + r, y + h);
-      this.quadraticCurveTo(x, y + h, x, y + h - r);
-      this.lineTo(x, y + r);
-      this.quadraticCurveTo(x, y, x + r, y);
-      return this;
-    };
-  }
-
   function setDir(dx, dy) {
     if (!gameRunning) return;
-    // Prevent 180-degree turns
     if (dx === -direction.x && dy === -direction.y) return;
     nextDirection = {x: dx, y: dy};
   }
 
-  // Keyboard
-  document.addEventListener('keydown', (e) => {
-    switch (e.key) {
+  // Keyboard via framework
+  FW.input.onKey(function(key, pressed, e) {
+    if (!pressed) return;
+    switch (key) {
       case 'ArrowUp': e.preventDefault(); setDir(0, -1); break;
       case 'ArrowDown': e.preventDefault(); setDir(0, 1); break;
       case 'ArrowLeft': e.preventDefault(); setDir(-1, 0); break;
@@ -281,50 +227,32 @@
   });
 
   // Touch swipe on canvas
-  let touchStartX = 0, touchStartY = 0;
-  canvas.addEventListener('touchstart', (e) => {
-    const t = e.touches[0];
-    touchStartX = t.clientX;
-    touchStartY = t.clientY;
-  }, { passive: true });
-
-  canvas.addEventListener('touchend', (e) => {
-    const t = e.changedTouches[0];
-    const dx = t.clientX - touchStartX;
-    const dy = t.clientY - touchStartY;
-    const absDx = Math.abs(dx), absDy = Math.abs(dy);
-    if (Math.max(absDx, absDy) < 20) return;
-    if (absDx > absDy) setDir(dx > 0 ? 1 : -1, 0);
-    else setDir(0, dy > 0 ? 1 : -1);
-  }, { passive: true });
-
-  // Mobile d-pad buttons
-  document.querySelectorAll('.ctrl-btn[data-dir]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const dir = btn.dataset.dir;
-      switch (dir) {
-        case 'up': setDir(0, -1); break;
-        case 'down': setDir(0, 1); break;
-        case 'left': setDir(-1, 0); break;
-        case 'right': setDir(1, 0); break;
-      }
-    });
-    btn.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      const dir = btn.dataset.dir;
-      switch (dir) {
-        case 'up': setDir(0, -1); break;
-        case 'down': setDir(0, 1); break;
-        case 'left': setDir(-1, 0); break;
-        case 'right': setDir(1, 0); break;
-      }
-    }, { passive: false });
+  FW.input.attachSwipe(canvas);
+  FW.input.onSwipe(function(dir) {
+    switch (dir) {
+      case 'up': setDir(0, -1); break;
+      case 'down': setDir(0, 1); break;
+      case 'left': setDir(-1, 0); break;
+      case 'right': setDir(1, 0); break;
+    }
   });
+
+  // Mobile D-pad
+  const controlsContainer = document.getElementById('mobileControls');
+  const dpad = FW.input.createDPad(function(dir) {
+    switch (dir) {
+      case 'up': setDir(0, -1); break;
+      case 'down': setDir(0, 1); break;
+      case 'left': setDir(-1, 0); break;
+      case 'right': setDir(1, 0); break;
+    }
+  });
+  controlsContainer.appendChild(dpad);
 
   // Restart
   function restart() {
-    if (gameLoop) clearInterval(gameLoop);
-    overlay.classList.remove('active');
+    FW.loop.stop();
+    FW.ui.hideOverlay(overlay);
     init();
   }
   document.getElementById('restartBtn').addEventListener('click', restart);

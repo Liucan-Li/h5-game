@@ -1,149 +1,49 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-game-id="idle-miner">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Idle Miner</title>
+<link rel="stylesheet" href="framework.css">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: #1a1a2e; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px;
-    -webkit-user-select: none; user-select: none;
-  }
-  .container { text-align: center; width: 100%; max-width: 400px; }
-  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-  h1 { font-size: 1.8em; font-weight: 800; background: linear-gradient(135deg, #f1c40f, #e67e22); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .gold-display { font-size: 1.8em; font-weight: 700; color: #f1c40f; margin: 8px 0; }
-  .depth-display { font-size: 0.9em; color: #7f8c8d; margin-bottom: 12px; }
-  .mine-area {
-    background: #2c1810; border-radius: 16px; padding: 16px; position: relative;
-    min-height: 200px; overflow: hidden;
-  }
-  .mine-btn {
-    width: 120px; height: 120px; border-radius: 50%; border: 4px solid #8B4513;
-    background: radial-gradient(circle at 35% 35%, #654321, #3e2723);
-    cursor: pointer; font-size: 3em; transition: transform 0.1s;
-    touch-action: manipulation; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-  }
-  .mine-btn:active { transform: scale(0.9); }
-  .workers { margin-top: 12px; }
-  .worker {
-    display: flex; justify-content: space-between; align-items: center;
-    background: #16213e; border-radius: 10px; padding: 10px 14px; margin-bottom: 6px;
-    cursor: pointer; transition: background 0.15s;
-  }
-  .worker.locked { opacity: 0.4; cursor: not-allowed; }
-  .worker-name { font-size: 0.9em; font-weight: 600; }
-  .worker-desc { font-size: 0.75em; color: #7f8c8d; }
-  .worker-cost { font-size: 0.9em; color: #f1c40f; font-weight: 700; }
-  .worker-count { font-size: 0.75em; color: #636e72; }
-  .reset-btn { margin-top: 12px; padding: 8px 20px; border-radius: 8px; border: 1px solid #7f8c8d; background: transparent; color: #7f8c8d; font-size: 0.8em; cursor: pointer; }
-  @keyframes nugget { 0%{opacity:1;transform:translateY(0) scale(1)} 100%{opacity:0;transform:translateY(-60px) scale(0.5)} }
-  .nugget-fly { position:absolute;font-size:1.2em;animation:nugget 0.8s ease-out forwards;pointer-events:none; }
+.gold-display{font-size:1.8em;font-weight:700;color:#f1c40f;margin:8px 0}
+.depth-display{font-size:0.9em;color:var(--text-muted);margin-bottom:12px}
+.mine-area{background:#2c1810;border-radius:var(--radius-xl);padding:16px;position:relative;min-height:200px;overflow:hidden}
+.mine-btn{width:120px;height:120px;border-radius:50%;border:4px solid #8B4513;background:radial-gradient(circle at 35% 35%,#654321,#3e2723);cursor:pointer;font-size:3em;transition:transform 0.1s;touch-action:manipulation;box-shadow:0 4px 20px rgba(0,0,0,0.5);display:block;margin:0 auto}
+.mine-btn:active{transform:scale(0.9)}
+.workers{margin-top:12px;text-align:left}
+.workers h2{font-size:1em;margin-bottom:8px;color:var(--text-primary)}
+.worker{display:flex;justify-content:space-between;align-items:center;background:var(--bg-secondary);border-radius:var(--radius-md);padding:10px 14px;margin-bottom:6px;cursor:pointer}
+.worker.locked{opacity:0.4;cursor:not-allowed}
+.worker-name{font-size:0.9em;font-weight:600}.worker-desc{font-size:0.75em;color:var(--text-muted)}
+.worker-cost{font-size:0.9em;color:#f1c40f;font-weight:700}.worker-count{font-size:0.75em;color:var(--text-muted)}
+@keyframes nugget{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-60px) scale(0.5)}}
+.nugget-fly{position:absolute;font-size:1.2em;animation:nugget 0.8s ease-out forwards;pointer-events:none}
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="header"><h1>Idle Miner</h1></div>
+<div class="fw-container">
+  <div class="fw-header"><h1 class="fw-title" style="font-size:1.8em;">Idle Miner</h1></div>
   <div class="gold-display" id="goldDisp">🪙 0</div>
   <div class="depth-display" id="depthDisp">深度：0m</div>
-  <div class="mine-area" id="mineArea">
-    <button class="mine-btn" id="mineBtn">⛏️</button>
-  </div>
+  <div class="mine-area" id="mineArea"><button class="mine-btn" id="mineBtn">⛏️</button></div>
   <div class="workers" id="workers"></div>
-  <button class="reset-btn" id="resetBtn">重新开始</button>
+  <button class="fw-btn fw-btn-ghost" id="resetBtn" style="margin-top:12px;">重新开始</button>
 </div>
+<script src="framework.js"></script>
 <script>
-(function(){
-  const gd=document.getElementById('goldDisp'),dd=document.getElementById('depthDisp');
-  const ws=document.getElementById('workers'),ma=document.getElementById('mineArea');
-  const mb=document.getElementById('mineBtn'),rb=document.getElementById('resetBtn');
-
-  const WORKERS = [
-    {id:'pick',name:'⛏️ 更好的镐',desc:'每次挖掘 +2 金币',cost:20,goldPerTap:2},
-    {id:'lantern',name:'🏮 矿灯',desc:'每秒 +1 金币',cost:100,gps:1},
-    {id:'cart',name:'🛒 矿车',desc:'每秒 +5 金币',cost:500,gps:5},
-    {id:'drill',name:'🔧 钻机',desc:'每秒 +20 金币',cost:2000,gps:20},
-    {id:'elevator',name:'🛗 矿井电梯',desc:'每秒 +100 金币',cost:10000,gps:100},
-    {id:'dynamite',name:'💥 炸药',desc:'每次挖掘 +50 金币',cost:50000,goldPerTap:50},
-    {id:'laser',name:'🔦 激光钻',desc:'每秒 +500 金币',cost:200000,gps:500},
-  ];
-
-  let gold=0,depth=0,goldPerTap=1,gps=0;
-  let owned={};
-
-  function load() {
-    try {
-      const d=JSON.parse(localStorage.getItem('im_data'));
-      if(d){gold=d.gold||0;depth=d.depth||0;owned=d.owned||{};}
-    }catch(e){}
-    recalc();
-  }
-
-  function save() {
-    try{localStorage.setItem('im_data',JSON.stringify({gold,depth,owned}));}catch(e){}
-  }
-
-  function recalc() {
-    goldPerTap=1;gps=0;
-    WORKERS.forEach(w=>{
-      const c=owned[w.id]||0;
-      if(w.goldPerTap) goldPerTap+=c*w.goldPerTap;
-      if(w.gps) gps+=c*w.gps;
-    });
-    updateUI();
-  }
-
-  function updateUI() {
-    gd.textContent='🪙 '+Math.floor(gold);
-    dd.textContent='深度：'+Math.floor(depth)+'m';
-    renderWorkers();
-  }
-
-  function renderWorkers() {
-    ws.innerHTML='<h2 style="font-size:1em;margin-bottom:8px;">👷 工人</h2>';
-    WORKERS.forEach(w=>{
-      const c=owned[w.id]||0;
-      const cost=Math.floor(w.cost*Math.pow(1.2,c));
-      const div=document.createElement('div');
-      div.className='worker'+(gold<cost?' locked':'');
-      div.innerHTML=`
-        <div><div class="worker-name">${w.name} <span class="worker-count">(${c})</span></div>
-        <div class="worker-desc">${w.desc}</div></div>
-        <div class="worker-cost">🪙 ${Math.floor(cost)}</div>`;
-      if(gold>=cost){
-        div.addEventListener('click',()=>{
-          gold-=cost;owned[w.id]=(owned[w.id]||0)+1;
-          recalc();save();
-        });
-      }
-      ws.appendChild(div);
-    });
-  }
-
-  mb.addEventListener('click',()=>{
-    gold+=goldPerTap;depth+=goldPerTap;
-    spawnEffect();
-    updateUI();save();
-  });
-
-  function spawnEffect(){
-    const e=document.createElement('div');
-    e.className='nugget-fly';e.textContent='🪙';
-    e.style.left=(40+Math.random()*40)+'%';e.style.top='50%';
-    ma.appendChild(e);
-    setTimeout(()=>e.remove(),800);
-  }
-
-  setInterval(()=>{gold+=gps/10;depth+=gps/100;updateUI();save();},100);
-
-  rb.addEventListener('click',()=>{
-    if(confirm('确定重新开始？')){gold=0;depth=0;owned={};recalc();save();}
-  });
-
-  load();
-})();
+(function(){const FW=window.GameFramework;var gd=document.getElementById('goldDisp'),dd=document.getElementById('depthDisp'),ws=document.getElementById('workers'),ma=document.getElementById('mineArea'),mb=document.getElementById('mineBtn'),rb=document.getElementById('resetBtn');
+var WORKERS=[{id:'pick',name:'⛏️ 更好的镐',desc:'每次挖掘 +2 金币',cost:20,goldPerTap:2},{id:'lantern',name:'🏮 矿灯',desc:'每秒 +1 金币',cost:100,gps:1},{id:'cart',name:'🛒 矿车',desc:'每秒 +5 金币',cost:500,gps:5},{id:'drill',name:'🔧 钻机',desc:'每秒 +20 金币',cost:2000,gps:20},{id:'elevator',name:'🛗 矿井电梯',desc:'每秒 +100 金币',cost:10000,gps:100},{id:'dynamite',name:'💥 炸药',desc:'每次挖掘 +50 金币',cost:50000,goldPerTap:50},{id:'laser',name:'🔦 激光钻',desc:'每秒 +500 金币',cost:200000,gps:500}];
+var gold=0,depth=0,goldPerTap=1,gps=0,owned={};
+function load(){var d=FW.storage.load('im',null);if(d){gold=d.gold||0;depth=d.depth||0;owned=d.owned||{};}recalc();}
+function save(){FW.storage.save('im',{gold:gold,depth:depth,owned:owned});}
+function recalc(){goldPerTap=1;gps=0;WORKERS.forEach(function(w){var c=owned[w.id]||0;if(w.goldPerTap)goldPerTap+=c*w.goldPerTap;if(w.gps)gps+=c*w.gps;});updateUI();}
+function updateUI(){gd.textContent='🪙 '+Math.floor(gold);dd.textContent='深度：'+Math.floor(depth)+'m';renderWorkers();}
+function renderWorkers(){ws.innerHTML='<h2>👷 工人</h2>';WORKERS.forEach(function(w){var c=owned[w.id]||0,cost=Math.floor(w.cost*Math.pow(1.2,c));var div=document.createElement('div');div.className='worker'+(gold<cost?' locked':'');div.innerHTML='<div><div class="worker-name">'+w.name+' <span class="worker-count">('+c+')</span></div><div class="worker-desc">'+w.desc+'</div></div><div class="worker-cost">🪙 '+Math.floor(cost)+'</div>';if(gold>=cost){div.addEventListener('click',function(){gold-=cost;owned[w.id]=(owned[w.id]||0)+1;recalc();save();FW.audio.sfx('click');});}ws.appendChild(div);});}
+mb.addEventListener('click',function(){gold+=goldPerTap;depth+=goldPerTap;var e=document.createElement('div');e.className='nugget-fly';e.textContent='🪙';e.style.left=(40+Math.random()*40)+'%';e.style.top='50%';ma.appendChild(e);setTimeout(function(){e.remove();},800);updateUI();save();FW.audio.sfx('click');});
+setInterval(function(){gold+=gps/10;depth+=gps/100;updateUI();save();},100);
+rb.addEventListener('click',function(){gold=0;depth=0;owned={};recalc();save();FW.audio.sfx('select');});
+load();})();
 </script>
 </body>
 </html>

@@ -1,138 +1,162 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-game-id="space-invaders">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Space Invaders</title>
+<link rel="stylesheet" href="framework.css">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: #1a1a2e; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px;
-    -webkit-user-select: none; user-select: none; touch-action: none;
-  }
-  .container { text-align: center; width: 100%; max-width: 450px; }
-  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  h1 { font-size: 1.5em; font-weight: 800; background: linear-gradient(135deg, #3498db, #2ecc71); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .hud { display: flex; gap: 12px; }
-  .hud-item { background: #16213e; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; text-align: center; }
-  .hud-item .lbl { color: #7f8c8d; font-size: 0.65em; }
-  .hud-item .val { color: #fff; font-weight: 700; }
-  canvas { display: block; width: 100%; aspect-ratio: 1; background: #0a0a1a; border-radius: 12px; }
-  .overlay { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.8); border-radius: 12px; z-index: 10; }
-  .overlay.active { display: flex; }
-  .overlay h2 { font-size: 1.5em; color: #fff; margin-bottom: 4px; }
-  .overlay p { color: #ccc; margin-bottom: 12px; }
-  .overlay button { background: #2ecc71; color: #1a1a2e; border: none; padding: 10px 28px; border-radius: 8px; font-size: 1em; font-weight: 700; cursor: pointer; }
-  .game-wrapper { position: relative; }
-  .controls-info { color:#7f8c8d; font-size:0.75em; margin-top:8px; }
+  canvas { display: block; width: 100%; aspect-ratio: 1; border-radius: var(--radius-lg); }
+  .controls-info { color: var(--text-muted); font-size: 0.75em; margin-top: 8px; }
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="header"><h1>Space Invaders</h1>
-    <div class="hud">
-      <div class="hud-item"><div class="lbl">得分</div><div class="val" id="score">0</div></div>
-      <div class="hud-item"><div class="lbl">❤️</div><div class="val" id="lives">3</div></div>
+<div class="fw-container">
+  <div class="fw-header">
+    <div class="fw-title">Space Invaders</div>
+    <div class="fw-scores" id="hud-scores">
+      <div class="fw-score-box">
+        <div class="fw-score-label">HIGH</div>
+        <div class="fw-score-value" id="high-score">0</div>
+      </div>
+      <div class="fw-score-box">
+        <div class="fw-score-label">得分</div>
+        <div class="fw-score-value" id="score">0</div>
+      </div>
+      <div class="fw-score-box">
+        <div class="fw-score-label">LIVES</div>
+        <div class="fw-score-value" id="lives">3</div>
+      </div>
     </div>
   </div>
-  <div class="game-wrapper">
-    <canvas id="gc" width="400" height="400"></canvas>
-    <div class="overlay" id="overlay"><h2 id="ot">游戏结束</h2><p id="os">得分：0</p><button id="rb">重新开始</button></div>
+  <div class="fw-game-area">
+    <canvas class="fw-canvas" id="gc" width="400" height="400"></canvas>
+    <div class="fw-overlay" id="overlay">
+      <div class="fw-overlay-box">
+        <div class="fw-overlay-title" id="ot">游戏结束</div>
+        <div class="fw-overlay-text" id="os">得分：0</div>
+        <button class="fw-btn fw-btn-primary" id="rb">重新开始</button>
+      </div>
+    </div>
   </div>
   <div class="controls-info">← → 移动，空格/↑ 射击</div>
 </div>
+<script src="framework.js"></script>
 <script>
-(function(){
-  const c=document.getElementById('gc'),ctx=c.getContext('2d');
-  const sd=document.getElementById('score'),ld=document.getElementById('lives');
-  const ov=document.getElementById('overlay'),ot=document.getElementById('ot'),os=document.getElementById('os');
+(function() {
+  var FW = GameFramework;
+  var c = document.getElementById('gc'), ctx = c.getContext('2d');
+  var sd = document.getElementById('score'), ld = document.getElementById('lives'), hd = document.getElementById('high-score');
+  var ov = document.getElementById('overlay'), ot = document.getElementById('ot'), os = document.getElementById('os');
 
-  const W=400;
-  let player,bullets,enemies,enemyBullets,score,lives,gameOver,dir,lastShot;
-  let keys={},frame;
+  var W = 400;
+  var player, bullets, enemies, enemyBullets, score, lives, gameOver, dir, lastShot;
+  var keys = {}, frame;
 
-  function init(){
-    player={x:200,y:370,w:40,h:20,speed:3};
-    bullets=[];enemies=[];enemyBullets=[];
-    score=0;lives=3;gameOver=false;dir=1;lastShot=0;frame=0;
-    keys={};
+  function init() {
+    player = { x: 200, y: 370, w: 40, h: 20, speed: 3 };
+    bullets = []; enemies = []; enemyBullets = [];
+    score = 0; lives = 3; gameOver = false; dir = 1; lastShot = 0; frame = 0;
+    keys = {};
     // Spawn enemies
-    for(let r=0;r<4;r++)for(let c=0;c<8;c++){
-      enemies.push({x:60+c*40,y:40+r*35,w:30,h:25,hp:1});
+    for (var r = 0; r < 4; r++) for (var c2 = 0; c2 < 8; c2++) {
+      enemies.push({ x: 60 + c2 * 40, y: 40 + r * 35, w: 30, h: 25, hp: 1 });
     }
     ov.classList.remove('active');
+    hd.textContent = FW.storage.getHighScore();
     updateHUD();
     requestAnimationFrame(loop);
   }
 
-  function updateHUD(){sd.textContent=score;ld.textContent=lives;}
+  function updateHUD() { sd.textContent = score; ld.textContent = lives; }
 
-  function loop(){
-    if(gameOver)return;
+  function loop() {
+    if (gameOver) return;
     frame++;
 
     // Player movement
-    if(keys['ArrowLeft']||keys['a'])player.x-=player.speed;
-    if(keys['ArrowRight']||keys['d'])player.x+=player.speed;
-    player.x=Math.max(20,Math.min(W-20,player.x));
+    if (keys['ArrowLeft'] || keys['a']) player.x -= player.speed;
+    if (keys['ArrowRight'] || keys['d']) player.x += player.speed;
+    player.x = Math.max(20, Math.min(W - 20, player.x));
 
     // Shoot
-    if((keys[' ']||keys['ArrowUp'])&&frame-lastShot>15){
-      bullets.push({x:player.x,y:player.y-10,speed:6});
-      lastShot=frame;
+    if ((keys[' '] || keys['ArrowUp']) && frame - lastShot > 15) {
+      bullets.push({ x: player.x, y: player.y - 10, speed: 6 });
+      lastShot = frame;
     }
 
     // Move bullets
-    bullets=bullets.filter(b=>{b.y-=b.speed;return b.y>0;});
+    bullets = bullets.filter(function(b) { b.y -= b.speed; return b.y > 0; });
 
     // Move enemies
-    let hitEdge=false;
-    enemies.forEach(e=>{
-      e.x+=dir*0.5;
-      if(e.x<10||e.x>W-40)hitEdge=true;
+    var hitEdge = false;
+    enemies.forEach(function(e) {
+      e.x += dir * 0.5;
+      if (e.x < 10 || e.x > W - 40) hitEdge = true;
     });
-    if(hitEdge){dir*=-1;enemies.forEach(e=>e.y+=8);}
+    if (hitEdge) { dir *= -1; enemies.forEach(function(e) { e.y += 8; }); }
 
     // Enemy bullets
-    if(frame%30===0&&enemies.length>0){
-      const shooter=enemies[Math.floor(Math.random()*enemies.length)];
-      enemyBullets.push({x:shooter.x+15,y:shooter.y+12,speed:2});
+    if (frame % 30 === 0 && enemies.length > 0) {
+      var shooter = enemies[Math.floor(Math.random() * enemies.length)];
+      enemyBullets.push({ x: shooter.x + 15, y: shooter.y + 12, speed: 2 });
     }
-    enemyBullets=enemyBullets.filter(b=>{b.y+=b.speed;return b.y<W;});
+    enemyBullets = enemyBullets.filter(function(b) { b.y += b.speed; return b.y < W; });
 
     // Collisions: bullets vs enemies
-    bullets.forEach(b=>{
-      enemies=enemies.filter(e=>{
-        if(b.x>e.x&&b.x<e.x+e.w&&b.y>e.y&&b.y<e.y+e.h){
-          score+=10;return false;
+    bullets.forEach(function(b) {
+      enemies = enemies.filter(function(e) {
+        if (b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h) {
+          score += 10;
+          FW.audio.sfx('score');
+          FW.events.reportScore(score);
+          return false;
         }
         return true;
       });
     });
 
     // Collisions: enemy bullets vs player
-    enemyBullets.forEach(b=>{
-      if(b.x>player.x-20&&b.x<player.x+20&&b.y>player.y-10&&b.y<player.y+10){
+    enemyBullets.forEach(function(b) {
+      if (b.x > player.x - 20 && b.x < player.x + 20 && b.y > player.y - 10 && b.y < player.y + 10) {
         lives--;
-        if(lives<=0){gameOver=true;ot.textContent='💀 游戏结束';os.textContent='得分：'+score;ov.classList.add('active');}
+        if (lives <= 0) {
+          gameOver = true;
+          FW.audio.sfx('gameover');
+          FW.storage.setHighScore(score);
+          FW.events.reportScore(score);
+          FW.events.reportComplete(score, { won: false });
+          ot.textContent = '游戏结束';
+          os.textContent = '得分：' + score;
+          ov.classList.add('active');
+        }
         updateHUD();
       }
     });
 
     // Enemies reached player
-    enemies.forEach(e=>{
-      if(e.y+e.h>player.y){
-        gameOver=true;
-        ot.textContent='💀 外星人入侵！';os.textContent='得分：'+score;
+    enemies.forEach(function(e) {
+      if (e.y + e.h > player.y) {
+        gameOver = true;
+        FW.audio.sfx('gameover');
+        FW.storage.setHighScore(score);
+        FW.events.reportScore(score);
+        FW.events.reportComplete(score, { won: false });
+        ot.textContent = '外星人入侵！';
+        os.textContent = '得分：' + score;
         ov.classList.add('active');
       }
     });
 
     // Win check
-    if(enemies.length===0&&!gameOver){
-      gameOver=true;
-      ot.textContent='🎉 胜利！';os.textContent='得分：'+score;
+    if (enemies.length === 0 && !gameOver) {
+      gameOver = true;
+      FW.audio.sfx('win');
+      FW.storage.setHighScore(score);
+      FW.events.reportScore(score);
+      FW.events.reportComplete(score, { won: true });
+      ot.textContent = '胜利！';
+      os.textContent = '得分：' + score;
       ov.classList.add('active');
     }
 
@@ -140,40 +164,40 @@
     requestAnimationFrame(loop);
   }
 
-  function render(){
-    ctx.fillStyle='#0a0a1a';ctx.fillRect(0,0,W,W);
+  function render() {
+    ctx.fillStyle = '#0f3460'; ctx.fillRect(0, 0, W, W);
     // Stars
-    for(let i=0;i<50;i++){
-      ctx.fillStyle=`rgba(255,255,255,${0.1+Math.sin(frame*0.02+i)*0.05})`;
-      ctx.fillRect((i*27+frame)%W,(i*13)%W,1.5,1.5);
+    for (var i = 0; i < 50; i++) {
+      ctx.fillStyle = 'rgba(255,255,255,' + (0.1 + Math.sin(frame * 0.02 + i) * 0.05) + ')';
+      ctx.fillRect((i * 27 + frame) % W, (i * 13) % W, 1.5, 1.5);
     }
     // Player
-    ctx.fillStyle='#00cec9';
-    ctx.beginPath();ctx.moveTo(player.x,player.y-10);
-    ctx.lineTo(player.x-20,player.y+5);ctx.lineTo(player.x+20,player.y+5);ctx.closePath();ctx.fill();
-    ctx.fillStyle='rgba(0,206,201,0.3)';
-    ctx.beginPath();ctx.moveTo(player.x,player.y-15);
-    ctx.lineTo(player.x-14,player.y);ctx.lineTo(player.x+14,player.y);ctx.closePath();ctx.fill();
+    ctx.fillStyle = '#00cec9';
+    ctx.beginPath(); ctx.moveTo(player.x, player.y - 10);
+    ctx.lineTo(player.x - 20, player.y + 5); ctx.lineTo(player.x + 20, player.y + 5); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = 'rgba(0,206,201,0.3)';
+    ctx.beginPath(); ctx.moveTo(player.x, player.y - 15);
+    ctx.lineTo(player.x - 14, player.y); ctx.lineTo(player.x + 14, player.y); ctx.closePath(); ctx.fill();
     // Bullets
-    ctx.fillStyle='#f1c40f';bullets.forEach(b=>{ctx.fillRect(b.x-2,b.y-6,4,10);});
+    ctx.fillStyle = '#f1c40f'; bullets.forEach(function(b) { ctx.fillRect(b.x - 2, b.y - 6, 4, 10); });
     // Enemies
-    enemies.forEach(e=>{
-      ctx.fillStyle='#e74c3c';
-      ctx.beginPath();ctx.arc(e.x+e.w/2,e.y+e.h/2,12,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle='#c0392b';
-      ctx.beginPath();ctx.arc(e.x+e.w/2-5,e.y+e.h/2-3,4,0,Math.PI*2);ctx.fill();
-      ctx.beginPath();ctx.arc(e.x+e.w/2+5,e.y+e.h/2-3,4,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle='#e74c3c';
-      ctx.fillRect(e.x+10,e.y+18,10,3);
+    enemies.forEach(function(e) {
+      ctx.fillStyle = '#e74c3c';
+      ctx.beginPath(); ctx.arc(e.x + e.w / 2, e.y + e.h / 2, 12, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#c0392b';
+      ctx.beginPath(); ctx.arc(e.x + e.w / 2 - 5, e.y + e.h / 2 - 3, 4, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(e.x + e.w / 2 + 5, e.y + e.h / 2 - 3, 4, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#e74c3c';
+      ctx.fillRect(e.x + 10, e.y + 18, 10, 3);
     });
     // Enemy bullets
-    ctx.fillStyle='#ff6b6b';enemyBullets.forEach(b=>{ctx.beginPath();ctx.arc(b.x,b.y,3,0,Math.PI*2);ctx.fill();});
+    ctx.fillStyle = '#ff6b6b'; enemyBullets.forEach(function(b) { ctx.beginPath(); ctx.arc(b.x, b.y, 3, 0, Math.PI * 2); ctx.fill(); });
   }
 
-  document.addEventListener('keydown',e=>{keys[e.key]=true;if(e.key===' '||e.key==='ArrowUp'||e.key==='ArrowDown')e.preventDefault();});
-  document.addEventListener('keyup',e=>{keys[e.key]=false;});
+  document.addEventListener('keydown', function(e) { keys[e.key] = true; if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); });
+  document.addEventListener('keyup', function(e) { keys[e.key] = false; });
 
-  document.getElementById('rb').addEventListener('click',init);
+  document.getElementById('rb').addEventListener('click', function() { FW.audio.sfx('click'); init(); });
   init();
 })();
 </script>

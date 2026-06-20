@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-game-id="flappy-bird">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>像素鸟</title>
+<link rel="stylesheet" href="framework.css">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -18,14 +19,12 @@
     -webkit-user-select: none;
     user-select: none;
   }
-  .game-wrapper {
+  .fw-container {
     background: #1a1a2e;
     border-radius: 16px;
     padding: 16px;
     box-shadow: 0 0 40px rgba(0,200,255,0.15);
     max-width: 420px;
-    width: 100%;
-    margin: 8px;
   }
   canvas {
     display: block;
@@ -43,7 +42,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 12px 4px 4px 4px;
-    color: #e0e0e0;
+    color: var(--text-primary);
     font-size: 14px;
     font-weight: bold;
     letter-spacing: 1px;
@@ -58,22 +57,21 @@
     font-size: 14px;
   }
   .restart-btn {
-    background: #2a2a4a;
-    border: none;
-    color: #e0e0e0;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
     font-size: 20px;
     cursor: pointer;
     padding: 4px 12px;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     font-family: 'Courier New', monospace;
-    transition: background 0.2s;
+    transition: background var(--transition-fast);
   }
-  .restart-btn:hover { background: #3a3a5a; }
-  .restart-btn:active { background: #4a4a6a; }
+  .restart-btn:active { background: var(--bg-card-hover); }
 </style>
 </head>
 <body>
-<div class="game-wrapper">
+<div class="fw-container fw-cat-action">
   <canvas id="gameCanvas" width="400" height="600"></canvas>
   <div class="ui-bar">
     <span class="score-display">分数：<span id="scoreDisplay">0</span></span>
@@ -81,8 +79,10 @@
     <button class="restart-btn" id="restartBtn">&#x21bb;</button>
   </div>
 </div>
+<script src="framework.js"></script>
 <script>
 (function(){
+  const FW = window.GameFramework;
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
   const scoreSpan = document.getElementById('scoreDisplay');
@@ -97,8 +97,7 @@
   const PIPE_SPAWN_INTERVAL = 100;
   const GROUND_H = 60;
 
-  // Load best score
-  let bestScore = parseInt(localStorage.getItem('flappyBest') || '0');
+  let bestScore = FW.storage.getHighScore();
   bestSpan.textContent = bestScore;
 
   let game = {};
@@ -111,7 +110,7 @@
       score: 0,
       frame: 0,
       lastPipeSpawn: -PIPE_SPAWN_INTERVAL,
-      state: 'ready', // 'ready', 'playing', 'over'
+      state: 'ready',
     };
     scoreSpan.textContent = '0';
   }
@@ -131,6 +130,7 @@
   function flap() {
     if (game.state === 'ready') {
       game.state = 'playing';
+      FW.audio.sfx('select');
     }
     if (game.state === 'playing') {
       game.bird.vel = FLAP_VEL;
@@ -142,50 +142,43 @@
     game.frame++;
 
     if (game.state === 'playing') {
-      // Bird physics
       game.bird.vel += GRAVITY;
       game.bird.y += game.bird.vel;
-      // Rotation based on velocity
       game.bird.rotation = Math.min(Math.PI/2, Math.max(-0.5, game.bird.vel * 0.05));
 
-      // Spawn pipes
       if (game.frame - game.lastPipeSpawn >= PIPE_SPAWN_INTERVAL) {
         spawnPipe();
         game.lastPipeSpawn = game.frame;
       }
 
-      // Move pipes
       for (let i = game.pipes.length - 1; i >= 0; i--) {
         const p = game.pipes[i];
         p.x -= PIPE_SPEED;
 
-        // Remove offscreen
         if (p.x + PIPE_W < -10) {
           game.pipes.splice(i, 1);
           continue;
         }
 
-        // Score
         if (!p.scored && p.x + PIPE_W < game.bird.x) {
           p.scored = true;
           game.score++;
           scoreSpan.textContent = game.score;
+          FW.audio.sfx('score');
+          FW.events.reportScore(game.score);
         }
       }
 
-      // Collision detection
       const bx = game.bird.x - game.bird.width/2;
       const by = game.bird.y - game.bird.height/2;
       const bw = game.bird.width;
       const bh = game.bird.height;
 
-      // Ground / ceiling
       if (game.bird.y + bh/2 >= game.ground.y || game.bird.y - bh/2 <= 0) {
         gameOver();
         return;
       }
 
-      // Pipes
       for (const p of game.pipes) {
         if (bx + bw > p.x && bx < p.x + PIPE_W) {
           if (by < p.topH || by + bh > p.bottomY) {
@@ -195,7 +188,6 @@
         }
       }
     } else if (game.state === 'over') {
-      // Bird falls
       game.bird.vel += GRAVITY;
       game.bird.y += game.bird.vel;
       game.bird.rotation = Math.min(Math.PI/2, game.bird.rotation + 0.05);
@@ -206,11 +198,15 @@
   function gameOver() {
     if (game.state === 'over') return;
     game.state = 'over';
-    if (game.score > bestScore) {
-      bestScore = game.score;
-      localStorage.setItem('flappyBest', bestScore.toString());
+    const isNew = FW.storage.setHighScore(game.score);
+    bestScore = FW.storage.getHighScore();
+    if (isNew) {
       bestSpan.textContent = bestScore;
+      FW.audio.sfx('win');
+    } else {
+      FW.audio.sfx('gameover');
     }
+    FW.events.reportComplete(game.score, { won: false });
   }
 
   function draw() {
@@ -234,19 +230,14 @@
 
     // Draw pipes
     for (const p of game.pipes) {
-      // Top pipe
       ctx.fillStyle = '#2d6b3f';
       ctx.fillRect(p.x, 0, PIPE_W, p.topH);
-      // Top pipe cap
       ctx.fillStyle = '#3a8a4e';
       ctx.fillRect(p.x - 4, p.topH - 24, PIPE_W + 8, 24);
-      // Bottom pipe
       ctx.fillStyle = '#2d6b3f';
       ctx.fillRect(p.x, p.bottomY, PIPE_W, H - p.bottomY);
-      // Bottom pipe cap
       ctx.fillStyle = '#3a8a4e';
       ctx.fillRect(p.x - 4, p.bottomY, PIPE_W + 8, 24);
-      // Pipe outline
       ctx.strokeStyle = '#1a4a2a';
       ctx.lineWidth = 2;
       ctx.strokeRect(p.x, 0, PIPE_W, p.topH);
@@ -264,13 +255,12 @@
     ctx.fillStyle = '#3a3a5e';
     ctx.fillRect(0, game.ground.y, W, 3);
 
-    // Draw bird
+    // Bird
     const b = game.bird;
     ctx.save();
     ctx.translate(b.x, b.y);
     ctx.rotate(b.rotation);
 
-    // Body
     ctx.fillStyle = '#ffd700';
     ctx.beginPath();
     ctx.ellipse(0, 0, b.width/2, b.height/2, 0, 0, Math.PI*2);
@@ -279,13 +269,11 @@
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Wing
     ctx.fillStyle = '#ffaa00';
     ctx.beginPath();
     ctx.ellipse(-2, 0, 10, 6, -0.3, 0, Math.PI*2);
     ctx.fill();
 
-    // Eye
     ctx.fillStyle = '#fff';
     ctx.beginPath();
     ctx.arc(8, -4, 6, 0, Math.PI*2);
@@ -299,7 +287,6 @@
     ctx.arc(11, -5, 1, 0, Math.PI*2);
     ctx.fill();
 
-    // Beak
     ctx.fillStyle = '#ff6600';
     ctx.beginPath();
     ctx.moveTo(14, 0);
@@ -361,22 +348,23 @@
   canvas.addEventListener('click', handleInput);
   canvas.addEventListener('touchstart', handleInput, { passive: false });
 
-  // Keyboard
-  document.addEventListener('keydown', (e) => {
-    if (e.code === 'Space' || e.key === ' ') {
+  // Keyboard via framework
+  FW.input.onKey(function(key, pressed, e) {
+    if (!pressed) return;
+    if (e.code === 'Space' || key === ' ') {
       e.preventDefault();
       handleInput();
     }
   });
 
   // Restart button
-  document.getElementById('restartBtn').addEventListener('click', (e) => {
+  document.getElementById('restartBtn').addEventListener('click', function(e) {
     e.stopPropagation();
     initGame();
   });
 
   // Prevent scrolling
-  document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+  document.addEventListener('touchmove', function(e) { e.preventDefault(); }, { passive: false });
 
   initGame();
   gameLoop();

@@ -4,6 +4,8 @@ import { getGameBySlug, getRelatedGames, getCategoryBySlug } from "@/lib/games"
 import { getLocalizedGame, getLocalizedCategory } from "@/lib/i18n-games"
 import { videoGameJsonLd } from "@/lib/structured-data"
 import GameIframe from "@/components/GameIframe"
+import GameEventOverlay from "@/components/GameEventOverlay"
+import GameLeaderboard from "@/components/GameLeaderboard"
 import GameGrid from "@/components/GameGrid"
 import type { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
@@ -133,7 +135,11 @@ export default async function GamePage({ params }: Props) {
 
       {/* Game Play Area */}
       <div className="mb-12">
+        <div className="mb-6">
+          <GameLeaderboard gameSlug={game.slug} />
+        </div>
         <GameIframe game={game} />
+        <GameEventOverlay gameSlug={game.slug} gameTitle={localized.title} />
       </div>
 
       {/* Related Games */}

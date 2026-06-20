@@ -1,62 +1,84 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-game-id="escape-room">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>密室逃脱</title>
+<link rel="stylesheet" href="framework.css">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: #1a1a2e; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px;
-    -webkit-user-select: none; user-select: none;
-  }
-  .container { text-align: center; width: 100%; max-width: 400px; }
-  h1 { font-size: 1.8em; font-weight: 800; background: linear-gradient(135deg, #e74c3c, #c0392b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
   .scene {
-    background: #16213e; border-radius: 16px; padding: 20px; min-height: 300px;
+    background: var(--bg-secondary); border-radius: var(--radius-xl); padding: 20px; min-height: 300px;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
   }
-  .scene p { font-size: 0.95em; line-height: 1.6; color: #b2bec3; }
+  .scene p { font-size: 0.95em; line-height: 1.6; color: var(--text-secondary); }
   .scene-image { font-size: 4em; margin-bottom: 8px; }
   .choices { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 8px; }
   .choices button {
-    background: #0f3460; color: #e0e0e0; border: 2px solid transparent;
-    padding: 12px; border-radius: 10px; font-size: 0.9em; cursor: pointer;
+    background: var(--bg-tertiary); color: var(--text-primary); border: 2px solid transparent;
+    padding: 12px; border-radius: var(--radius-md); font-size: 0.9em; cursor: pointer;
     transition: all 0.15s; text-align: left;
   }
-  .choices button:hover { border-color: #3498db; background: #1a3f6a; }
+  .choices button:hover { border-color: var(--accent-1); background: var(--bg-card-hover); }
   .choices button:active { transform: scale(0.98); }
   .inventory {
     display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
     min-height: 40px; margin-top: 8px;
   }
   .inventory .item {
-    background: #0f3460; padding: 6px 12px; border-radius: 8px; font-size: 0.8em;
-    border: 1px solid rgba(255,255,255,0.1);
+    background: var(--bg-tertiary); padding: 6px 12px; border-radius: var(--radius-md); font-size: 0.8em;
+    border: 1px solid var(--border-default);
   }
-  .inv-label { font-size: 0.75em; color: #636e72; margin-top: 8px; }
-  .reset-btn {
-    margin-top: 12px; padding: 8px 20px; border-radius: 8px; border: 1px solid #7f8c8d;
-    background: transparent; color: #7f8c8d; font-size: 0.8em; cursor: pointer;
-  }
-  .status { font-size: 0.85em; color: #f1c40f; min-height: 20px; }
+  .inv-label { font-size: 0.75em; color: var(--text-muted); margin-top: 8px; }
+  .reset-btn { margin-top: 12px; }
+  .status { font-size: 0.85em; color: var(--accent-3); min-height: 20px; }
 </style>
 </head>
 <body>
-<div class="container">
-  <h1>🔒 密室逃脱</h1>
+<div class="fw-container">
+  <div class="fw-header">
+    <h1 class="fw-title">🔒 密室逃脱</h1>
+    <div class="fw-scores">
+      <div class="fw-score-box">
+        <div class="fw-score-label">步数</div>
+        <div class="fw-score-value" id="movesDisplay">0</div>
+      </div>
+      <div class="fw-score-box">
+        <div class="fw-score-label">最佳</div>
+        <div class="fw-score-value" id="bestDisplay">--</div>
+      </div>
+    </div>
+  </div>
   <div class="status" id="status">你被困在一个神秘的房间里...</div>
   <div class="scene" id="scene"></div>
   <div class="inv-label">🎒 道具</div>
   <div class="inventory" id="inventory"></div>
-  <button class="reset-btn" id="resetBtn">重新开始</button>
+  <button class="fw-btn fw-btn-ghost reset-btn" id="resetBtn">重新开始</button>
 </div>
+<div class="fw-overlay" id="winOverlay">
+  <div class="fw-overlay-box">
+    <div class="fw-overlay-title">🎉 恭喜通关！</div>
+    <div class="fw-overlay-text" id="winOverlayText">你成功逃出了密室！</div>
+    <button class="fw-btn fw-btn-primary" id="overlayRestartBtn">再来一次</button>
+  </div>
+</div>
+<script src="framework.js"></script>
 <script>
 (function(){
+  const FW = window.GameFramework;
   const scene=document.getElementById('scene');
   const inv=document.getElementById('inventory');
   const st=document.getElementById('status');
+  const movesDisplay=document.getElementById('movesDisplay');
+  const bestDisplay=document.getElementById('bestDisplay');
+  const winOverlay=document.getElementById('winOverlay');
+  var moves=0;
+
+  function updateScore() {
+    movesDisplay.textContent=moves;
+    var best=FW.storage.getHighScore();
+    bestDisplay.textContent=best||'--';
+  }
 
   const ROOMS = {
     start: {
@@ -136,33 +158,36 @@
     }
   };
 
-  let inventory=[],currentRoom='start';
+  var inventory=[],currentRoom='start';
 
   function render(){
-    let room=ROOMS[currentRoom];
+    var room=ROOMS[currentRoom];
     if(room.check)room=room.check(inventory)||room;
-    const html=[];
-    html.push(`<div class="scene-image">${room.image||'❓'}</div>`);
-    html.push(`<p>${room.text}</p>`);
+    var html=[];
+    html.push('<div class="scene-image">'+(room.image||'❓')+'</div>');
+    html.push('<p>'+room.text+'</p>');
     if(room.choices&&room.choices.length>0){
       html.push('<div class="choices">');
-      room.choices.forEach((c,i)=>{
-        const disabled=(c.requires&&!inventory.includes(c.requires))?'style="opacity:0.4;cursor:not-allowed;"':'';
-        html.push(`<button data-idx="${i}" ${disabled}>${c.text}</button>`);
+      room.choices.forEach(function(c,i){
+        var disabled=(c.requires&&!inventory.includes(c.requires))?'style="opacity:0.4;cursor:not-allowed;"':'';
+        html.push('<button data-idx="'+i+'" '+disabled+'>'+c.text+'</button>');
       });
       html.push('</div>');
     }
     scene.innerHTML=html.join('');
 
-    scene.querySelectorAll('.choices button').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        const idx=parseInt(btn.dataset.idx);
-        const choice=room.choices[idx];
+    scene.querySelectorAll('.choices button').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        var idx=parseInt(btn.dataset.idx);
+        var choice=room.choices[idx];
         if(!choice||(choice.requires&&!inventory.includes(choice.requires)))return;
+        FW.audio.sfx('click');
+        moves++;
+        updateScore();
         if(choice.action==='key'&&!inventory.includes('key')){inventory.push('key');st.textContent='🔑 获得了小钥匙';}
         if(choice.action==='goldkey'&&!inventory.includes('goldkey')){inventory.push('goldkey');st.textContent='🔑 获得了金钥匙！';}
-        if(choice.item==='vault_open'&&!inventory.includes('goldkey')){st.textContent='🔓 保险柜打开了！';}
-        if(choice.next==='_restart'){init();return;}
+        if(choice.item==='vault_open'&&!inventory.includes('goldkey')){FW.audio.sfx('score');st.textContent='🔓 保险柜打开了！';}
+        if(choice.next==='_restart'){FW.events.reportScore(moves);FW.events.reportComplete(moves,{won:true});FW.audio.sfx('win');FW.storage.setHighScore(1);winOverlay.classList.add('active');return;}
         currentRoom=choice.next;
         render();
       });
@@ -170,18 +195,21 @@
 
     // Inventory
     if(inventory.length===0){
-      inv.innerHTML='<span style="color:#636e72;font-size:0.8em;">（空）</span>';
+      inv.innerHTML='<span style="color:var(--text-muted);font-size:0.8em;">（空）</span>';
     }else{
-      inv.innerHTML=inventory.map(i=>`<span class="item">${i==='key'?'🔑 小钥匙':'🔑 金钥匙'}</span>`).join('');
+      inv.innerHTML=inventory.map(function(i){return '<span class="item">'+(i==='key'?'🔑 小钥匙':'🔑 金钥匙')+'</span>';}).join('');
     }
   }
 
   function init(){
-    inventory=[];currentRoom='start';st.textContent='🔒 你被困在密室中...';
+    inventory=[];currentRoom='start';moves=0;st.textContent='🔒 你被困在密室中...';
+    winOverlay.classList.remove('active');
+    updateScore();
     render();
   }
 
   document.getElementById('resetBtn').addEventListener('click',init);
+  document.getElementById('overlayRestartBtn').addEventListener('click',init);
   init();
 })();
 </script>

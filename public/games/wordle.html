@@ -1,15 +1,16 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-game-id="wordle">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Wordle 猜词游戏</title>
+<link rel="stylesheet" href="framework.css">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    background: #121213;
-    color: #d7dadc;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--font-family);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -35,25 +36,10 @@
     text-align: center;
     padding: 8px 0;
     width: 100%;
-    border-bottom: 1px solid #3a3a3c;
+    border-bottom: 1px solid var(--border-default);
     position: relative;
   }
   header h1 { font-size: 28px; font-weight: 700; letter-spacing: 2px; }
-  .btn-reset {
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: 1px solid #3a3a3c;
-    color: #d7dadc;
-    padding: 6px 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
-    touch-action: manipulation;
-  }
-  .btn-reset:active { background: #3a3a3c; }
   .grid-section {
     flex: 1;
     display: flex;
@@ -81,14 +67,14 @@
     justify-content: center;
     font-size: clamp(24px, 6vw, 36px);
     font-weight: 700;
-    color: #d7dadc;
-    border: 2px solid #3a3a3c;
+    color: var(--text-primary);
+    border: 2px solid var(--border-default);
     border-radius: 4px;
     aspect-ratio: 1;
     transition: all 0.15s ease;
     text-transform: uppercase;
   }
-  .cell.filled { border-color: #565758; animation: pop 0.1s ease; }
+  .cell.filled { border-color: var(--text-secondary); animation: pop 0.1s ease; }
   .cell.correct { background: #6aaa64; border-color: #6aaa64; color: #fff; animation: flipIn 0.4s ease; }
   .cell.present { background: #c9b458; border-color: #c9b458; color: #fff; animation: flipIn 0.4s ease; }
   .cell.absent { background: #3a3a3c; border-color: #3a3a3c; color: #fff; animation: flipIn 0.4s ease; }
@@ -152,10 +138,10 @@
     top: 60px;
     left: 50%;
     transform: translateX(-50%);
-    background: #d7dadc;
-    color: #121213;
+    background: var(--text-primary);
+    color: var(--bg-primary);
     padding: 10px 24px;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     font-weight: 700;
     font-size: 14px;
     opacity: 0;
@@ -180,11 +166,14 @@
 </style>
 </head>
 <body>
-<div class="game-container">
-  <header>
-    <h1>猜词游戏</h1>
-    <span style="font-size:13px;color:#888;position:absolute;left:0;top:50%;transform:translateY(-50%);">最佳: <span id="bestDisplay">--</span>次</span>
-    <button class="btn-reset" id="resetBtn">新游戏</button>
+<div class="game-container fw-container">
+  <header class="fw-header">
+    <div class="fw-score-box">
+      <div class="fw-score-label">BEST</div>
+      <div class="fw-score-value" id="bestDisplay">--</div>
+    </div>
+    <h1 class="fw-title">猜词游戏</h1>
+    <button class="fw-btn fw-btn-ghost" id="resetBtn">新游戏</button>
   </header>
   <div class="grid-section">
     <div id="grid"></div>
@@ -194,6 +183,7 @@
   </div>
 </div>
 <div id="message"></div>
+<script src="framework.js"></script>
 <script>
 (function(){
   'use strict';
@@ -220,7 +210,7 @@
   let guesses = [];
   let gameOver = false;
   let keyStatus = {};
-  let bestScore = parseInt(localStorage.getItem('wordle_best') || '0', 10);
+  let bestScore = parseInt(FW.storage.load('best', 0), 10);
 
   const gridEl = document.getElementById('grid');
   const keyboardEl = document.getElementById('keyboard');
@@ -249,16 +239,16 @@
 
   function buildKeyboard() {
     keyboardEl.innerHTML = '';
-    KEYBOARD_ROWS.forEach(keys => {
+    KEYBOARD_ROWS.forEach(function(keys) {
       const row = document.createElement('div');
       row.className = 'kb-row';
-      keys.forEach(key => {
+      keys.forEach(function(key) {
         const btn = document.createElement('button');
         btn.className = 'kb-key' + (key === 'Enter' || key === 'Back' ? ' wide' : '');
         btn.dataset.key = key;
         btn.textContent = key === 'Back' ? '⌫' : key;
-        btn.addEventListener('click', () => handleKeyPress(key));
-        btn.addEventListener('touchstart', (e) => { e.preventDefault(); handleKeyPress(key); });
+        btn.addEventListener('click', function() { handleKeyPress(key); });
+        btn.addEventListener('touchstart', function(e) { e.preventDefault(); handleKeyPress(key); });
         row.appendChild(btn);
       });
       keyboardEl.appendChild(row);
@@ -267,7 +257,7 @@
 
   function updateKeyboard() {
     const keys = keyboardEl.querySelectorAll('.kb-key');
-    keys.forEach(k => {
+    keys.forEach(function(k) {
       const letter = k.dataset.key;
       if (letter === 'Enter' || letter === 'Back') return;
       const status = keyStatus[letter];
@@ -276,7 +266,7 @@
       else if (status === 'absent') k.classList.add('absent');
     });
     // Re-apply special classes
-    keys.forEach(k => {
+    keys.forEach(function(k) {
       const letter = k.dataset.key;
       if (letter === 'Enter' || letter === 'Back') {
         k.className = 'kb-key wide';
@@ -289,7 +279,7 @@
       else { k.className = 'kb-key'; }
     });
     // Fix wide keys
-    keys.forEach(k => {
+    keys.forEach(function(k) {
       const letter = k.dataset.key;
       if (letter === 'Enter' || letter === 'Back') {
         k.classList.add('wide');
@@ -297,15 +287,16 @@
     });
   }
 
-  function showMessage(msg, duration = 1500) {
+  function showMessage(msg, duration) {
+    if (duration === undefined) duration = 1500;
     messageEl.textContent = msg;
     messageEl.classList.add('show');
     clearTimeout(messageEl._timer);
-    messageEl._timer = setTimeout(() => messageEl.classList.remove('show'), duration);
+    messageEl._timer = setTimeout(function() { messageEl.classList.remove('show'); }, duration);
   }
 
   function getCell(row, col) {
-    return gridEl.querySelector(`.row:nth-child(${row + 1}) .cell:nth-child(${col + 1})`);
+    return gridEl.querySelector('.row:nth-child(' + (row + 1) + ') .cell:nth-child(' + (col + 1) + ')');
   }
 
   function addLetter(letter) {
@@ -316,6 +307,7 @@
     cell.textContent = letter;
     cell.classList.add('filled');
     currentCol++;
+    FW.audio.sfx('click');
   }
 
   function removeLetter() {
@@ -331,9 +323,9 @@
     if (gameOver) return;
     if (currentCol < WORD_LENGTH) {
       showMessage('单词长度不足');
-      const row = gridEl.querySelector(`.row:nth-child(${currentRow + 1})`);
-      row.querySelectorAll('.cell').forEach(c => c.classList.add('shake'));
-      setTimeout(() => row.querySelectorAll('.cell').forEach(c => c.classList.remove('shake')), 300);
+      const row = gridEl.querySelector('.row:nth-child(' + (currentRow + 1) + ')');
+      row.querySelectorAll('.cell').forEach(function(c) { c.classList.add('shake'); });
+      setTimeout(function() { row.querySelectorAll('.cell').forEach(function(c) { c.classList.remove('shake'); }); }, 300);
       return;
     }
 
@@ -345,9 +337,9 @@
 
     if (!WORD_LIST.includes(guessStr) && guessStr !== targetWord) {
       showMessage('不在词库中');
-      const row = gridEl.querySelector(`.row:nth-child(${currentRow + 1})`);
-      row.querySelectorAll('.cell').forEach(c => c.classList.add('shake'));
-      setTimeout(() => row.querySelectorAll('.cell').forEach(c => c.classList.remove('shake')), 300);
+      const row = gridEl.querySelector('.row:nth-child(' + (currentRow + 1) + ')');
+      row.querySelectorAll('.cell').forEach(function(c) { c.classList.add('shake'); });
+      setTimeout(function() { row.querySelectorAll('.cell').forEach(function(c) { c.classList.remove('shake'); }); }, 300);
       return;
     }
 
@@ -377,9 +369,9 @@
     }
 
     // Animate cells
-    const cells = gridEl.querySelectorAll(`.row:nth-child(${currentRow + 1}) .cell`);
-    cells.forEach((cell, i) => {
-      setTimeout(() => {
+    const cells = gridEl.querySelectorAll('.row:nth-child(' + (currentRow + 1) + ') .cell');
+    cells.forEach(function(cell, i) {
+      setTimeout(function() {
         cell.classList.remove('filled');
         cell.classList.add(result[i]);
         cell.textContent = guessLetters[i].toUpperCase();
@@ -396,27 +388,33 @@
       }, i * 200);
     });
 
-    setTimeout(() => {
+    setTimeout(function() {
       updateKeyboard();
     }, WORD_LENGTH * 200);
 
-    const win = result.every(r => r === 'correct');
+    const win = result.every(function(r) { return r === 'correct'; });
     if (win) {
       gameOver = true;
       const attempts = currentRow + 1;
       if (bestScore === 0 || attempts < bestScore) {
         bestScore = attempts;
-        localStorage.setItem('wordle_best', bestScore);
+        FW.storage.save('best', bestScore);
         document.getElementById('bestDisplay').textContent = bestScore;
       }
-      setTimeout(() => {
-        showMessage(`恭喜你！用了 ${attempts} 次猜中，最佳记录 ${bestScore} 次`, 3000);
+      setTimeout(function() {
+        showMessage('恭喜你！用了 ' + attempts + ' 次猜中，最佳记录 ' + bestScore + ' 次', 3000);
       }, WORD_LENGTH * 200 + 200);
+      FW.audio.sfx('win');
+      FW.events.reportScore(attempts);
+      FW.events.reportComplete(attempts, {won: true});
     } else if (currentRow >= MAX_ATTEMPTS - 1) {
       gameOver = true;
-      setTimeout(() => {
-        showMessage(`游戏结束！答案是 ${targetWord.toUpperCase()}`, 3000);
+      setTimeout(function() {
+        showMessage('游戏结束！答案是 ' + targetWord.toUpperCase(), 3000);
       }, WORD_LENGTH * 200 + 200);
+      FW.audio.sfx('gameover');
+      FW.events.reportScore(0);
+      FW.events.reportComplete(0, {won: false});
     } else {
       currentRow++;
       currentCol = 0;
@@ -446,7 +444,7 @@
   }
 
   // Keyboard input
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
       handleKeyPress('Enter');
     } else if (e.key === 'Backspace') {
@@ -457,7 +455,7 @@
   });
 
   resetBtn.addEventListener('click', resetGame);
-  resetBtn.addEventListener('touchstart', (e) => { e.preventDefault(); resetGame(); });
+  resetBtn.addEventListener('touchstart', function(e) { e.preventDefault(); resetGame(); });
 
   // Init
   buildKeyboard();

@@ -1,283 +1,175 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-game-id="air-hockey">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>空气曲棍球</title>
+<link rel="stylesheet" href="framework.css">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: #0a0a0a;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100dvh;
-    font-family: 'Courier New', monospace;
-    overflow: hidden;
-    touch-action: none;
+  .game-wrap {
+    background: var(--glass-bg); backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border); border-radius: var(--radius-xl);
+    padding: 16px 16px 12px; box-shadow: var(--glass-shadow);
+    max-width: 420px; width: 100%; margin: 8px; text-align: center;
   }
-  .wrapper {
-    background: #0d0d1a;
-    border-radius: 16px;
-    padding: 16px 16px 12px;
-    box-shadow: 0 0 60px rgba(100,50,255,0.1);
-    max-width: 420px;
-    width: 100%;
-    margin: 8px;
-    text-align: center;
-  }
-  h1 { font-size: 18px; color: #c7f; letter-spacing: 3px; margin-bottom: 4px; }
-  .score-row {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
-    margin-bottom: 10px;
-  }
+  .score-row { display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 10px; }
   .score-side { text-align: center; }
-  .score-label { font-size: 10px; color: #446; letter-spacing: 2px; text-transform: uppercase; }
+  .score-label { font-size: 10px; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; }
   .score-num { font-size: 36px; font-weight: bold; }
   .score-p { color: #7df; }
   .score-a { color: #f74; }
-  canvas {
-    display: block;
-    border-radius: 10px;
-    border: 2px solid #334;
-    touch-action: none;
-    cursor: none;
-    max-width: 100%;
-  }
-  .info-row {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 8px;
-    font-size: 11px;
-    color: #446;
-  }
-  .status { font-size: 13px; color: #c7f; margin-top: 6px; min-height: 20px; }
+  canvas { display: block; border-radius: var(--radius-md); border: 2px solid var(--glass-border); touch-action: none; cursor: none; max-width: 100%; }
+  .info-row { display: flex; justify-content: space-between; margin-top: 8px; font-size: 11px; color: var(--text-muted); }
+  .status { font-size: 13px; color: var(--accent-2); margin-top: 6px; min-height: 20px; }
 </style>
 </head>
 <body>
-<div class="wrapper">
-  <h1>🏒 空气曲棍球</h1>
+<div class="game-wrap fw-cat-sports">
+  <h1 class="fw-title" style="font-size:18px;letter-spacing:3px;">空气曲棍球</h1>
   <div class="score-row">
-    <div class="score-side">
-      <div class="score-label">你</div>
-      <div class="score-num score-p" id="pScore">0</div>
-    </div>
-    <div style="color:#334;font-size:20px;">|</div>
-    <div class="score-side">
-      <div class="score-label">AI</div>
-      <div class="score-num score-a" id="aScore">0</div>
-    </div>
+    <div class="score-side"><div class="score-label">你</div><div class="score-num score-p" id="pScore">0</div></div>
+    <div style="color:var(--glass-border);font-size:20px;">|</div>
+    <div class="score-side"><div class="score-label">AI</div><div class="score-num score-a" id="aScore">0</div></div>
   </div>
   <canvas id="c" width="380" height="480"></canvas>
-  <div class="info-row">
-    <span>先进 7 球者胜</span>
-    <span>鼠标/触控控制挡板</span>
-  </div>
+  <div class="info-row"><span>先进 7 球者胜</span><span>鼠标/触控控制挡板</span></div>
   <div class="status" id="status">移动鼠标控制蓝色挡板</div>
 </div>
-
+<script src="framework.js"></script>
 <script>
-const canvas = document.getElementById('c');
-const ctx = canvas.getContext('2d');
-const W = canvas.width, H = canvas.height;
-const PADDLE_R = 28, PUCK_R = 16;
-const WIN = 7;
+(function(){
+  const FW = window.GameFramework;
+  var canvas = document.getElementById('c');
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+  var PADDLE_R = 28, PUCK_R = 16, WIN = 7;
+  var pScoreEl = document.getElementById('pScore'), aScoreEl = document.getElementById('aScore'), statusEl = document.getElementById('status');
 
-const state = {
-  puck: { x: W/2, y: H/2, vx: 3, vy: 4 },
-  player: { x: W/2, y: H - 80 },
-  ai: { x: W/2, y: 80 },
-  pScore: 0, aScore: 0,
-  phase: 'play', // play | pause | over
-  targetX: W/2
-};
+  var state = {
+    puck: { x: W/2, y: H/2, vx: 3, vy: 4 },
+    player: { x: W/2, y: H - 80 },
+    ai: { x: W/2, y: 80 },
+    pScore: 0, aScore: 0, phase: 'play'
+  };
 
-function resetPuck(scorer) {
-  state.puck.x = W/2;
-  state.puck.y = H/2;
-  const speed = 4;
-  const angle = (Math.random() * 60 - 30) * Math.PI / 180;
-  state.puck.vx = Math.sin(angle) * speed * (Math.random() < 0.5 ? 1 : -1);
-  state.puck.vy = Math.cos(angle) * speed * (scorer === 'player' ? 1 : -1);
-}
-
-function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
-
-function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
-
-function updateAI() {
-  const targetX = state.puck.vy < 0 ? state.puck.x : W/2;
-  const speed = 5;
-  const dx = targetX - state.ai.x;
-  state.ai.x += Math.sign(dx) * Math.min(Math.abs(dx), speed);
-  state.ai.x = clamp(state.ai.x, PADDLE_R, W - PADDLE_R);
-  state.ai.y = clamp(state.ai.y, PADDLE_R, H/2 - 10);
-}
-
-function update() {
-  if (state.phase !== 'play') return;
-
-  updateAI();
-
-  const p = state.puck;
-  p.x += p.vx;
-  p.y += p.vy;
-
-  // Wall bounce
-  if (p.x - PUCK_R < 0) { p.x = PUCK_R; p.vx = Math.abs(p.vx); }
-  if (p.x + PUCK_R > W) { p.x = W - PUCK_R; p.vx = -Math.abs(p.vx); }
-
-  // Goal check
-  if (p.y - PUCK_R < 0) {
-    state.pScore++;
-    document.getElementById('pScore').textContent = state.pScore;
-    if (state.pScore >= WIN) { endGame('player'); return; }
-    state.phase = 'pause';
-    document.getElementById('status').textContent = '你得分！';
-    setTimeout(() => { resetPuck('player'); state.phase = 'play'; document.getElementById('status').textContent = '移动鼠标控制蓝色挡板'; }, 1200);
-    return;
-  }
-  if (p.y + PUCK_R > H) {
-    state.aScore++;
-    document.getElementById('aScore').textContent = state.aScore;
-    if (state.aScore >= WIN) { endGame('ai'); return; }
-    state.phase = 'pause';
-    document.getElementById('status').textContent = 'AI 得分！';
-    setTimeout(() => { resetPuck('ai'); state.phase = 'play'; document.getElementById('status').textContent = '移动鼠标控制蓝色挡板'; }, 1200);
-    return;
+  function resetPuck(scorer) {
+    state.puck.x = W/2; state.puck.y = H/2;
+    var speed = 4;
+    var angle = (Math.random() * 60 - 30) * Math.PI / 180;
+    state.puck.vx = Math.sin(angle) * speed * (Math.random() < 0.5 ? 1 : -1);
+    state.puck.vy = Math.cos(angle) * speed * (scorer === 'player' ? 1 : -1);
   }
 
-  // Player paddle collision
-  const pd = dist(p, state.player);
-  if (pd < PUCK_R + PADDLE_R) {
-    const angle = Math.atan2(p.y - state.player.y, p.x - state.player.x);
-    const speed = Math.min(Math.hypot(p.vx, p.vy) + 0.5, 12);
-    p.vx = Math.cos(angle) * speed;
-    p.vy = Math.sin(angle) * speed;
-    const overlap = PUCK_R + PADDLE_R - pd;
-    p.x += Math.cos(angle) * overlap;
-    p.y += Math.sin(angle) * overlap;
+  function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+  function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
+
+  function updateAI() {
+    var targetX = state.puck.vy < 0 ? state.puck.x : W/2;
+    var dx = targetX - state.ai.x;
+    state.ai.x += Math.sign(dx) * Math.min(Math.abs(dx), 5);
+    state.ai.x = clamp(state.ai.x, PADDLE_R, W - PADDLE_R);
+    state.ai.y = clamp(state.ai.y, PADDLE_R, H/2 - 10);
   }
 
-  // AI paddle collision
-  const ad = dist(p, state.ai);
-  if (ad < PUCK_R + PADDLE_R) {
-    const angle = Math.atan2(p.y - state.ai.y, p.x - state.ai.x);
-    const speed = Math.min(Math.hypot(p.vx, p.vy) + 0.5, 12);
-    p.vx = Math.cos(angle) * speed;
-    p.vy = Math.sin(angle) * speed;
-    const overlap = PUCK_R + PADDLE_R - ad;
-    p.x += Math.cos(angle) * overlap;
-    p.y += Math.sin(angle) * overlap;
+  function update() {
+    if (state.phase !== 'play') return;
+    updateAI();
+    var p = state.puck;
+    p.x += p.vx; p.y += p.vy;
+    if (p.x - PUCK_R < 0) { p.x = PUCK_R; p.vx = Math.abs(p.vx); }
+    if (p.x + PUCK_R > W) { p.x = W - PUCK_R; p.vx = -Math.abs(p.vx); }
+    if (p.y - PUCK_R < 0) {
+      state.pScore++; pScoreEl.textContent = state.pScore; FW.audio.sfx('score');
+      if (state.pScore >= WIN) { endGame('player'); return; }
+      state.phase = 'pause'; statusEl.textContent = '你得分！';
+      setTimeout(function() { resetPuck('player'); state.phase = 'play'; statusEl.textContent = '移动鼠标控制蓝色挡板'; }, 1200);
+      return;
+    }
+    if (p.y + PUCK_R > H) {
+      state.aScore++; aScoreEl.textContent = state.aScore; FW.audio.sfx('bump');
+      if (state.aScore >= WIN) { endGame('ai'); return; }
+      state.phase = 'pause'; statusEl.textContent = 'AI 得分！';
+      setTimeout(function() { resetPuck('ai'); state.phase = 'play'; statusEl.textContent = '移动鼠标控制蓝色挡板'; }, 1200);
+      return;
+    }
+    var pd = dist(p, state.player);
+    if (pd < PUCK_R + PADDLE_R) {
+      var angle = Math.atan2(p.y - state.player.y, p.x - state.player.x);
+      var speed = Math.min(Math.hypot(p.vx, p.vy) + 0.5, 12);
+      p.vx = Math.cos(angle) * speed; p.vy = Math.sin(angle) * speed;
+      var overlap = PUCK_R + PADDLE_R - pd;
+      p.x += Math.cos(angle) * overlap; p.y += Math.sin(angle) * overlap;
+      FW.audio.sfx('click');
+    }
+    var ad = dist(p, state.ai);
+    if (ad < PUCK_R + PADDLE_R) {
+      var angle = Math.atan2(p.y - state.ai.y, p.x - state.ai.x);
+      var speed = Math.min(Math.hypot(p.vx, p.vy) + 0.5, 12);
+      p.vx = Math.cos(angle) * speed; p.vy = Math.sin(angle) * speed;
+      var overlap = PUCK_R + PADDLE_R - ad;
+      p.x += Math.cos(angle) * overlap; p.y += Math.sin(angle) * overlap;
+    }
+    var spd = Math.hypot(p.vx, p.vy);
+    if (spd > 14) { p.vx = p.vx / spd * 14; p.vy = p.vy / spd * 14; }
   }
 
-  // Speed cap
-  const spd = Math.hypot(p.vx, p.vy);
-  if (spd > 14) { p.vx = p.vx / spd * 14; p.vy = p.vy / spd * 14; }
-}
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#0a0f1a'; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = '#223'; ctx.lineWidth = 2; ctx.setLineDash([12, 8]);
+    ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke(); ctx.setLineDash([]);
+    ctx.strokeStyle = '#223'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(W/2, H/2, 40, 0, Math.PI*2); ctx.stroke();
+    var gW = 120, gY = 8;
+    ctx.fillStyle = '#f743'; ctx.fillRect((W - gW)/2, 0, gW, gY);
+    ctx.fillStyle = '#7df3'; ctx.fillRect((W - gW)/2, H - gY, gW, gY);
+    ctx.strokeStyle = '#f74'; ctx.lineWidth = 2; ctx.strokeRect((W - gW)/2, 0, gW, gY);
+    ctx.strokeStyle = '#7df'; ctx.strokeRect((W - gW)/2, H - gY, gW, gY);
+    var g1 = ctx.createRadialGradient(state.ai.x, state.ai.y, 2, state.ai.x, state.ai.y, PADDLE_R);
+    g1.addColorStop(0, '#ff6644'); g1.addColorStop(1, '#aa2200');
+    ctx.fillStyle = g1; ctx.beginPath(); ctx.arc(state.ai.x, state.ai.y, PADDLE_R, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#ff8866'; ctx.lineWidth = 2; ctx.stroke();
+    var g2 = ctx.createRadialGradient(state.player.x, state.player.y, 2, state.player.x, state.player.y, PADDLE_R);
+    g2.addColorStop(0, '#44aaff'); g2.addColorStop(1, '#0044aa');
+    ctx.fillStyle = g2; ctx.beginPath(); ctx.arc(state.player.x, state.player.y, PADDLE_R, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#88ccff'; ctx.lineWidth = 2; ctx.stroke();
+    var pg = ctx.createRadialGradient(state.puck.x-4, state.puck.y-4, 2, state.puck.x, state.puck.y, PUCK_R);
+    pg.addColorStop(0, '#ffffff'); pg.addColorStop(1, '#888888');
+    ctx.fillStyle = pg; ctx.beginPath(); ctx.arc(state.puck.x, state.puck.y, PUCK_R, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1.5; ctx.stroke();
+  }
 
-function draw() {
-  ctx.clearRect(0, 0, W, H);
+  function endGame(winner) {
+    state.phase = 'over';
+    if (winner === 'player') { statusEl.textContent = '你赢了！'; FW.audio.sfx('win'); }
+    else { statusEl.textContent = 'AI 赢了！'; FW.audio.sfx('gameover'); }
+    FW.events.reportComplete(state.pScore, { won: winner === 'player' });
+    canvas.addEventListener('click', restartGame, { once: true });
+  }
 
-  // Table
-  ctx.fillStyle = '#0a0f1a';
-  ctx.fillRect(0, 0, W, H);
+  function restartGame() {
+    state.pScore = 0; state.aScore = 0;
+    pScoreEl.textContent = '0'; aScoreEl.textContent = '0';
+    resetPuck('ai'); state.player.x = W/2; state.player.y = H - 80; state.ai.x = W/2; state.ai.y = 80; state.phase = 'play';
+    statusEl.textContent = '移动鼠标控制蓝色挡板';
+  }
 
-  // Center line
-  ctx.strokeStyle = '#223';
-  ctx.lineWidth = 2;
-  ctx.setLineDash([12, 8]);
-  ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
-  ctx.setLineDash([]);
+  canvas.addEventListener('mousemove', function(e) {
+    var rect = canvas.getBoundingClientRect();
+    state.player.x = clamp((e.clientX - rect.left) * (W / rect.width), PADDLE_R, W - PADDLE_R);
+    state.player.y = clamp((e.clientY - rect.top) * (H / rect.height), H/2 + 10, H - PADDLE_R);
+  });
+  canvas.addEventListener('touchmove', function(e) {
+    e.preventDefault(); var rect = canvas.getBoundingClientRect(), t = e.touches[0];
+    state.player.x = clamp((t.clientX - rect.left) * (W / rect.width), PADDLE_R, W - PADDLE_R);
+    state.player.y = clamp((t.clientY - rect.top) * (H / rect.height), H/2 + 10, H - PADDLE_R);
+  }, { passive: false });
 
-  // Center circle
-  ctx.strokeStyle = '#223';
-  ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.arc(W/2, H/2, 40, 0, Math.PI*2); ctx.stroke();
-
-  // Goals
-  const gW = 120, gY = 8;
-  ctx.fillStyle = '#f743';
-  ctx.fillRect((W - gW)/2, 0, gW, gY);
-  ctx.fillStyle = '#7df3';
-  ctx.fillRect((W - gW)/2, H - gY, gW, gY);
-  ctx.strokeStyle = '#f74'; ctx.lineWidth = 2;
-  ctx.strokeRect((W - gW)/2, 0, gW, gY);
-  ctx.strokeStyle = '#7df';
-  ctx.strokeRect((W - gW)/2, H - gY, gW, gY);
-
-  // AI paddle
-  const grad1 = ctx.createRadialGradient(state.ai.x, state.ai.y, 2, state.ai.x, state.ai.y, PADDLE_R);
-  grad1.addColorStop(0, '#ff6644');
-  grad1.addColorStop(1, '#aa2200');
-  ctx.fillStyle = grad1;
-  ctx.beginPath(); ctx.arc(state.ai.x, state.ai.y, PADDLE_R, 0, Math.PI*2); ctx.fill();
-  ctx.strokeStyle = '#ff8866'; ctx.lineWidth = 2;
-  ctx.stroke();
-
-  // Player paddle
-  const grad2 = ctx.createRadialGradient(state.player.x, state.player.y, 2, state.player.x, state.player.y, PADDLE_R);
-  grad2.addColorStop(0, '#44aaff');
-  grad2.addColorStop(1, '#0044aa');
-  ctx.fillStyle = grad2;
-  ctx.beginPath(); ctx.arc(state.player.x, state.player.y, PADDLE_R, 0, Math.PI*2); ctx.fill();
-  ctx.strokeStyle = '#88ccff'; ctx.lineWidth = 2;
-  ctx.stroke();
-
-  // Puck
-  const puckGrad = ctx.createRadialGradient(state.puck.x - 4, state.puck.y - 4, 2, state.puck.x, state.puck.y, PUCK_R);
-  puckGrad.addColorStop(0, '#ffffff');
-  puckGrad.addColorStop(1, '#888888');
-  ctx.fillStyle = puckGrad;
-  ctx.beginPath(); ctx.arc(state.puck.x, state.puck.y, PUCK_R, 0, Math.PI*2); ctx.fill();
-  ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1.5;
-  ctx.stroke();
-}
-
-function endGame(winner) {
-  state.phase = 'over';
-  document.getElementById('status').textContent = winner === 'player' ? '🏆 你赢了！' : '💀 AI 赢了！点击重新开始';
-  canvas.addEventListener('click', restartGame, { once: true });
-}
-
-function restartGame() {
-  state.pScore = 0; state.aScore = 0;
-  document.getElementById('pScore').textContent = '0';
-  document.getElementById('aScore').textContent = '0';
   resetPuck('ai');
-  state.player.x = W/2; state.player.y = H - 80;
-  state.ai.x = W/2; state.ai.y = 80;
-  state.phase = 'play';
-  document.getElementById('status').textContent = '移动鼠标控制蓝色挡板';
-}
-
-canvas.addEventListener('mousemove', e => {
-  const rect = canvas.getBoundingClientRect();
-  const scaleX = W / rect.width;
-  state.player.x = clamp((e.clientX - rect.left) * scaleX, PADDLE_R, W - PADDLE_R);
-  state.player.y = clamp((e.clientY - rect.top) * (H / rect.height), H/2 + 10, H - PADDLE_R);
-});
-
-canvas.addEventListener('touchmove', e => {
-  e.preventDefault();
-  const rect = canvas.getBoundingClientRect();
-  const t = e.touches[0];
-  const scaleX = W / rect.width;
-  state.player.x = clamp((t.clientX - rect.left) * scaleX, PADDLE_R, W - PADDLE_R);
-  state.player.y = clamp((t.clientY - rect.top) * (H / rect.height), H/2 + 10, H - PADDLE_R);
-}, { passive: false });
-
-resetPuck('ai');
-
-function loop() {
-  update();
-  draw();
-  requestAnimationFrame(loop);
-}
-loop();
+  function loop() { update(); draw(); requestAnimationFrame(loop); }
+  loop();
+})();
 </script>
 </body>
 </html>

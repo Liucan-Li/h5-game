@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-game-id="bowling">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>保龄球 - 10瓶保龄球</title>
+<link rel="stylesheet" href="framework.css">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    background: #f5f6fa;
+    background: var(--fw-bg, #f5f6fa);
     font-family: 'Microsoft YaHei', 'PingFang SC', 'Noto Sans SC', sans-serif;
     display: flex;
     justify-content: center;
@@ -17,7 +18,7 @@
     user-select: none;
     -webkit-user-select: none;
   }
-  .container {
+  .fw-container {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -26,16 +27,16 @@
     max-width: 520px;
     width: 100%;
   }
-  h1 {
+  .fw-title {
     font-size: 26px;
-    color: #2c3e50;
+    color: var(--fw-text-color, #2c3e50);
     letter-spacing: 4px;
   }
-  .score-card {
+  .fw-score-box {
     display: flex;
     width: 100%;
     max-width: 480px;
-    background: #fff;
+    background: var(--fw-surface, #fff);
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
@@ -77,7 +78,7 @@
     padding: 3px 0;
     font-size: 14px;
     font-weight: bold;
-    color: #2c3e50;
+    color: var(--fw-text-color, #2c3e50);
     min-height: 24px;
     line-height: 24px;
   }
@@ -98,7 +99,7 @@
     align-items: center;
     width: 100%;
     max-width: 480px;
-    background: #fff;
+    background: var(--fw-surface, #fff);
     border-radius: 10px;
     padding: 8px 12px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
@@ -111,7 +112,7 @@
     white-space: nowrap;
   }
   .info-item span {
-    color: #2c3e50;
+    color: var(--fw-text-color, #2c3e50);
     font-weight: bold;
   }
   .info-item .hi-val { color: #e67e22; }
@@ -138,9 +139,15 @@
   .status-line .highlight {
     color: #e74c3c;
   }
+  .fw-overlay {
+    display: none;
+  }
+  .fw-overlay.fw-visible {
+    display: flex;
+  }
   @media (max-width: 500px) {
-    .container { padding: 8px; gap: 6px; }
-    h1 { font-size: 22px; }
+    .fw-container { padding: 8px; gap: 6px; }
+    .fw-title { font-size: 22px; }
     .frame-cell { font-size: 9px; }
     .frame-rolls .roll { font-size: 11px; min-height: 18px; line-height: 18px; }
     .frame-score { font-size: 12px; min-height: 20px; line-height: 20px; }
@@ -149,10 +156,10 @@
 </style>
 </head>
 <body>
-<div class="container">
-  <h1>保龄球</h1>
+<div class="fw-container">
+  <h1 class="fw-title">保龄球</h1>
 
-  <div class="score-card" id="scoreCard"></div>
+  <div class="fw-score-box" id="scoreCard"></div>
 
   <canvas id="gameCanvas" width="480" height="500"></canvas>
 
@@ -163,29 +170,30 @@
     <button class="btn btn-start" id="startBtn">开始游戏</button>
   </div>
 
-  <div class="info-bar" id="resultBar" style="display:none;">
+  <div class="info-bar fw-overlay" id="resultBar">
     <div class="status-line" id="resultText"></div>
   </div>
 </div>
 
+<script src="framework.js"></script>
 <script>
 (function () {
   'use strict';
 
   // ========== CONSTANTS ==========
-  const CW = 480, CH = 500;
+  var CW = 480, CH = 500;
 
   // Lane
-  const LANE_LEFT = 148;
-  const LANE_RIGHT = 332;
-  const LANE_WIDTH = LANE_RIGHT - LANE_LEFT;
-  const LANE_CENTER = (LANE_LEFT + LANE_RIGHT) / 2;
-  const GUTTER_W = 14;
+  var LANE_LEFT = 148;
+  var LANE_RIGHT = 332;
+  var LANE_WIDTH = LANE_RIGHT - LANE_LEFT;
+  var LANE_CENTER = (LANE_LEFT + LANE_RIGHT) / 2;
+  var GUTTER_W = 14;
 
   // Pins
-  const PIN_RADIUS = 11;
-  const PIN_SPACING = 36;
-  const PIN_POSITIONS = [
+  var PIN_RADIUS = 11;
+  var PIN_SPACING = 36;
+  var PIN_POSITIONS = [
     // [x, y] for pins 1-10 (0-indexed)
     // Row 3 (headpin, closest to player)
     { x: 0, y: 0 },    // pin 1 index 0
@@ -204,60 +212,59 @@
   ];
 
   // Ball
-  const BALL_RADIUS = 10;
-  const BALL_START_Y = 420;
+  var BALL_RADIUS = 10;
+  var BALL_START_Y = 420;
 
   // Physics
-  const MAX_SPEED = 12;
-  const FRICTION = 0.997;
-  const MIN_SPEED = 0.05;
-  const MAX_ANGLE = Math.PI / 12; // 15 degrees
+  var MAX_SPEED = 12;
+  var FRICTION = 0.997;
+  var MIN_SPEED = 0.05;
+  var MAX_ANGLE = Math.PI / 12; // 15 degrees
 
   // Power charge rate (% per ms)
-  const CHARGE_RATE = 0.0005;
+  var CHARGE_RATE = 0.0005;
 
   // ========== CANVAS SETUP ==========
-  const canvas = document.getElementById('gameCanvas');
-  const ctx = canvas.getContext('2d');
+  var canvas = document.getElementById('gameCanvas');
+  var ctx = canvas.getContext('2d');
 
   // ========== DOM REFS ==========
-  const scoreCardEl = document.getElementById('scoreCard');
-  const frameInfoEl = document.getElementById('frameInfo');
-  const totalScoreInfoEl = document.getElementById('totalScoreInfo');
-  const hiDisplayEl = document.getElementById('hiDisplay');
-  const startBtn = document.getElementById('startBtn');
-  const resultBar = document.getElementById('resultBar');
-  const resultText = document.getElementById('resultText');
+  var scoreCardEl = document.getElementById('scoreCard');
+  var frameInfoEl = document.getElementById('frameInfo');
+  var totalScoreInfoEl = document.getElementById('totalScoreInfo');
+  var hiDisplayEl = document.getElementById('hiDisplay');
+  var startBtn = document.getElementById('startBtn');
+  var resultBar = document.getElementById('resultBar');
+  var resultText = document.getElementById('resultText');
 
   // ========== GAME STATE ==========
-  let pins = [];       // { x, y, standing, fallDir, fallFrame }
-  let ball = { x: LANE_CENTER, y: BALL_START_Y, vx: 0, vy: 0, active: false, rotation: 0 };
-  let power = 0;
-  let isCharging = false;
-  let chargeStart = 0;
-  let aimX = LANE_CENTER;
-  let aimY = CH - 40;
+  var pins = [];
+  var ball = { x: LANE_CENTER, y: BALL_START_Y, vx: 0, vy: 0, active: false, rotation: 0 };
+  var power = 0;
+  var isCharging = false;
+  var chargeStart = 0;
+  var aimX = LANE_CENTER;
+  var aimY = CH - 40;
 
   // Scoring
-  let allRolls = [];
-  let currentFrame = 0;     // 0-indexed, 0-9
-  let rollInFrame = 0;      // 0 or 1 (or 2 in 10th)
-  let frameResults = null;  // array of {score, complete}
-  let gameActive = false;
-  let isAnimating = false;
-  let animPhase = 'idle';   // idle, aiming, charging, rolling, settling, done
+  var allRolls = [];
+  var currentFrame = 0;
+  var rollInFrame = 0;
+  var frameResults = null;
+  var gameActive = false;
+  var isAnimating = false;
+  var animPhase = 'idle';
 
-  let highScore = 0;
-  let animFrameId = null;
-  let settledCount = 0;
-  let ballMoving = false;
-  let standingBeforeThrow = 10;
-  let frameBeforeRoll = 0;
+  var highScore = 0;
+  var animFrameId = null;
+  var settledCount = 0;
+  var ballMoving = false;
+  var standingBeforeThrow = 10;
+  var frameBeforeRoll = 0;
 
   // ========== HIGH SCORE ==========
   try {
-    const stored = localStorage.getItem('bowling_hi');
-    if (stored) highScore = parseInt(stored, 10) || 0;
+    highScore = FW.storage.getHighScore() || 0;
   } catch (e) { /* ignore */ }
   hiDisplayEl.textContent = highScore;
 
@@ -265,30 +272,30 @@
     if (sc > highScore) {
       highScore = sc;
       hiDisplayEl.textContent = highScore;
-      try { localStorage.setItem('bowling_hi', String(highScore)); } catch (e) { /* ignore */ }
+      try { FW.storage.setHighScore(highScore); } catch (e) { /* ignore */ }
     }
   }
 
   // ========== SCOREBOARD RENDERING ==========
   function buildScoreCard() {
     scoreCardEl.innerHTML = '';
-    for (let f = 0; f < 10; f++) {
-      const cell = document.createElement('div');
+    for (var f = 0; f < 10; f++) {
+      var cell = document.createElement('div');
       cell.className = 'frame-cell';
       cell.id = 'fc' + f;
 
       // Header
-      const hdr = document.createElement('div');
+      var hdr = document.createElement('div');
       hdr.className = 'frame-header';
       hdr.textContent = f + 1;
       cell.appendChild(hdr);
 
       // Rolls
-      const rolls = document.createElement('div');
+      var rolls = document.createElement('div');
       rolls.className = 'frame-rolls';
-      const rollCount = (f === 9) ? 3 : 2;
-      for (let r = 0; r < rollCount; r++) {
-        const rl = document.createElement('div');
+      var rollCount = (f === 9) ? 3 : 2;
+      for (var r = 0; r < rollCount; r++) {
+        var rl = document.createElement('div');
         rl.className = 'roll';
         if (r === 2) rl.classList.add('extra');
         rl.id = 'fc' + f + 'r' + r;
@@ -297,7 +304,7 @@
       cell.appendChild(rolls);
 
       // Score
-      const sc = document.createElement('div');
+      var sc = document.createElement('div');
       sc.className = 'frame-score';
       sc.id = 'fc' + f + 's';
       cell.appendChild(sc);
@@ -308,15 +315,15 @@
   buildScoreCard();
 
   function updateScoreCard() {
-    const results = getFrameScores();
+    var results = getFrameScores();
     frameResults = results;
 
-    let rollIdx = 0;
-    for (let f = 0; f < 10; f++) {
-      const r1El = document.getElementById('fc' + f + 'r0');
-      const r2El = document.getElementById('fc' + f + 'r1');
-      const r3El = (f === 9) ? document.getElementById('fc' + f + 'r2') : null;
-      const sEl = document.getElementById('fc' + f + 's');
+    var rollIdx = 0;
+    for (var f = 0; f < 10; f++) {
+      var r1El = document.getElementById('fc' + f + 'r0');
+      var r2El = document.getElementById('fc' + f + 'r1');
+      var r3El = (f === 9) ? document.getElementById('fc' + f + 'r2') : null;
+      var sEl = document.getElementById('fc' + f + 's');
 
       // Clear
       r1El.textContent = '';
@@ -326,12 +333,12 @@
       if (rollIdx >= allRolls.length) break;
 
       if (f < 9) {
-        const first = allRolls[rollIdx];
+        var first = allRolls[rollIdx];
         if (first === 10) {
           r1El.textContent = 'X';
           rollIdx += 1;
         } else if (rollIdx + 1 < allRolls.length) {
-          const second = allRolls[rollIdx + 1];
+          var second = allRolls[rollIdx + 1];
           r1El.textContent = first === 0 ? '-' : String(first);
           if (first + second === 10) {
             r2El.textContent = '/';
@@ -345,13 +352,13 @@
         }
       } else {
         // 10th frame
-        const rollsInFrame = [];
-        for (let r = rollIdx; r < allRolls.length && r < rollIdx + 3; r++) {
+        var rollsInFrame = [];
+        for (var r = rollIdx; r < allRolls.length && r < rollIdx + 3; r++) {
           rollsInFrame.push(allRolls[r]);
         }
-        const rollEles = [r1El, r2El, r3El];
-        for (let r = 0; r < rollsInFrame.length && r < 3; r++) {
-          const val = rollsInFrame[r];
+        var rollEles = [r1El, r2El, r3El];
+        for (var r = 0; r < rollsInFrame.length && r < 3; r++) {
+          var val = rollsInFrame[r];
           if (r === 0 && val === 10) {
             rollEles[r].textContent = 'X';
           } else if (r === 1 && rollsInFrame[0] !== 10 && rollsInFrame[0] + val === 10) {
@@ -382,8 +389,8 @@
     }
 
     // Total score
-    let total = 0;
-    for (let f = 0; f < 10; f++) {
+    var total = 0;
+    for (var f = 0; f < 10; f++) {
       if (results[f] && results[f].complete) {
         total = results[f].cumulative;
       } else {
@@ -398,19 +405,19 @@
 
   // ========== SCORING LOGIC ==========
   function getFrameScores() {
-    const frames = [];
-    let rollIdx = 0;
-    let cumulative = 0;
+    var frames = [];
+    var rollIdx = 0;
+    var cumulative = 0;
 
-    for (let f = 0; f < 10; f++) {
+    for (var f = 0; f < 10; f++) {
       if (rollIdx >= allRolls.length) {
         frames.push({ score: null, raw: null, complete: false, cumulative: cumulative });
         continue;
       }
 
-      const first = allRolls[rollIdx];
-      let frameScore = null;
-      let complete = false;
+      var first = allRolls[rollIdx];
+      var frameScore = null;
+      var complete = false;
 
       if (f < 9) {
         if (first === 10) {
@@ -421,7 +428,7 @@
             rollIdx += 1;
           }
         } else if (rollIdx + 1 < allRolls.length) {
-          const second = allRolls[rollIdx + 1];
+          var second = allRolls[rollIdx + 1];
           if (first + second === 10) {
             if (rollIdx + 2 < allRolls.length) {
               frameScore = 10 + allRolls[rollIdx + 2];
@@ -444,7 +451,7 @@
             rollIdx += 3;
           }
         } else if (rollIdx + 1 < allRolls.length) {
-          const second = allRolls[rollIdx + 1];
+          var second = allRolls[rollIdx + 1];
           if (first + second === 10) {
             // Spare => need 1 more
             if (rollIdx + 2 < allRolls.length) {
@@ -476,16 +483,15 @@
   }
 
   function isGameOver() {
-    const results = getFrameScores();
+    var results = getFrameScores();
     return results[9] && results[9].complete;
   }
 
   function getThisFrameRollCount() {
-    // How many rolls have been taken in the current frame so far
-    let rollIdx = 0;
-    for (let f = 0; f < currentFrame; f++) {
+    var rollIdx = 0;
+    for (var f = 0; f < currentFrame; f++) {
       if (rollIdx >= allRolls.length) break;
-      const first = allRolls[rollIdx];
+      var first = allRolls[rollIdx];
       if (f < 9) {
         if (first === 10) {
           rollIdx += 1;
@@ -496,7 +502,6 @@
           break;
         }
       } else {
-        // 10th frame
         if (first === 10) {
           if (rollIdx + 2 < allRolls.length) rollIdx += 3;
           else { rollIdx = allRolls.length; break; }
@@ -513,20 +518,18 @@
         }
       }
     }
-    // rollIdx points to first roll of current frame
-    // Count how many rolls from current frame
-    let cnt = 0;
-    for (let r = rollIdx; r < allRolls.length; r++) {
+    var cnt = 0;
+    for (var r = rollIdx; r < allRolls.length; r++) {
       cnt++;
     }
     return cnt;
   }
 
   function getCurrentRollInFrame() {
-    let rollIdx = 0;
-    for (let f = 0; f < currentFrame; f++) {
+    var rollIdx = 0;
+    for (var f = 0; f < currentFrame; f++) {
       if (rollIdx >= allRolls.length) break;
-      const first = allRolls[rollIdx];
+      var first = allRolls[rollIdx];
       if (f < 9) {
         if (first === 10) {
           rollIdx += 1;
@@ -559,7 +562,7 @@
   // ========== SETUP PINS ==========
   function resetPins() {
     pins = [];
-    for (let i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       pins.push({
         x: LANE_CENTER + PIN_POSITIONS[i].x,
         y: 80 + PIN_POSITIONS[i].y,
@@ -588,6 +591,7 @@
     ball = { x: LANE_CENTER, y: BALL_START_Y, vx: 0, vy: 0, active: false, rotation: 0 };
     aimX = LANE_CENTER;
     resultBar.style.display = 'none';
+    resultBar.classList.remove('fw-visible');
 
     resetPins();
     updateScoreCard();
@@ -599,11 +603,11 @@
   }
 
   function nextRoll() {
-    const rollsInThisFrame = getCurrentRollInFrame();
-    let maxRolls = 2;
+    var rollsInThisFrame = getCurrentRollInFrame();
+    var maxRolls = 2;
     if (currentFrame === 9) maxRolls = 3;
 
-    const isNewFrame = (rollsInThisFrame === 0);
+    var isNewFrame = (rollsInThisFrame === 0);
     if (isNewFrame && currentFrame < 9) {
       // Moving to next frame (already done by recordRoll)
     }
@@ -630,31 +634,46 @@
     render();
 
     // Show result
-    const results = getFrameScores();
-    let total = 0;
-    for (let f = 0; f < 10; f++) {
+    var results = getFrameScores();
+    var total = 0;
+    for (var f = 0; f < 10; f++) {
       if (results[f] && results[f].complete) total = results[f].cumulative;
     }
 
     saveHighScore(total);
 
     resultBar.style.display = 'flex';
-    let statusMsg = '比赛结束! 总分: ' + total;
+    resultBar.classList.add('fw-visible');
+
+    var won = false;
+    var statusMsg = '比赛结束! 总分: ' + total;
     // Check if perfect game
     if (total === 300) {
       statusMsg = '完美! 满贯300分!';
+      won = true;
     } else if (total >= 250) {
       statusMsg = '超棒! 得分: ' + total;
+      won = true;
     }
     resultText.textContent = statusMsg;
     startBtn.textContent = '再来一局';
+
+    // Framework events
+    try {
+      FW.audio.sfx('gameover');
+      if (won) {
+        FW.audio.sfx('win');
+      }
+      FW.events.reportScore(total);
+      FW.events.reportComplete(total, { won: won });
+    } catch (e) { /* ignore */ }
   }
 
   function recordRoll(pinCount) {
     allRolls.push(pinCount);
 
     // Determine if this advances the frame
-    const rollsInThisFrame = getCurrentRollInFrame();
+    var rollsInThisFrame = getCurrentRollInFrame();
 
     // Check if strike in non-10th
     if (currentFrame < 9 && pinCount === 10 && rollsInThisFrame === 1) {
@@ -670,11 +689,16 @@
 
     updateScoreCard();
     updateUIInfo();
+
+    // Framework audio
+    try {
+      FW.audio.sfx('score');
+    } catch (e) { /* ignore */ }
   }
 
   function updateUIInfo() {
-    const frameNum = Math.min(currentFrame + 1, 10);
-    const rollNum = getCurrentRollInFrame() + 1;
+    var frameNum = Math.min(currentFrame + 1, 10);
+    var rollNum = getCurrentRollInFrame() + 1;
     frameInfoEl.innerHTML = '第 <span>' + frameNum + '</span> 局 第 <span>' + rollNum + '</span> 投';
   }
 
@@ -687,11 +711,11 @@
     pins[hitIndex].fallFrame = 0;
 
     // Domino effect: check nearby pins
-    for (let i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       if (i === hitIndex || !pins[i].standing) continue;
-      const dx = pins[hitIndex].x - pins[i].x;
-      const dy = pins[hitIndex].y - pins[i].y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
+      var dx = pins[hitIndex].x - pins[i].x;
+      var dy = pins[hitIndex].y - pins[i].y;
+      var dist = Math.sqrt(dx * dx + dy * dy);
       if (dist < PIN_SPACING * 1.3) {
         // 50% chance this nearby pin also falls
         if (Math.random() < 0.6) {
@@ -702,18 +726,18 @@
   }
 
   function countStandingPins() {
-    let count = 0;
-    for (let i = 0; i < pins.length; i++) {
+    var count = 0;
+    for (var i = 0; i < pins.length; i++) {
       if (pins[i].standing) count++;
     }
     return count;
   }
 
   function findRollIdxBeforeFrame(goal) {
-    let rollIdx = 0;
-    for (let f = 0; f < goal; f++) {
+    var rollIdx = 0;
+    for (var f = 0; f < goal; f++) {
       if (rollIdx >= allRolls.length) break;
-      const first = allRolls[rollIdx];
+      var first = allRolls[rollIdx];
       if (f < 9) {
         if (first === 10) {
           rollIdx += 1;
@@ -753,8 +777,8 @@
       if (knocked === 10) return true;
 
       // Spare check: first two 10th-frame rolls sum to 10
-      const tenthStart = findRollIdxBeforeFrame(9);
-      const tenthRollCount = allRolls.length - tenthStart;
+      var tenthStart = findRollIdxBeforeFrame(9);
+      var tenthRollCount = allRolls.length - tenthStart;
       if (tenthRollCount === 2 && allRolls[tenthStart] + allRolls[tenthStart + 1] === 10) {
         return true;
       }
@@ -773,11 +797,10 @@
     ball.vy *= FRICTION;
     ball.rotation += ball.vx * 0.08;
 
-    const speed = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
+    var speed = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
 
     // Check out of bounds - in gutter
     if (ball.x < LANE_LEFT + BALL_RADIUS || ball.x > LANE_RIGHT - BALL_RADIUS) {
-      // In gutter, ball continues but can't hit pins
       // If ball goes too far left/right, stop it
       if (ball.x < 80 || ball.x > 400) {
         ball.active = false;
@@ -796,16 +819,16 @@
 
     // Collision with pins
     if (ball.y < 250) {
-      for (let i = 0; i < pins.length; i++) {
+      for (var i = 0; i < pins.length; i++) {
         if (!pins[i].standing) continue;
         if (!ball.active) break;
-        const dx = ball.x - pins[i].x;
-        const dy = ball.y - pins[i].y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
+        var dx = ball.x - pins[i].x;
+        var dy = ball.y - pins[i].y;
+        var dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < BALL_RADIUS + PIN_RADIUS) {
           knockDownPins(i);
           // Ball continues with slight deflection
-          const angle = Math.atan2(dy, dx);
+          var angle = Math.atan2(dy, dx);
           ball.vx += Math.cos(angle) * 1.5;
           ball.vy += Math.sin(angle) * 1.5;
         }
@@ -824,10 +847,10 @@
       if (!ball.active && ballMoving) {
         ballMoving = false;
         // Count pins knocked this throw
-        const standingAfter = countStandingPins();
-        const knocked = standingBeforeThrow - standingAfter;
-        const allDown = (standingAfter === 0);
-        const rollsInFrameBefore = getCurrentRollInFrame(); // before recordRoll updates state
+        var standingAfter = countStandingPins();
+        var knocked = standingBeforeThrow - standingAfter;
+        var allDown = (standingAfter === 0);
+        var rollsInFrameBefore = getCurrentRollInFrame();
 
         // Record the roll
         recordRoll(knocked);
@@ -835,7 +858,7 @@
         animPhase = 'settling';
 
         // Show result
-        let resultMsg;
+        var resultMsg;
         if (knocked === 10) {
           resultMsg = '全中! (STRIKE)';
         } else if (allDown && rollsInFrameBefore === 1) {
@@ -844,14 +867,16 @@
           resultMsg = '击倒 ' + knocked + ' 瓶';
         }
         resultBar.style.display = 'flex';
+        resultBar.classList.add('fw-visible');
         resultText.textContent = resultMsg;
 
         // Determine if pins need resetting for next throw
-        const needPinReset = checkNeedPinReset(knocked);
+        var needPinReset = checkNeedPinReset(knocked);
 
         // After settling delay, advance
         setTimeout(function () {
           resultBar.style.display = 'none';
+          resultBar.classList.remove('fw-visible');
 
           if (isGameOver()) {
             endGame();
@@ -863,7 +888,6 @@
           if (needPinReset) {
             resetPins();
           }
-          // Otherwise keep pins as-is for same-frame second throw
 
           ball = { x: LANE_CENTER, y: BALL_START_Y, vx: 0, vy: 0, active: false, rotation: 0 };
           power = 0;
@@ -916,7 +940,7 @@
     ctx.fillRect(0, 380, CW, 120);
 
     // Lane surface
-    const laneGrad = ctx.createLinearGradient(0, 0, 0, CH);
+    var laneGrad = ctx.createLinearGradient(0, 0, 0, CH);
     laneGrad.addColorStop(0, '#d4a76a');
     laneGrad.addColorStop(0.3, '#c99b5e');
     laneGrad.addColorStop(0.6, '#d4a76a');
@@ -945,20 +969,20 @@
     ctx.stroke();
 
     // Dots on lane (aiming guides)
-    const dotY = [60, 330, 350, 370];
+    var dotY = [60, 330, 350, 370];
     ctx.fillStyle = 'rgba(139,69,19,0.25)';
-    for (let y of dotY) {
-      for (let xOff = -30; xOff <= 30; xOff += 15) {
+    for (var di = 0; di < dotY.length; di++) {
+      for (var xOff = -30; xOff <= 30; xOff += 15) {
         ctx.beginPath();
-        ctx.arc(LANE_CENTER + xOff, y, 3, 0, Math.PI * 2);
+        ctx.arc(LANE_CENTER + xOff, dotY[di], 3, 0, Math.PI * 2);
         ctx.fill();
       }
     }
 
     // Arrows
-    const arrowY = 290;
+    var arrowY = 290;
     ctx.fillStyle = 'rgba(139,69,19,0.2)';
-    for (let xOff = -30; xOff <= 30; xOff += 15) {
+    for (var xOff = -30; xOff <= 30; xOff += 15) {
       ctx.beginPath();
       ctx.moveTo(LANE_CENTER + xOff, arrowY - 8);
       ctx.lineTo(LANE_CENTER + xOff - 5, arrowY + 4);
@@ -974,7 +998,7 @@
     // Boards (wood grain lines)
     ctx.strokeStyle = 'rgba(139,69,19,0.06)';
     ctx.lineWidth = 1;
-    for (let x = LANE_LEFT + 10; x < LANE_RIGHT; x += 10) {
+    for (var x = LANE_LEFT + 10; x < LANE_RIGHT; x += 10) {
       ctx.beginPath();
       ctx.moveTo(x, 60);
       ctx.lineTo(x, 440);
@@ -989,9 +1013,9 @@
 
     // Pin spots
     ctx.fillStyle = 'rgba(139,69,19,0.2)';
-    for (let i = 0; i < 10; i++) {
-      const px = LANE_CENTER + PIN_POSITIONS[i].x;
-      const py = 80 + PIN_POSITIONS[i].y;
+    for (var i = 0; i < 10; i++) {
+      var px = LANE_CENTER + PIN_POSITIONS[i].x;
+      var py = 80 + PIN_POSITIONS[i].y;
       ctx.beginPath();
       ctx.arc(px, py, 4, 0, Math.PI * 2);
       ctx.fill();
@@ -999,8 +1023,8 @@
   }
 
   function drawPins() {
-    for (let i = 0; i < pins.length; i++) {
-      const pin = pins[i];
+    for (var i = 0; i < pins.length; i++) {
+      var pin = pins[i];
       if (pin.standing) {
         drawStandingPin(pin.x, pin.y, i + 1);
       } else {
@@ -1010,8 +1034,7 @@
   }
 
   function drawStandingPin(x, y, num) {
-    // Pin body (rounded rectangle / circle top-down)
-    const r = PIN_RADIUS;
+    var r = PIN_RADIUS;
 
     // Shadow
     ctx.shadowColor = 'rgba(0,0,0,0.15)';
@@ -1048,7 +1071,7 @@
   }
 
   function drawFallenPin(x, y, frame) {
-    const offset = Math.min(frame * 2, 10);
+    var offset = Math.min(frame * 2, 10);
     ctx.save();
     ctx.translate(x, y + offset);
     ctx.rotate(Math.PI / 6);
@@ -1071,7 +1094,7 @@
   }
 
   function drawBall() {
-    const r = BALL_RADIUS;
+    var r = BALL_RADIUS;
 
     // Ball shadow
     ctx.shadowColor = 'rgba(0,0,0,0.2)';
@@ -1081,7 +1104,7 @@
     // Ball body
     ctx.beginPath();
     ctx.arc(ball.x, ball.y, r, 0, Math.PI * 2);
-    const ballGrad = ctx.createRadialGradient(
+    var ballGrad = ctx.createRadialGradient(
       ball.x - 3, ball.y - 3, 1,
       ball.x, ball.y, r
     );
@@ -1104,8 +1127,8 @@
     ctx.fill();
 
     // Rotation indicator (small dot for spin visualization)
-    const rotX = ball.x + Math.sin(ball.rotation) * (r - 2);
-    const rotY = ball.y - Math.cos(ball.rotation) * (r - 2);
+    var rotX = ball.x + Math.sin(ball.rotation) * (r - 2);
+    var rotY = ball.y - Math.cos(ball.rotation) * (r - 2);
     ctx.fillStyle = '#fff';
     ctx.beginPath();
     ctx.arc(rotX, rotY, 1.5, 0, Math.PI * 2);
@@ -1113,9 +1136,9 @@
   }
 
   function drawAimLine() {
-    const dx = aimX - LANE_CENTER;
-    const maxOff = (LANE_RIGHT - LANE_LEFT) / 4;
-    const angle = Math.min(1, Math.max(-1, dx / maxOff)) * MAX_ANGLE;
+    var dx = aimX - LANE_CENTER;
+    var maxOff = (LANE_RIGHT - LANE_LEFT) / 4;
+    var angle = Math.min(1, Math.max(-1, dx / maxOff)) * MAX_ANGLE;
 
     ctx.save();
     ctx.strokeStyle = 'rgba(255,255,255,0.3)';
@@ -1124,19 +1147,19 @@
 
     ctx.beginPath();
     ctx.moveTo(ball.x, ball.y);
-    const lineLen = 200;
-    const endX = ball.x + Math.sin(angle) * lineLen;
-    const endY = ball.y - Math.cos(angle) * lineLen;
+    var lineLen = 200;
+    var endX = ball.x + Math.sin(angle) * lineLen;
+    var endY = ball.y - Math.cos(angle) * lineLen;
     ctx.lineTo(endX, endY);
     ctx.stroke();
     ctx.restore();
   }
 
   function drawPowerBar() {
-    const barX = 370;
-    const barY = 200;
-    const barW = 24;
-    const barH = 200;
+    var barX = 370;
+    var barY = 200;
+    var barW = 24;
+    var barH = 200;
 
     // Background
     ctx.fillStyle = 'rgba(0,0,0,0.08)';
@@ -1149,10 +1172,10 @@
 
     // Fill
     if (power > 0) {
-      const fillH = barH * power;
-      const fillY = barY + barH - fillH;
+      var fillH = barH * power;
+      var fillY = barY + barH - fillH;
 
-      const grad = ctx.createLinearGradient(barX, barY, barX, barY + barH);
+      var grad = ctx.createLinearGradient(barX, barY, barX, barY + barH);
       grad.addColorStop(0, '#e74c3c');
       grad.addColorStop(0.3, '#f39c12');
       grad.addColorStop(0.6, '#f1c40f');
@@ -1178,7 +1201,7 @@
 
   // ========== EVENT HANDLING ==========
   function getCanvasCoords(clientX, clientY) {
-    const rect = canvas.getBoundingClientRect();
+    var rect = canvas.getBoundingClientRect();
     return {
       x: (clientX - rect.left) * (CW / rect.width),
       y: (clientY - rect.top) * (CH / rect.height),
@@ -1188,7 +1211,7 @@
   function handlePointerDown(clientX, clientY) {
     if (!gameActive || animPhase !== 'aiming') return;
 
-    const coords = getCanvasCoords(clientX, clientY);
+    var coords = getCanvasCoords(clientX, clientY);
     aimX = coords.x;
 
     isCharging = true;
@@ -1196,10 +1219,12 @@
     chargeStart = performance.now();
     animPhase = 'charging';
 
+    try { FW.audio.sfx('click'); } catch (e) { /* ignore */ }
+
     // Start charge loop
     function chargeLoop() {
       if (!isCharging || !gameActive) return;
-      const elapsed = performance.now() - chargeStart;
+      var elapsed = performance.now() - chargeStart;
       power = Math.min(1, elapsed * CHARGE_RATE);
       render();
       if (power < 1) {
@@ -1214,22 +1239,23 @@
     isCharging = false;
 
     if (power < 0.05) {
-      // Too weak, reset
       power = 0;
       animPhase = 'aiming';
       render();
       return;
     }
 
+    try { FW.audio.sfx('click'); } catch (e) { /* ignore */ }
+
     // Save pin state before throw
     standingBeforeThrow = countStandingPins();
     frameBeforeRoll = currentFrame;
 
     // Throw ball
-    const dx = aimX - LANE_CENTER;
-    const maxOff = (LANE_RIGHT - LANE_LEFT) / 4;
-    const angle = Math.min(1, Math.max(-1, dx / maxOff)) * MAX_ANGLE;
-    const speed = Math.sqrt(power) * MAX_SPEED;
+    var dx = aimX - LANE_CENTER;
+    var maxOff = (LANE_RIGHT - LANE_LEFT) / 4;
+    var angle = Math.min(1, Math.max(-1, dx / maxOff)) * MAX_ANGLE;
+    var speed = Math.sqrt(power) * MAX_SPEED;
 
     ball.vx = Math.sin(angle) * speed;
     ball.vy = -Math.cos(angle) * speed;
@@ -1242,7 +1268,7 @@
 
   function handlePointerMove(clientX, clientY) {
     if (!gameActive) return;
-    const coords = getCanvasCoords(clientX, clientY);
+    var coords = getCanvasCoords(clientX, clientY);
     aimX = coords.x;
     aimY = coords.y;
 
@@ -1270,7 +1296,7 @@
   // Touch events
   canvas.addEventListener('touchstart', function (e) {
     e.preventDefault();
-    const touch = e.touches[0];
+    var touch = e.touches[0];
     if (touch) handlePointerDown(touch.clientX, touch.clientY);
   }, { passive: false });
   canvas.addEventListener('touchend', function (e) {
@@ -1279,7 +1305,7 @@
   }, { passive: false });
   canvas.addEventListener('touchmove', function (e) {
     e.preventDefault();
-    const touch = e.touches[0];
+    var touch = e.touches[0];
     if (touch) handlePointerMove(touch.clientX, touch.clientY);
   }, { passive: false });
 

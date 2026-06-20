@@ -1,100 +1,56 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-game-id="airplane-war">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>飞机大战</title>
+<link rel="stylesheet" href="framework.css">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  background: #f5f6fa;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100dvh;
-  font-family: 'Segoe UI', system-ui, sans-serif;
-  overflow: hidden;
-  touch-action: none;
-  -webkit-user-select: none;
-  user-select: none;
-}
-.game-wrapper {
-  max-width: 420px;
-  width: 100%;
-  margin: 8px;
-  padding: 8px;
-}
-.title {
-  text-align: center;
-  font-size: 22px;
-  font-weight: bold;
-  color: #2980b9;
-  margin-bottom: 6px;
-  letter-spacing: 6px;
-}
-.hud {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 10px;
-  margin-bottom: 6px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-  font-size: 12px;
-  font-weight: 600;
-}
-.hud-item { color: #555; }
-.hud-val { color: #2980b9; }
-canvas {
-  display: block;
-  width: 100%;
-  height: auto;
+#gameCanvas {
   aspect-ratio: 400 / 600;
   background: #050510;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
   touch-action: none;
-}
-.controls-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 6px;
-}
-.status-text { font-size: 13px; color: #888; }
-.status-text.playing { color: #27ae60; }
-.restart-btn {
-  padding: 6px 16px; border: 1px solid #ddd;
-  border-radius: 6px; background: #fff;
-  color: #666; font-size: 13px; cursor: pointer;
-}
-.restart-btn:hover { background: #f0f0f0; }
-.fire-hint {
-  font-size: 11px; color: #aaa;
-  text-align: center; margin-top: 4px;
 }
 </style>
 </head>
-<body>
-<div class="game-wrapper">
-  <div class="title">飞机大战</div>
-  <div class="hud">
-    <span class="hud-item">分数 <span class="hud-val" id="scoreDisplay">0</span></span>
-    <span class="hud-item">最高 <span class="hud-val" id="hiDisplay">0</span></span>
-    <span class="hud-item">生命 <span class="hud-val" id="livesDisplay">❤ ❤ ❤</span></span>
-    <span class="hud-item">波次 <span class="hud-val" id="waveDisplay">1</span></span>
+<body class="fw-body">
+<div class="fw-container">
+  <div class="fw-header">
+    <div class="fw-title">飞机大战</div>
+    <div class="fw-scores">
+      <div class="fw-score-box">
+        <div class="fw-score-label">分数</div>
+        <div class="fw-score-value" id="scoreDisplay">0</div>
+      </div>
+      <div class="fw-score-box">
+        <div class="fw-score-label">最高</div>
+        <div class="fw-score-value" id="hiDisplay">0</div>
+      </div>
+      <div class="fw-score-box">
+        <div class="fw-score-label">生命</div>
+        <div class="fw-score-value" id="livesDisplay">❤ ❤ ❤</div>
+      </div>
+      <div class="fw-score-box">
+        <div class="fw-score-label">波次</div>
+        <div class="fw-score-value" id="waveDisplay">1</div>
+      </div>
+    </div>
   </div>
-  <canvas id="gameCanvas" width="400" height="600"></canvas>
-  <div class="controls-row">
-    <span class="status-text" id="statusText">点击开始</span>
-    <span class="fire-hint">拖动飞船 · 自动开火</span>
-    <button class="restart-btn" id="restartBtn">重新开始</button>
+  <div class="fw-game-area">
+    <canvas id="gameCanvas" width="400" height="600" class="fw-canvas"></canvas>
+  </div>
+  <div class="fw-controls-row">
+    <span class="fw-status" id="statusText">点击开始</span>
+    <span class="fw-status">拖动飞船 · 自动开火</span>
+    <button class="fw-btn fw-btn-ghost" id="restartBtn">重新开始</button>
   </div>
 </div>
+<script src="framework.js"></script>
 <script>
 (function(){
   'use strict';
+
+  const FW = GameFramework;
 
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
@@ -181,10 +137,10 @@ canvas {
       waveSpawned: false,
     };
     updateHUD();
-    const hi = parseInt(localStorage.getItem('airplanewar_hi')) || 0;
+    const hi = FW.storage.getHighScore();
     hiEl.textContent = hi;
     statusEl.textContent = '点击开始';
-    statusEl.className = 'status-text';
+    statusEl.className = 'fw-status';
   }
 
   function updateHUD() {
@@ -197,10 +153,11 @@ canvas {
 
   function startGame() {
     if (game.state === 'ready') {
+      FW.audio.sfx('click');
       game.state = 'playing';
       game.autoShoot = true;
       statusEl.textContent = '游戏中';
-      statusEl.className = 'status-text playing';
+      statusEl.className = 'fw-status';
       // Spawn first wave
       spawnWave();
     }
@@ -373,7 +330,7 @@ canvas {
       } else {
         // Burst - 3 rapid shots
         for (let i = 0; i < 3; i++) {
-          setTimeout(() => {
+          setTimeout(function() {
             if (game.boss && game.boss.alive) {
               game.enemyBullets.push({
                 x: boss.x, y: boss.y + boss.h / 2,
@@ -521,7 +478,7 @@ canvas {
         game.bossActive = false;
         game.wave++;
         updateHUD();
-        setTimeout(() => {
+        setTimeout(function() {
           if (game.state === 'playing') spawnWave();
         }, 1000);
       }
@@ -599,6 +556,8 @@ canvas {
             game.score += e.score;
             game.enemiesDefeated++;
             updateHUD();
+            FW.audio.sfx('score');
+            FW.events.reportScore(game.score);
             spawnExplosion(e.x + e.w / 2, e.y + e.h / 2, e.color, 20);
             // Power-up drop
             if (Math.random() < 0.12) {
@@ -636,6 +595,8 @@ canvas {
             game.boss.alive = false;
             game.score += game.boss.score;
             updateHUD();
+            FW.audio.sfx('win');
+            FW.events.reportScore(game.score);
             spawnExplosion(game.boss.x, game.boss.y, '#ff4444', 40);
             // Boss power-up drops
             for (let k = 0; k < 2; k++) {
@@ -664,6 +625,7 @@ canvas {
       // Collect
       if (s.x - s.w / 2 < p.x + p.w / 2 && s.x + s.w / 2 > p.x - p.w / 2 &&
           s.y - s.h / 2 < p.y + p.h / 2 && s.y + s.h / 2 > p.y - p.h / 2) {
+        FW.audio.sfx('powerup');
         if (p.type === 'S') {
           s.weaponLevel = 2;
         } else if (p.type === 'M') {
@@ -700,6 +662,7 @@ canvas {
     if (game.ship.barrierTime > 0) {
       // Barrier absorbs the hit
       game.ship.barrierTime = 0;
+      FW.audio.sfx('bump');
       spawnExplosion(game.ship.x, game.ship.y - 10, '#3498db', 20);
       return;
     }
@@ -713,9 +676,12 @@ canvas {
       game.state = 'over';
       game.autoShoot = false;
       statusEl.textContent = '游戏结束';
-      statusEl.className = 'status-text';
-      if (game.score > (parseInt(localStorage.getItem('airplanewar_hi')) || 0)) {
-        localStorage.setItem('airplanewar_hi', game.score);
+      statusEl.className = 'fw-status';
+      FW.audio.sfx('gameover');
+      FW.events.reportScore(game.score);
+      FW.events.reportComplete(game.score, { won: false });
+      const isNewRecord = FW.storage.setHighScore(game.score);
+      if (isNewRecord) {
         hiEl.textContent = game.score;
       }
     }
@@ -1084,7 +1050,7 @@ canvas {
 
   // ---- Input ----
   // Mouse control
-  canvas.addEventListener('mousemove', (e) => {
+  canvas.addEventListener('mousemove', function(e) {
     if (game.state !== 'playing') return;
     const rect = canvas.getBoundingClientRect();
     const sx = W / rect.width;
@@ -1094,7 +1060,7 @@ canvas {
   });
 
   // Touch control - drag to move
-  canvas.addEventListener('touchstart', (e) => {
+  canvas.addEventListener('touchstart', function(e) {
     e.preventDefault();
     if (game.state === 'ready') {
       startGame();
@@ -1115,7 +1081,7 @@ canvas {
     }
   }, { passive: false });
 
-  canvas.addEventListener('touchmove', (e) => {
+  canvas.addEventListener('touchmove', function(e) {
     e.preventDefault();
     if (game.state !== 'playing') return;
     const rect = canvas.getBoundingClientRect();
@@ -1125,13 +1091,13 @@ canvas {
     game.targetY = (e.touches[0].clientY - rect.top) * sy;
   }, { passive: false });
 
-  canvas.addEventListener('click', () => {
+  canvas.addEventListener('click', function() {
     if (game.state === 'ready') startGame();
     else if (game.state === 'over') { initGame(); startGame(); }
   });
 
   // Keyboard
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', function(e) {
     if (e.key === ' ' || e.key === 'z' || e.key === 'Z') {
       e.preventDefault();
       if (game.state === 'ready') { startGame(); return; }
@@ -1146,10 +1112,10 @@ canvas {
     }
   });
 
-  restartBtn.addEventListener('click', () => { initGame(); });
+  restartBtn.addEventListener('click', function() { initGame(); });
 
   // Prevent scrolling
-  document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+  document.addEventListener('touchmove', function(e) { e.preventDefault(); }, { passive: false });
 
   // ---- Game Loop ----
   function gameLoop() {

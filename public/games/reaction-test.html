@@ -1,75 +1,81 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-game-id="reaction-test">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>反应速度测试</title>
+<link rel="stylesheet" href="framework.css">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    background: #1a1a2e; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--fw-bg, #1a1a2e); color: var(--fw-text, #e0e0e0);
+    font-family: var(--fw-font, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
     display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px;
     -webkit-user-select: none; user-select: none;
   }
-  .container { text-align: center; width: 100%; max-width: 400px; }
-  h1 { font-size: 2em; font-weight: 800; margin-bottom: 20px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .game-container { text-align: center; width: 100%; max-width: 400px; }
+  h1.fw-title { font-size: 2em; font-weight: 800; margin-bottom: 20px; background: var(--fw-gradient-primary, linear-gradient(135deg, #3b82f6, #8b5cf6)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   .test-area {
     width: 100%; aspect-ratio: 1; max-width: 400px; margin: 0 auto;
-    border-radius: 20px; display: flex; flex-direction: column;
+    border-radius: var(--fw-border-radius, 20px); display: flex; flex-direction: column;
     align-items: center; justify-content: center; cursor: pointer;
     transition: background 0.15s, transform 0.1s;
     border: 2px solid rgba(255,255,255,0.1);
     min-height: 250px;
   }
-  .test-area.waiting { background: #991b1b; }
+  .test-area.waiting { background: var(--fw-danger, #991b1b); }
   .test-area.waiting:active { transform: scale(0.98); }
-  .test-area.ready { background: #166534; }
+  .test-area.ready { background: var(--fw-success, #166534); }
   .test-area.ready:active { transform: scale(0.98); }
-  .test-area.idle { background: #1e3a5f; }
+  .test-area.idle { background: var(--fw-primary-dim, #1e3a5f); }
   .test-area.idle:active { transform: scale(0.98); }
-  .test-area.too-soon { background: #991b1b; }
+  .test-area.too-soon { background: var(--fw-danger, #991b1b); }
   .test-area .msg { font-size: 1.3em; font-weight: 600; padding: 20px; color: #fff; }
   .test-area .sub-msg { font-size: 0.9em; color: rgba(255,255,255,0.7); margin-top: 8px; }
   .stats { display: flex; gap: 12px; margin-top: 20px; justify-content: center; }
-  .stat-box { background: #16213e; padding: 12px 16px; border-radius: 12px; min-width: 85px; }
+  .stat-box.fw-score-box { background: var(--fw-card-bg, #16213e); padding: 12px 16px; border-radius: var(--fw-border-radius, 12px); min-width: 85px; }
   .stat-label { font-size: 0.65em; text-transform: uppercase; color: #7f8c8d; letter-spacing: 1px; margin-bottom: 4px; }
   .stat-value { font-size: 1.5em; font-weight: 700; color: #fff; }
   .attempts {
     display: flex; gap: 6px; justify-content: center; margin-top: 16px;
   }
   .attempt-dot {
-    width: 32px; height: 32px; border-radius: 50%; background: #16213e;
+    width: 32px; height: 32px; border-radius: 50%; background: var(--fw-card-bg, #16213e);
     display: flex; align-items: center; justify-content: center;
-    font-size: 0.7em; color: #7f8c8d; border: 2px solid #16213e;
+    font-size: 0.7em; color: #7f8c8d; border: 2px solid var(--fw-card-bg, #16213e);
   }
-  .attempt-dot.done { border-color: #3b82f6; color: #3b82f6; }
-  .attempt-dot.best { border-color: #4ecca3; color: #4ecca3; background: #0a2a1e; }
+  .attempt-dot.done { border-color: var(--fw-primary, #3b82f6); color: var(--fw-primary, #3b82f6); }
+  .attempt-dot.best { border-color: var(--fw-success, #4ecca3); color: var(--fw-success, #4ecca3); background: #0a2a1e; }
   button {
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: #fff;
-    border: none; padding: 10px 28px; border-radius: 8px; font-size: 1em;
+    background: var(--fw-gradient-primary, linear-gradient(135deg, #3b82f6, #8b5cf6)); color: #fff;
+    border: none; padding: 10px 28px; border-radius: var(--fw-border-radius, 8px); font-size: 1em;
     font-weight: 700; cursor: pointer; margin-top: 16px; transition: transform 0.1s;
   }
   button:active { transform: scale(0.95); }
   button.secondary {
-    background: #16213e; color: #e0e0e0; margin-left: 8px;
+    background: var(--fw-card-bg, #16213e); color: var(--fw-text, #e0e0e0); margin-left: 8px;
   }
   .result { display: none; margin-top: 12px; }
   .result.active { display: block; }
-  .result .avg { font-size: 1.8em; font-weight: 800; color: #3b82f6; }
+  .result .avg { font-size: 1.8em; font-weight: 800; color: var(--fw-primary, #3b82f6); }
   .result .label { color: #7f8c8d; font-size: 0.85em; }
   .best-row { color: #7f8c8d; font-size: 0.85em; margin-top: 10px; }
+  .fw-overlay .overlay-content h2 { margin-bottom: 12px; font-size: 1.6em; }
+  .fw-overlay .overlay-content p { margin-bottom: 16px; font-size: 1.1em; color: rgba(255,255,255,0.8); }
 </style>
 </head>
 <body>
-<div class="container">
-  <h1>反应速度测试</h1>
+<div class="fw-container game-container">
+  <div class="fw-header">
+    <h1 class="fw-title">反应速度测试</h1>
+  </div>
   <div class="test-area idle" id="testArea">
     <div class="msg" id="msgText">等待绿色</div>
     <div class="sub-msg" id="subMsg">点击开始</div>
   </div>
   <div class="stats">
-    <div class="stat-box"><div class="stat-label">上次</div><div class="stat-value" id="lastTime">—</div></div>
-    <div class="stat-box"><div class="stat-label">平均</div><div class="stat-value" id="avgTime">—</div></div>
+    <div class="stat-box fw-score-box"><div class="stat-label">上次</div><div class="stat-value" id="lastTime">—</div></div>
+    <div class="stat-box fw-score-box"><div class="stat-label">平均</div><div class="stat-value" id="avgTime">—</div></div>
   </div>
   <div class="attempts" id="attemptDots">
     <div class="attempt-dot">1</div>
@@ -83,32 +89,43 @@
   </div>
   <div class="best-row">个人最佳：<span id="bestTime">—</span></div>
 </div>
+<div class="fw-overlay" id="overlay" style="display:none;">
+  <div class="overlay-content">
+    <h2 id="overlayTitle">测试完成</h2>
+    <p id="overlayStats"></p>
+    <button onclick="closeOverlay()">继续</button>
+  </div>
+</div>
+<script src="framework.js"></script>
 <script>
 (function() {
-  const MAX_TRIALS = 5;
-  let state = 'idle'; // idle, waiting (red), ready (green), too-soon
-  let trials = [];
-  let timeoutId = null;
-  let startTime = 0;
-  let bestOverall = parseFloat(localStorage.getItem('reactionBest') || '0');
+  var MAX_TRIALS = 5;
+  var state = 'idle';
+  var trials = [];
+  var timeoutId = null;
+  var startTime = 0;
+  var bestOverall = parseFloat(FW.storage.load('reactionBest', '0'));
 
-  const testArea = document.getElementById('testArea');
-  const msgText = document.getElementById('msgText');
-  const subMsg = document.getElementById('subMsg');
-  const lastTimeEl = document.getElementById('lastTime');
-  const avgTimeEl = document.getElementById('avgTime');
-  const bestTimeEl = document.getElementById('bestTime');
-  const dots = document.querySelectorAll('.attempt-dot');
+  var testArea = document.getElementById('testArea');
+  var msgText = document.getElementById('msgText');
+  var subMsg = document.getElementById('subMsg');
+  var lastTimeEl = document.getElementById('lastTime');
+  var avgTimeEl = document.getElementById('avgTime');
+  var bestTimeEl = document.getElementById('bestTime');
+  var dots = document.querySelectorAll('.attempt-dot');
+  var overlay = document.getElementById('overlay');
+  var overlayTitle = document.getElementById('overlayTitle');
+  var overlayStats = document.getElementById('overlayStats');
 
   if (bestOverall > 0) bestTimeEl.textContent = bestOverall + 'ms';
 
   function updateDots() {
-    dots.forEach((dot, i) => {
+    dots.forEach(function(dot, i) {
       dot.className = 'attempt-dot';
       if (i < trials.length) {
         dot.classList.add('done');
         dot.textContent = trials[i] + 'ms';
-        const min = trials.length > 0 ? Math.min(...trials) : 0;
+        var min = trials.length > 0 ? Math.min.apply(null, trials) : 0;
         if (trials[i] === min) dot.classList.add('best');
       }
     });
@@ -119,7 +136,7 @@
       lastTimeEl.textContent = trials[trials.length - 1] + 'ms';
     }
     if (trials.length > 0) {
-      const avg = Math.round(trials.reduce((a, b) => a + b, 0) / trials.length);
+      var avg = Math.round(trials.reduce(function(a, b) { return a + b; }, 0) / trials.length);
       avgTimeEl.textContent = avg + 'ms';
     }
     if (bestOverall > 0) {
@@ -128,10 +145,16 @@
     updateDots();
   }
 
+  function showOverlay(title, stats) {
+    overlayTitle.textContent = title;
+    overlayStats.textContent = stats;
+    overlay.style.display = 'flex';
+  }
+
   function goToIdle() {
     state = 'idle';
     testArea.className = 'test-area idle';
-    msgText.textContent = '点击开始';
+    msgText.textContent = trials.length >= MAX_TRIALS ? '点击继续' : '点击开始';
     subMsg.textContent = trials.length + '/' + MAX_TRIALS + ' 次尝试';
   }
 
@@ -141,13 +164,14 @@
     msgText.textContent = '等待中...';
     subMsg.textContent = '显示绿色时点击';
 
-    const delay = 1000 + Math.random() * 3000; // 1-4 seconds
-    timeoutId = setTimeout(() => {
+    var delay = 1000 + Math.random() * 3000;
+    timeoutId = setTimeout(function() {
       state = 'ready';
       testArea.className = 'test-area ready';
       msgText.textContent = '点击！';
       subMsg.textContent = '';
       startTime = performance.now();
+      FW.audio.sfx('click');
       timeoutId = null;
     }, delay);
   }
@@ -158,29 +182,41 @@
         resetGame();
         return;
       }
+      FW.audio.sfx('click');
       startWaiting();
     } else if (state === 'waiting') {
-      // Too soon!
       if (timeoutId) { clearTimeout(timeoutId); timeoutId = null; }
       state = 'too-soon';
       testArea.className = 'test-area too-soon';
       msgText.textContent = '太快了！';
       subMsg.textContent = '点击重试';
     } else if (state === 'ready') {
-      const reaction = Math.round(performance.now() - startTime);
+      var reaction = Math.round(performance.now() - startTime);
       trials.push(reaction);
+      FW.audio.sfx('score');
+      FW.events.reportScore(reaction);
+      var newBest = false;
       if (bestOverall === 0 || reaction < bestOverall) {
         bestOverall = reaction;
-        try { localStorage.setItem('reactionBest', String(bestOverall)); } catch(e) {}
+        newBest = true;
+        FW.storage.setHighScore(bestOverall);
+        try { FW.storage.save('reactionBest', String(bestOverall)); } catch(e) {}
+        FW.audio.sfx('win');
       }
       updateStats();
 
       if (trials.length >= MAX_TRIALS) {
-        const avg = Math.round(trials.reduce((a, b) => a + b, 0) / trials.length);
+        var avg = Math.round(trials.reduce(function(a, b) { return a + b; }, 0) / trials.length);
         state = 'idle';
         testArea.className = 'test-area idle';
         msgText.textContent = '全部完成！';
-        subMsg.textContent = '平均 ' + avg + 'ms — 点击重置';
+        subMsg.textContent = '平均 ' + avg + 'ms';
+        FW.audio.sfx('gameover');
+        FW.events.reportComplete(avg, {won: newBest});
+        showOverlay(
+          newBest ? '新纪录！' : '测试完成',
+          '最佳: ' + bestOverall + 'ms | 平均: ' + avg + 'ms'
+        );
       } else {
         goToIdle();
       }
@@ -190,7 +226,7 @@
   }
 
   testArea.addEventListener('click', handleClick);
-  testArea.addEventListener('touchstart', (e) => {
+  testArea.addEventListener('touchstart', function(e) {
     e.preventDefault();
     handleClick();
   }, { passive: false });
@@ -205,9 +241,16 @@
     state = 'idle';
   }
 
-  document.getElementById('resetBtn').addEventListener('click', resetGame);
+  document.getElementById('resetBtn').addEventListener('click', function() {
+    FW.audio.sfx('click');
+    resetGame();
+  });
   updateStats();
 })();
+
+function closeOverlay() {
+  document.getElementById('overlay').style.display = 'none';
+}
 </script>
 </body>
 </html>

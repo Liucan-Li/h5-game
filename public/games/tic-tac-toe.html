@@ -1,82 +1,92 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-game-id="tic-tac-toe">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>井字棋</title>
+<link rel="stylesheet" href="framework.css">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    background: #1a1a2e; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--fw-bg, #1a1a2e); color: var(--fw-text, #e0e0e0); font-family: var(--fw-font, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
     display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px;
     -webkit-user-select: none; user-select: none;
   }
   .container { text-align: center; width: 100%; max-width: 360px; }
   h1 { font-size: 2em; font-weight: 800; margin-bottom: 8px; }
-  h1 .x { color: #60a5fa; } h1 .o { color: #f87171; }
+  h1 .x { color: var(--fw-primary, #60a5fa); } h1 .o { color: var(--fw-danger, #f87171); }
   .turn-indicator {
     font-size: 1em; margin-bottom: 16px; padding: 8px 16px;
-    background: #16213e; border-radius: 10px; display: inline-block;
+    background: var(--fw-bg-card, #16213e); border-radius: var(--fw-radius, 10px); display: inline-block;
   }
   .turn-indicator .highlight { font-weight: 800; }
   .grid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--fw-gap, 8px);
     width: 100%; aspect-ratio: 1; max-width: 360px; margin: 0 auto;
   }
   .cell {
-    aspect-ratio: 1; background: #0f3460; border-radius: 12px;
+    aspect-ratio: 1; background: #0f3460; border-radius: var(--fw-radius, 12px);
     display: flex; align-items: center; justify-content: center;
     font-size: 3em; font-weight: 800; cursor: pointer;
     transition: background 0.15s, transform 0.1s;
     border: 2px solid rgba(255,255,255,0.05);
   }
-  .cell:hover { background: #16213e; }
+  .cell:hover { background: var(--fw-bg-card, #16213e); }
   .cell:active { transform: scale(0.95); }
-  .cell.x { color: #60a5fa; cursor: default; }
-  .cell.o { color: #f87171; cursor: default; }
-  .cell.win { background: #0a2a1e; border-color: #4ecca3; animation: winPulse 0.5s ease; }
+  .cell.x { color: var(--fw-primary, #60a5fa); cursor: default; }
+  .cell.o { color: var(--fw-danger, #f87171); cursor: default; }
+  .cell.win { background: #0a2a1e; border-color: var(--fw-success, #4ecca3); animation: winPulse 0.5s ease; }
   @keyframes winPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-  .status { margin-top: 16px; font-size: 1.1em; min-height: 1.5em; color: #ccc; }
+  .status { margin-top: 16px; font-size: 1.1em; min-height: 1.5em; color: var(--fw-text-muted, #ccc); }
   button {
-    background: linear-gradient(135deg, #60a5fa, #3b82f6); color: #fff;
-    border: none; padding: 10px 28px; border-radius: 8px; font-size: 1em;
+    background: linear-gradient(135deg, var(--fw-primary, #60a5fa), #3b82f6); color: #fff;
+    border: none; padding: 10px 28px; border-radius: var(--fw-radius, 8px); font-size: 1em;
     font-weight: 700; cursor: pointer; margin-top: 12px; transition: transform 0.1s;
   }
   button:active { transform: scale(0.95); }
   .score-row { display: flex; justify-content: center; gap: 24px; margin-bottom: 12px; }
   .score-item { font-size: 0.9em; }
   .score-item span { font-weight: 700; }
-  .score-item .x { color: #60a5fa; }
-  .score-item .o { color: #f87171; }
+  .score-item .x { color: var(--fw-primary, #60a5fa); }
+  .score-item .o { color: var(--fw-danger, #f87171); }
+  .fw-overlay { display: none; }
+  .fw-overlay.active { display: flex; }
   @media (max-width: 360px) {
     .cell { font-size: 2.2em; }
   }
 </style>
 </head>
 <body>
-<div class="container">
-  <h1><span class="x">X</span> — <span class="o">O</span></h1>
-  <div class="score-row">
-    <div class="score-item">玩家 (<span class="x">X</span>): <span id="xScore">0</span></div>
-    <div class="score-item">电脑 (<span class="o">O</span>): <span id="oScore">0</span></div>
-    <div class="score-item">平局：<span id="drawScore">0</span></div>
+<div class="fw-container">
+  <div class="container">
+    <div class="fw-header">
+      <h1 class="fw-title"><span class="x">X</span> — <span class="o">O</span></h1>
+    </div>
+    <div class="fw-score-box score-row">
+      <div class="score-item">玩家 (<span class="x">X</span>): <span id="xScore">0</span></div>
+      <div class="score-item">电脑 (<span class="o">O</span>): <span id="oScore">0</span></div>
+      <div class="score-item">平局：<span id="drawScore">0</span></div>
+    </div>
+    <div class="turn-indicator"><span id="turnText">轮到你了</span></div>
+    <div class="grid" id="grid"></div>
+    <div class="status" id="statusText"></div>
+    <button id="resetBtn">新游戏</button>
   </div>
-  <div class="turn-indicator"><span id="turnText">轮到你了</span></div>
-  <div class="grid" id="grid"></div>
-  <div class="status" id="statusText"></div>
-  <button id="resetBtn">新游戏</button>
+  <div class="fw-overlay" id="overlay"></div>
 </div>
+<script src="framework.js"></script>
 <script>
 (function() {
-  let board, currentPlayer, gameOver, xWins, oWins, draws;
-  let aiThinking = false;
+  var board, currentPlayer, gameOver, xWins, oWins, draws;
+  var aiThinking = false;
 
-  const grid = document.getElementById('grid');
-  const turnText = document.getElementById('turnText');
-  const statusText = document.getElementById('statusText');
-  const xScoreEl = document.getElementById('xScore');
-  const oScoreEl = document.getElementById('oScore');
-  const drawScoreEl = document.getElementById('drawScore');
+  var grid = document.getElementById('grid');
+  var turnText = document.getElementById('turnText');
+  var statusText = document.getElementById('statusText');
+  var xScoreEl = document.getElementById('xScore');
+  var oScoreEl = document.getElementById('oScore');
+  var drawScoreEl = document.getElementById('drawScore');
+  var overlay = document.getElementById('overlay');
 
   function init() {
     board = Array(9).fill(null);
@@ -86,39 +96,40 @@
     xWins = xWins || 0;
     oWins = oWins || 0;
     draws = draws || 0;
+    overlay.classList.remove('active');
     render();
     updateUI();
   }
 
-  const WIN_COMBOS = [
+  var WIN_COMBOS = [
     [0,1,2],[3,4,5],[6,7,8],
     [0,3,6],[1,4,7],[2,5,8],
     [0,4,8],[2,4,6]
   ];
 
   function checkWinner(b) {
-    for (const combo of WIN_COMBOS) {
-      const [a, c, d] = combo;
+    for (var i = 0; i < WIN_COMBOS.length; i++) {
+      var combo = WIN_COMBOS[i];
+      var a = combo[0], c = combo[1], d = combo[2];
       if (b[a] && b[a] === b[c] && b[a] === b[d]) {
-        return { winner: b[a], combo };
+        return { winner: b[a], combo: combo };
       }
     }
     return null;
   }
 
   function isFull(b) {
-    return b.every(c => c !== null);
+    return b.every(function(c) { return c !== null; });
   }
 
   function aiMove() {
     if (gameOver || aiThinking) return;
     aiThinking = true;
 
-    // Simple AI: find winning move, block player, or random
-    const b = board;
+    var b = board;
 
     // AI win
-    for (let i = 0; i < 9; i++) {
+    for (var i = 0; i < 9; i++) {
       if (b[i] === null) {
         b[i] = 'O';
         if (checkWinner(b)) { b[i] = null; makeMove(i); return; }
@@ -127,7 +138,7 @@
     }
 
     // Block player
-    for (let i = 0; i < 9; i++) {
+    for (var i = 0; i < 9; i++) {
       if (b[i] === null) {
         b[i] = 'X';
         if (checkWinner(b)) { b[i] = null; makeMove(i); return; }
@@ -136,12 +147,12 @@
     }
 
     // Random
-    const empty = [];
-    for (let i = 0; i < 9; i++) {
+    var empty = [];
+    for (var i = 0; i < 9; i++) {
       if (b[i] === null) empty.push(i);
     }
     if (empty.length > 0) {
-      const idx = empty[Math.floor(Math.random() * empty.length)];
+      var idx = empty[Math.floor(Math.random() * empty.length)];
       makeMove(idx);
     }
   }
@@ -151,24 +162,33 @@
     board[index] = currentPlayer;
     render();
 
-    const result = checkWinner(board);
+    var result = checkWinner(board);
     if (result) {
       gameOver = true;
-      const combo = result.combo;
-      document.querySelectorAll('.cell').forEach((cell, i) => {
-        if (combo.includes(i)) cell.classList.add('win');
+      var combo = result.combo;
+      document.querySelectorAll('.cell').forEach(function(cell, i) {
+        if (combo.indexOf(i) !== -1) cell.classList.add('win');
       });
       if (result.winner === 'X') {
         xWins++;
         xScoreEl.textContent = xWins;
         statusText.textContent = '你赢了！';
         turnText.textContent = '游戏结束';
+        FW.storage.save('tttXWins', xWins);
+        FW.audio.sfx('win');
+        FW.events.reportScore(xWins);
+        FW.events.reportComplete(xWins, {won: true});
       } else {
         oWins++;
         oScoreEl.textContent = oWins;
         statusText.textContent = '电脑赢了！';
         turnText.textContent = '游戏结束';
+        FW.storage.save('tttOWins', oWins);
+        FW.audio.sfx('gameover');
+        FW.events.reportScore(oWins);
+        FW.events.reportComplete(oWins, {won: false});
       }
+      overlay.classList.add('active');
       aiThinking = false;
       return;
     }
@@ -179,6 +199,11 @@
       drawScoreEl.textContent = draws;
       statusText.textContent = '平局！';
       turnText.textContent = '游戏结束';
+      FW.storage.save('tttDraws', draws);
+      FW.audio.sfx('gameover');
+      FW.events.reportScore(xWins);
+      FW.events.reportComplete(xWins, {won: false});
+      overlay.classList.add('active');
       aiThinking = false;
       return;
     }
@@ -195,20 +220,25 @@
   function handleCellClick(index) {
     if (gameOver || currentPlayer !== 'X' || aiThinking) return;
     if (board[index] !== null) return;
+    FW.audio.sfx('click');
     makeMove(index);
   }
 
   function render() {
     grid.innerHTML = '';
-    for (let i = 0; i < 9; i++) {
-      const cell = document.createElement('div');
+    for (var i = 0; i < 9; i++) {
+      var cell = document.createElement('div');
       cell.className = 'cell' + (board[i] ? ' ' + board[i].toLowerCase() : '');
       if (board[i]) cell.textContent = board[i];
-      cell.addEventListener('click', () => handleCellClick(i));
-      cell.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        handleCellClick(i);
-      }, { passive: false });
+      cell.addEventListener('click', (function(idx) {
+        return function() { handleCellClick(idx); };
+      })(i));
+      cell.addEventListener('touchstart', (function(idx) {
+        return function(e) {
+          e.preventDefault();
+          handleCellClick(idx);
+        };
+      })(i), { passive: false });
       grid.appendChild(cell);
     }
   }
@@ -224,16 +254,16 @@
     }
   }
 
-  document.getElementById('resetBtn').addEventListener('click', () => {
+  document.getElementById('resetBtn').addEventListener('click', function() {
     if (aiThinking) { aiThinking = false; }
     init();
   });
 
-  // Init scores from localStorage
+  // Init scores from FW.storage
   try {
-    xWins = parseInt(localStorage.getItem('tttXWins')) || 0;
-    oWins = parseInt(localStorage.getItem('tttOWins')) || 0;
-    draws = parseInt(localStorage.getItem('tttDraws')) || 0;
+    xWins = parseInt(FW.storage.load('tttXWins', '0'), 10) || 0;
+    oWins = parseInt(FW.storage.load('tttOWins', '0'), 10) || 0;
+    draws = parseInt(FW.storage.load('tttDraws', '0'), 10) || 0;
     xScoreEl.textContent = xWins;
     oScoreEl.textContent = oWins;
     drawScoreEl.textContent = draws;

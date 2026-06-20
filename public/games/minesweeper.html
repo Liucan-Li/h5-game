@@ -1,52 +1,40 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-game-id="minesweeper">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>扫雷</title>
+<link rel="stylesheet" href="framework.css">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    background: #0a0a0a;
+    background: var(--bg-primary, #0a0a0a);
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100dvh;
-    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-family: var(--font-family, 'Segoe UI', system-ui, sans-serif);
     overflow: hidden;
     touch-action: manipulation;
     -webkit-user-select: none;
     user-select: none;
   }
   .game-wrapper {
-    background: #1a1a2e;
-    border-radius: 16px;
+    background: var(--bg-secondary, #1a1a2e);
+    border-radius: var(--radius-xl, 16px);
     padding: 20px;
-    box-shadow: 0 0 40px rgba(255,200,0,0.1);
+    box-shadow: var(--glass-shadow, 0 0 40px rgba(255,200,0,0.1));
     max-width: 420px;
     width: 100%;
     margin: 8px;
   }
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-    background: #12122a;
-    padding: 10px 16px;
-    border-radius: 10px;
+  .fw-title {
+    font-size: 1.4em;
+    white-space: nowrap;
   }
-  .mine-count, .timer {
-    font-size: 20px;
-    font-weight: bold;
-    font-family: 'Courier New', monospace;
-    color: #ff4444;
-    text-shadow: 0 0 8px rgba(255,68,68,0.4);
-  }
-  .timer { color: #00d4ff; text-shadow: 0 0 8px rgba(0,212,255,0.4); }
   .face-btn {
-    background: #2a2a4a;
-    color: #ffd700;
+    background: var(--bg-tertiary, #2a2a4a);
+    color: var(--accent-3, #ffd700);
     border: none;
     font-size: 28px;
     cursor: pointer;
@@ -56,42 +44,43 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s, transform 0.1s;
+    transition: background var(--transition-fast, 0.2s), transform 0.1s;
     line-height: 1;
+    -webkit-tap-highlight-color: transparent;
   }
-  .face-btn:hover { background: #3a3a5a; }
+  .face-btn:hover { background: var(--bg-card-hover, #3a3a5a); }
   .face-btn:active { transform: scale(0.9); }
   .grid-container {
     display: grid;
     grid-template-columns: repeat(9, 1fr);
     gap: 2px;
-    background: #0a0a1a;
+    background: var(--bg-primary, #0a0a1a);
     padding: 2px;
-    border-radius: 8px;
+    border-radius: var(--radius-md, 8px);
   }
   .cell {
     aspect-ratio: 1;
-    background: #2a2a4e;
+    background: var(--bg-tertiary, #2a2a4e);
     border: none;
-    border-radius: 3px;
+    border-radius: var(--radius-sm, 3px);
     font-size: min(4vw, 18px);
     font-weight: bold;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #e0e0e0;
-    transition: background 0.15s;
-    font-family: 'Segoe UI', system-ui, sans-serif;
+    color: var(--text-primary, #e0e0e0);
+    transition: background var(--transition-fast, 0.15s);
+    font-family: var(--font-family, 'Segoe UI', system-ui, sans-serif);
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
   }
-  .cell:hover:not(.revealed) { background: #3a3a5e; }
-  .cell:active:not(.revealed) { background: #4a4a6e; }
-  .cell.revealed { background: #1a1a30; cursor: default; }
-  .cell.flagged { background: #2a2a3e; color: #ff4444; }
-  .cell.mine { background: #3a1a1a; color: #ff4444; }
-  .cell.mine-hit { background: #6a1a1a; color: #ff6666; }
+  .cell:hover:not(.revealed) { background: var(--bg-card-hover, #3a3a5e); }
+  .cell:active:not(.revealed) { background: var(--bg-card, #4a4a6e); }
+  .cell.revealed { background: var(--bg-secondary, #1a1a30); cursor: default; }
+  .cell.flagged { background: var(--glass-bg, #2a2a3e); color: var(--accent-4, #ff4444); }
+  .cell.mine { background: rgba(58, 26, 26, 1); color: var(--accent-4, #ff4444); }
+  .cell.mine-hit { background: rgba(106, 26, 26, 1); color: #ff6666; }
   .cell.n1 { color: #4a9eff; }
   .cell.n2 { color: #44cc44; }
   .cell.n3 { color: #ff6666; }
@@ -100,52 +89,73 @@
   .cell.n6 { color: #44cccc; }
   .cell.n7 { color: #222222; }
   .cell.n8 { color: #888888; }
-
   .message {
     text-align: center;
     margin-top: 12px;
     font-size: 14px;
     font-weight: bold;
     min-height: 20px;
-    color: #888;
+    color: var(--text-muted, #888);
   }
-  .message.win { color: #44ff44; text-shadow: 0 0 12px rgba(68,255,68,0.4); }
-  .message.lose { color: #ff4444; text-shadow: 0 0 12px rgba(255,68,68,0.4); }
+  .message.win { color: var(--accent-1, #44ff44); text-shadow: 0 0 12px rgba(68,255,68,0.4); }
+  .message.lose { color: var(--accent-4, #ff4444); text-shadow: 0 0 12px rgba(255,68,68,0.4); }
+  .high-score-box { margin-bottom: 12px; display: flex; justify-content: center; }
 </style>
 </head>
 <body>
-<div class="game-wrapper">
-  <div class="header">
-    <span class="mine-count" id="mineCount">10</span>
-    <button class="face-btn" id="faceBtn">&#x1F642;</button>
-    <span class="timer" id="timer">000</span>
+<div class="fw-container">
+  <div class="game-wrapper">
+    <div class="fw-header">
+      <h1 class="fw-title">扫雷</h1>
+    </div>
+    <div class="high-score-box">
+      <div class="fw-score-box">
+        <div class="fw-score-label">最高分</div>
+        <div class="fw-score-value" id="highScore">0</div>
+      </div>
+    </div>
+    <div class="fw-header">
+      <div class="fw-score-box">
+        <div class="fw-score-label">地雷</div>
+        <div class="fw-score-value" id="mineCount">10</div>
+      </div>
+      <button class="face-btn" id="faceBtn">&#x1F642;</button>
+      <div class="fw-score-box">
+        <div class="fw-score-label">时间</div>
+        <div class="fw-score-value" id="timer">000</div>
+      </div>
+    </div>
+    <div class="grid-container" id="grid"></div>
+    <div class="message" id="message">&nbsp;</div>
+    <div class="fw-overlay" id="overlay"></div>
   </div>
-  <div class="grid-container" id="grid"></div>
-  <div class="message" id="message">&nbsp;</div>
 </div>
+<script src="framework.js"></script>
 <script>
 (function(){
-  const ROWS = 9, COLS = 9, MINES = 10;
-  const gridEl = document.getElementById('grid');
-  const mineCountEl = document.getElementById('mineCount');
-  const timerEl = document.getElementById('timer');
-  const faceBtn = document.getElementById('faceBtn');
-  const msgEl = document.getElementById('message');
+  var FW = window.GameFramework;
+  var ROWS = 9, COLS = 9, MINES = 10;
+  var gridEl = document.getElementById('grid');
+  var mineCountEl = document.getElementById('mineCount');
+  var timerEl = document.getElementById('timer');
+  var faceBtn = document.getElementById('faceBtn');
+  var msgEl = document.getElementById('message');
+  var highScoreEl = document.getElementById('highScore');
 
-  let board = [];
-  let cells = [];
-  let revealed = [];
-  let flagged = [];
-  let gameState = 'idle'; // 'idle', 'playing', 'won', 'lost'
-  let flagCount = 0;
-  let timer = 0;
-  let timerInterval = null;
-  let firstClick = true;
+  var board = [];
+  var cells = [];
+  var revealed = [];
+  var flagged = [];
+  var gameState = 'idle'; // 'idle', 'playing', 'won', 'lost'
+  var flagCount = 0;
+  var timer = 0;
+  var timerInterval = null;
+  var firstClick = true;
 
   function initBoard() {
-    board = Array.from({length: ROWS}, () => Array(COLS).fill(0));
-    revealed = Array.from({length: ROWS}, () => Array(COLS).fill(false));
-    flagged = Array.from({length: ROWS}, () => Array(COLS).fill(false));
+    board = Array.from({length: ROWS}, function() { return Array(COLS).fill(0); });
+    revealed = Array.from({length: ROWS}, function() { return Array(COLS).fill(false); });
+    flagged = Array.from({length: ROWS}, function() { return Array(COLS).fill(false); });
     flagCount = 0;
     gameState = 'idle';
     firstClick = true;
@@ -161,23 +171,23 @@
   }
 
   function placeMines(safeR, safeC) {
-    let placed = 0;
+    var placed = 0;
     while (placed < MINES) {
-      const r = Math.floor(Math.random() * ROWS);
-      const c = Math.floor(Math.random() * COLS);
+      var r = Math.floor(Math.random() * ROWS);
+      var c = Math.floor(Math.random() * COLS);
       if (board[r][c] === -1) continue;
       if (Math.abs(r - safeR) <= 1 && Math.abs(c - safeC) <= 1) continue;
       board[r][c] = -1;
       placed++;
     }
     // Calculate numbers
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
+    for (var r = 0; r < ROWS; r++) {
+      for (var c = 0; c < COLS; c++) {
         if (board[r][c] === -1) continue;
-        let count = 0;
-        for (let dr = -1; dr <= 1; dr++) {
-          for (let dc = -1; dc <= 1; dc++) {
-            const nr = r + dr, nc = c + dc;
+        var count = 0;
+        for (var dr = -1; dr <= 1; dr++) {
+          for (var dc = -1; dc <= 1; dc++) {
+            var nr = r + dr, nc = c + dc;
             if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS && board[nr][nc] === -1) count++;
           }
         }
@@ -200,8 +210,8 @@
 
     if (board[r][c] === 0) {
       // Flood fill
-      for (let dr = -1; dr <= 1; dr++) {
-        for (let dc = -1; dc <= 1; dc++) {
+      for (var dr = -1; dr <= 1; dr++) {
+        for (var dc = -1; dc <= 1; dc++) {
           if (dr === 0 && dc === 0) continue;
           reveal(r + dr, c + dc);
         }
@@ -222,9 +232,9 @@
   }
 
   function checkWin() {
-    let totalRevealed = 0;
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
+    var totalRevealed = 0;
+    for (var r = 0; r < ROWS; r++) {
+      for (var c = 0; c < COLS; c++) {
         if (revealed[r][c]) totalRevealed++;
       }
     }
@@ -234,6 +244,15 @@
       faceBtn.innerHTML = '&#x1F60E;';
       msgEl.textContent = '你赢了！';
       msgEl.className = 'message win';
+
+      // Score: faster is better
+      var score = Math.max(0, 1000 - timer * 10);
+      FW.storage.setHighScore(score);
+      highScoreEl.textContent = FW.storage.getHighScore();
+      FW.audio.sfx('win');
+      FW.events.reportScore(score);
+      FW.events.reportComplete(score, {won: true});
+
       render();
     }
   }
@@ -244,9 +263,14 @@
     faceBtn.innerHTML = '&#x1F635;';
     msgEl.textContent = '游戏结束！';
     msgEl.className = 'message lose';
+
+    FW.audio.sfx('gameover');
+    FW.events.reportScore(0);
+    FW.events.reportComplete(0, {won: false});
+
     // Reveal all mines
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
+    for (var r = 0; r < ROWS; r++) {
+      for (var c = 0; c < COLS; c++) {
         if (board[r][c] === -1) {
           revealed[r][c] = true;
         }
@@ -254,7 +278,7 @@
     }
     render();
     // Highlight hit mine
-    const idx = hitR * COLS + hitC;
+    var idx = hitR * COLS + hitC;
     if (cells[idx]) {
       cells[idx].classList.add('mine-hit');
     }
@@ -262,7 +286,7 @@
 
   function startTimer() {
     if (timerInterval) return;
-    timerInterval = setInterval(() => {
+    timerInterval = setInterval(function() {
       timer++;
       if (timer > 999) timer = 999;
       timerEl.textContent = String(timer).padStart(3, '0');
@@ -272,6 +296,8 @@
   function handleClick(r, c) {
     if (gameState === 'won' || gameState === 'lost') return;
     if (flagged[r][c]) return;
+
+    FW.audio.sfx('click');
 
     if (firstClick) {
       placeMines(r, c);
@@ -285,20 +311,21 @@
 
   function handleRightClick(r, c, e) {
     if (e) e.preventDefault();
+    FW.audio.sfx('click');
     toggleFlag(r, c);
   }
 
   // Long press for flag on mobile
-  let longPressTimer = null;
-  let longPressTriggered = false;
-  let pressR, pressC;
+  var longPressTimer = null;
+  var longPressTriggered = false;
+  var pressR, pressC;
 
   function render() {
     gridEl.innerHTML = '';
     cells = [];
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
-        const cell = document.createElement('button');
+    for (var r = 0; r < ROWS; r++) {
+      for (var c = 0; c < COLS; c++) {
+        var cell = document.createElement('button');
         cell.className = 'cell';
         cell.dataset.r = r;
         cell.dataset.c = c;
@@ -318,31 +345,37 @@
         }
 
         // Left click
-        cell.addEventListener('click', (e) => {
-          e.preventDefault();
-          handleClick(r, c);
-        });
+        cell.addEventListener('click', function(r2, c2) {
+          return function(e) {
+            e.preventDefault();
+            handleClick(r2, c2);
+          };
+        }(r, c));
 
         // Right click
-        cell.addEventListener('contextmenu', (e) => handleRightClick(r, c, e));
+        cell.addEventListener('contextmenu', function(r2, c2) {
+          return function(e) { handleRightClick(r2, c2, e); };
+        }(r, c));
 
         // Long press for mobile
-        cell.addEventListener('touchstart', (e) => {
-          longPressTriggered = false;
-          pressR = r; pressC = c;
-          longPressTimer = setTimeout(() => {
-            longPressTriggered = true;
-            handleRightClick(pressR, pressC, e);
-            // Vibrate on long press
-            if (navigator.vibrate) navigator.vibrate(15);
-          }, 400);
-        }, { passive: true });
+        cell.addEventListener('touchstart', function(r2, c2) {
+          return function(e) {
+            longPressTriggered = false;
+            pressR = r2; pressC = c2;
+            longPressTimer = setTimeout(function() {
+              longPressTriggered = true;
+              handleRightClick(pressR, pressC, e);
+              // Vibrate on long press
+              if (navigator.vibrate) navigator.vibrate(15);
+            }, 400);
+          };
+        }(r, c), { passive: true });
 
-        cell.addEventListener('touchend', () => {
+        cell.addEventListener('touchend', function() {
           clearTimeout(longPressTimer);
         }, { passive: true });
 
-        cell.addEventListener('touchmove', () => {
+        cell.addEventListener('touchmove', function() {
           clearTimeout(longPressTimer);
         }, { passive: true });
 
@@ -353,15 +386,28 @@
   }
 
   // Face button reset
-  faceBtn.addEventListener('click', initBoard);
+  faceBtn.addEventListener('click', function() {
+    FW.audio.sfx('click');
+    initBoard();
+  });
 
   // Keyboard shortcut
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'r' || e.key === 'R') initBoard();
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'r' || e.key === 'R') {
+      FW.audio.sfx('click');
+      initBoard();
+    }
   });
 
   // Prevent scrolling on touch
-  document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+  document.addEventListener('touchmove', function(e) { e.preventDefault(); }, { passive: false });
+
+  // Load high score
+  try {
+    highScoreEl.textContent = FW.storage.getHighScore() || 0;
+  } catch (e) {
+    highScoreEl.textContent = '0';
+  }
 
   initBoard();
 })();

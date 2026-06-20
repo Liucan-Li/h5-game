@@ -29,6 +29,12 @@
     "notFound": "Game not found",
     "exitFullscreen": "Exit Fullscreen"
   },
+  "gameEvent": {
+    "score": "Score +{score}",
+    "victory": "Victory!",
+    "gameOver": "Game Over",
+    "finalScore": "Final Score: {score}"
+  },
   "breadcrumb": {
     "home": "Home",
     "games": "Games"

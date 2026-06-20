@@ -1,53 +1,17 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-game-id="platform-runner">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Platform Runner 跑酷</title>
+<link rel="stylesheet" href="framework.css">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: #0a0a14;
-    color: #e0e0e0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    min-height: 100dvh;
-    overflow: hidden;
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: manipulation;
-  }
-  .game-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    padding: 10px;
-    max-width: 500px;
-    width: 100%;
-  }
-  header {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 16px;
-    background: #14142a;
-    border-radius: 12px;
-    border: 1px solid #2a2a4a;
-  }
-  header h1 { font-size: 18px; font-weight: 700; color: #ff7c4c; }
-  .stats { display: flex; gap: 14px; font-size: 13px; color: #aaa; }
-  .stats .num { color: #fff; font-weight: 700; }
-  .stats .coin-icon { color: #ffd700; }
+  :root { --game-bg: #0f0f24; }
 
   canvas {
     display: block;
     background: linear-gradient(180deg, #0f0f24 0%, #1a1a35 60%, #2a1a1a 100%);
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
     border: 2px solid #2a2a4a;
     width: 100%;
     max-width: 480px;
@@ -60,27 +24,6 @@
     gap: 8px;
     width: 100%;
   }
-  .btn {
-    flex: 1;
-    padding: 12px;
-    border: none;
-    border-radius: 10px;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    touch-action: manipulation;
-    transition: transform 0.1s;
-  }
-  .btn:active { transform: scale(0.96); }
-  .btn-start {
-    background: linear-gradient(135deg, #ff7c4c, #ff5252);
-    color: #fff;
-  }
-  .btn-start:hover { opacity: 0.9; }
-  .btn-reset {
-    background: #2a2a4a;
-    color: #aaa;
-  }
 
   .mobile-jump {
     display: none;
@@ -92,9 +35,12 @@
     max-width: 480px;
     padding: 18px;
     border: 2px solid #3a3a5a;
-    border-radius: 12px;
-    background: #14142a;
-    color: #ff7c4c;
+    border-radius: var(--radius-lg);
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    color: var(--accent-1);
+    --accent-1: #f59e0b;
     font-size: 20px;
     font-weight: 700;
     text-align: center;
@@ -104,80 +50,93 @@
     letter-spacing: 4px;
   }
   .mobile-jump-btn:active {
-    background: #2a2a4a;
-    border-color: #ff7c4c;
+    background: var(--bg-card-hover);
+    border-color: var(--accent-1);
+    --accent-1: #f59e0b;
   }
 
   @media (hover: none) and (pointer: coarse) {
     .mobile-jump { display: flex; }
   }
   @media (max-width: 420px) {
-    .game-wrapper { padding: 5px; }
-    header h1 { font-size: 15px; }
-    .stats { font-size: 11px; gap: 10px; }
+    .fw-container { padding: 5px; }
+    .fw-title { font-size: 1.3em; }
   }
 </style>
 </head>
 <body>
-<div class="game-wrapper">
-  <header>
-    <h1>跑酷</h1>
-    <div class="stats">
-      <span>距离 <span class="num" id="distDisplay">0</span>m</span>
-      <span><span class="coin-icon">★</span> <span class="num" id="coinDisplay">0</span></span>
-      <span>分数 <span class="num" id="scoreDisplay">0</span></span>
+<div class="fw-container">
+  <header class="fw-header">
+    <h1 class="fw-title">跑酷</h1>
+    <div class="fw-scores">
+      <div class="fw-score-box">
+        <div class="fw-score-label">距离</div>
+        <div class="fw-score-value" id="distDisplay">0</div>
+      </div>
+      <div class="fw-score-box">
+        <div class="fw-score-label">金币</div>
+        <div class="fw-score-value" id="coinDisplay">0</div>
+      </div>
+      <div class="fw-score-box">
+        <div class="fw-score-label">分数</div>
+        <div class="fw-score-value" id="scoreDisplay">0</div>
+      </div>
     </div>
   </header>
   <canvas id="gameCanvas" width="800" height="500"></canvas>
   <div class="controls">
-    <button class="btn btn-start" id="startBtn">开始</button>
-    <button class="btn btn-reset" id="resetBtn">重置</button>
+    <button class="fw-btn fw-btn-primary" id="startBtn">开始</button>
+    <button class="fw-btn fw-btn-ghost" id="resetBtn">重置</button>
   </div>
   <div class="mobile-jump">
     <div class="mobile-jump-btn" id="jumpBtn">跳</div>
   </div>
 </div>
+<script src="framework.js"></script>
 <script>
 (function(){
   'use strict';
 
-  const canvas = document.getElementById('gameCanvas');
-  const ctx = canvas.getContext('2d');
-  const distDisplay = document.getElementById('distDisplay');
-  const coinDisplay = document.getElementById('coinDisplay');
-  const scoreDisplay = document.getElementById('scoreDisplay');
-  const startBtn = document.getElementById('startBtn');
-  const resetBtn = document.getElementById('resetBtn');
-  const jumpBtn = document.getElementById('jumpBtn');
+  var canvas = document.getElementById('gameCanvas');
+  var ctx = canvas.getContext('2d');
+  var distDisplay = document.getElementById('distDisplay');
+  var coinDisplay = document.getElementById('coinDisplay');
+  var scoreDisplay = document.getElementById('scoreDisplay');
+  var startBtn = document.getElementById('startBtn');
+  var resetBtn = document.getElementById('resetBtn');
+  var jumpBtn = document.getElementById('jumpBtn');
 
-  const W = 800;
-  const H = 500;
+  var FW = window.GameFramework;
+
+  var W = 800;
+  var H = 500;
   canvas.width = W;
   canvas.height = H;
 
   // Constants
-  const GROUND_Y = H - 60;
-  const GROUND_H = 60;
-  const GRAVITY = 0.75;
-  const JUMP_VEL = -13;
-  const PLAYER_W = 32;
-  const PLAYER_H = 44;
-  const BASE_SPEED = 5;
-  const MAX_SPEED = 12;
-  const SPEED_INCREASE = 0.003;
+  var GROUND_Y = H - 60;
+  var GROUND_H = 60;
+  var GRAVITY = 0.75;
+  var JUMP_VEL = -13;
+  var PLAYER_W = 32;
+  var PLAYER_H = 44;
+  var BASE_SPEED = 5;
+  var MAX_SPEED = 12;
+  var SPEED_INCREASE = 0.003;
 
   // Game state
-  let gameRunning = false;
-  let gameOver = false;
-  let speed = BASE_SPEED;
-  let distance = 0;
-  let coins = 0;
-  let score = 0;
-  let highScore = parseInt(localStorage.getItem('platformrunner_hi') || '0', 10);
-  let frameCount = 0;
+  var gameRunning = false;
+  var gameOver = false;
+  var speed = BASE_SPEED;
+  var distance = 0;
+  var coins = 0;
+  var score = 0;
+  var highScore = FW.storage.getHighScore();
+  var frameCount = 0;
+  var newHighScoreAchieved = false;
 
   // Player
-  const player = {
+  var player = {
     x: 120,
     y: GROUND_Y - PLAYER_H,
     w: PLAYER_W,
@@ -189,17 +148,17 @@
   };
 
   // World objects
-  let obstacles = [];
-  let coinObjects = [];
-  let clouds = [];
-  let bgBuildings = [];
+  var obstacles = [];
+  var coinObjects = [];
+  var clouds = [];
+  var bgBuildings = [];
 
   // Ground segments (for gaps)
-  let groundSegments = [];
+  var groundSegments = [];
 
   function initBg() {
     clouds = [];
-    for (let i = 0; i < 6; i++) {
+    for (var i = 0; i < 6; i++) {
       clouds.push({
         x: Math.random() * W * 2,
         y: 30 + Math.random() * 120,
@@ -209,23 +168,23 @@
       });
     }
     bgBuildings = [];
-    for (let i = 0; i < 12; i++) {
+    for (var i = 0; i < 12; i++) {
       bgBuildings.push({
         x: i * 200 - 100,
         w: 60 + Math.random() * 100,
         h: 60 + Math.random() * 100,
-        color: `hsl(${220 + Math.random() * 30}, 15%, ${12 + Math.random() * 10}%)`
+        color: 'hsl(' + (220 + Math.random() * 30) + ', 15%, ' + (12 + Math.random() * 10) + '%)'
       });
     }
   }
 
   function initGround() {
     groundSegments = [];
-    let x = -200;
+    var x = -200;
     while (x < W * 3) {
-      const segW = 80 + Math.random() * 200;
-      const gap = Math.random() < 0.15 ? 60 + Math.random() * 80 : 0;
-      groundSegments.push({ x, w: segW });
+      var segW = 80 + Math.random() * 200;
+      var gap = Math.random() < 0.15 ? 60 + Math.random() * 80 : 0;
+      groundSegments.push({ x: x, w: segW });
       x += segW + gap;
     }
   }
@@ -242,6 +201,7 @@
     frameCount = 0;
     gameOver = false;
     gameRunning = false;
+    newHighScoreAchieved = false;
     obstacles = [];
     coinObjects = [];
     initBg();
@@ -254,6 +214,7 @@
 
   function startGame() {
     if (gameRunning) return;
+    FW.audio.sfx('click');
     initGame();
     gameRunning = true;
     gameOver = false;
@@ -262,6 +223,7 @@
   }
 
   function resetGame() {
+    FW.audio.sfx('click');
     gameRunning = false;
     gameOver = false;
     startBtn.textContent = '开始';
@@ -277,7 +239,7 @@
   }
 
   function spawnObstacle() {
-    const obstacleX = W + 50;
+    var obstacleX = W + 50;
     if (Math.random() < 0.6) {
       obstacles.push({
         x: obstacleX,
@@ -315,7 +277,8 @@
   }
 
   function getGroundAt(x) {
-    for (const seg of groundSegments) {
+    for (var i = 0; i < groundSegments.length; i++) {
+      var seg = groundSegments[i];
       if (x >= seg.x && x < seg.x + seg.w) {
         return seg;
       }
@@ -342,8 +305,8 @@
 
     // Ground collision with gaps
     player.grounded = false;
-    const playerFeet = player.y + player.h;
-    const groundSeg = getGroundAt(player.x + player.w / 2);
+    var playerFeet = player.y + player.h;
+    var groundSeg = getGroundAt(player.x + player.w / 2);
     if (groundSeg && playerFeet >= GROUND_Y && player.vy >= 0) {
       player.y = GROUND_Y - player.h;
       player.vy = 0;
@@ -360,19 +323,20 @@
     }
 
     // Move obstacles
-    for (const obs of obstacles) {
-      obs.x -= speed;
+    for (var i = 0; i < obstacles.length; i++) {
+      obstacles[i].x -= speed;
     }
-    obstacles = obstacles.filter(obs => obs.x > -50);
+    obstacles = obstacles.filter(function(obs) { return obs.x > -50; });
 
     // Move coins
-    for (const coin of coinObjects) {
+    for (var i = 0; i < coinObjects.length; i++) {
+      var coin = coinObjects[i];
       if (!coin.collected) {
         coin.x -= speed;
         coin.bob += 0.05;
       }
     }
-    coinObjects = coinObjects.filter(c => c.x > -30 && !c.collected);
+    coinObjects = coinObjects.filter(function(c) { return c.x > -30 && !c.collected; });
 
     // Spawn obstacles and coins
     if (frameCount % 80 === 0) {
@@ -386,20 +350,21 @@
     }
 
     // Move ground segments
-    for (const seg of groundSegments) {
-      seg.x -= speed;
+    for (var i = 0; i < groundSegments.length; i++) {
+      groundSegments[i].x -= speed;
     }
-    groundSegments = groundSegments.filter(s => s.x + s.w > -200);
-    const lastSeg = groundSegments[groundSegments.length - 1];
+    groundSegments = groundSegments.filter(function(s) { return s.x + s.w > -200; });
+    var lastSeg = groundSegments[groundSegments.length - 1];
     if (!lastSeg || lastSeg.x + lastSeg.w < W + 100) {
-      const startX = lastSeg ? lastSeg.x + lastSeg.w : W + 100;
-      const segW = 80 + Math.random() * 200;
-      const gap = Math.random() < 0.15 ? 60 + Math.random() * 80 : 0;
+      var startX = lastSeg ? lastSeg.x + lastSeg.w : W + 100;
+      var segW = 80 + Math.random() * 200;
+      var gap = Math.random() < 0.15 ? 60 + Math.random() * 80 : 0;
       groundSegments.push({ x: startX + gap, w: segW });
     }
 
     // Move clouds
-    for (const cloud of clouds) {
+    for (var i = 0; i < clouds.length; i++) {
+      var cloud = clouds[i];
       cloud.x -= cloud.speed;
       if (cloud.x + cloud.w < -100) {
         cloud.x = W + 50 + Math.random() * 100;
@@ -408,7 +373,8 @@
     }
 
     // Move buildings
-    for (const b of bgBuildings) {
+    for (var i = 0; i < bgBuildings.length; i++) {
+      var b = bgBuildings[i];
       b.x -= speed * 0.3;
       if (b.x + b.w < -100) {
         b.x = W + 50 + Math.random() * 100;
@@ -416,21 +382,25 @@
     }
 
     // Coin collection
-    for (const coin of coinObjects) {
+    for (var i = 0; i < coinObjects.length; i++) {
+      var coin = coinObjects[i];
       if (coin.collected) continue;
-      const dx = (player.x + player.w / 2) - coin.x;
-      const dy = (player.y + player.h / 2) - coin.y;
+      var dx = (player.x + player.w / 2) - coin.x;
+      var dy = (player.y + player.h / 2) - coin.y;
       if (Math.abs(dx) < coin.r + 12 && Math.abs(dy) < coin.r + 12) {
         coin.collected = true;
         coins++;
         coinDisplay.textContent = coins;
         score += 50;
         scoreDisplay.textContent = score;
+        FW.audio.sfx('score');
+        FW.events.reportScore(score);
       }
     }
 
     // Obstacle collision
-    for (const obs of obstacles) {
+    for (var i = 0; i < obstacles.length; i++) {
+      var obs = obstacles[i];
       if (
         player.x + player.w > obs.x &&
         player.x < obs.x + obs.w &&
@@ -451,16 +421,22 @@
   function endGame() {
     gameOver = true;
     gameRunning = false;
-    if (score > highScore) {
+    var isNewRecord = FW.storage.setHighScore(score);
+    if (isNewRecord) {
       highScore = score;
-      localStorage.setItem('platformrunner_hi', highScore);
+      newHighScoreAchieved = true;
+      FW.audio.sfx('win');
+    } else {
+      FW.audio.sfx('gameover');
     }
+    FW.events.reportScore(score);
+    FW.events.reportComplete(score, { won: false });
     startBtn.textContent = '再来一局';
     startBtn.disabled = false;
   }
 
   function drawBackground() {
-    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    var grad = ctx.createLinearGradient(0, 0, 0, H);
     grad.addColorStop(0, '#0f0f24');
     grad.addColorStop(0.4, '#141430');
     grad.addColorStop(0.7, '#1a1a2a');
@@ -471,7 +447,8 @@
 
   function drawClouds() {
     ctx.save();
-    for (const c of clouds) {
+    for (var i = 0; i < clouds.length; i++) {
+      var c = clouds[i];
       ctx.globalAlpha = c.opacity;
       ctx.fillStyle = '#fff';
       ctx.beginPath();
@@ -484,12 +461,13 @@
   }
 
   function drawBuildings() {
-    for (const b of bgBuildings) {
+    for (var i = 0; i < bgBuildings.length; i++) {
+      var b = bgBuildings[i];
       ctx.fillStyle = b.color;
       ctx.fillRect(b.x, GROUND_Y - b.h, b.w, b.h);
       ctx.fillStyle = 'rgba(255,200,100,0.05)';
-      for (let wy = GROUND_Y - b.h + 10; wy < GROUND_Y - 10; wy += 20) {
-        for (let wx = b.x + 8; wx < b.x + b.w - 8; wx += 18) {
+      for (var wy = GROUND_Y - b.h + 10; wy < GROUND_Y - 10; wy += 20) {
+        for (var wx = b.x + 8; wx < b.x + b.w - 8; wx += 18) {
           ctx.fillRect(wx, wy, 8, 12);
         }
       }
@@ -497,10 +475,11 @@
   }
 
   function drawGround() {
-    for (const seg of groundSegments) {
-      const gx = seg.x;
-      const gw = seg.w;
-      const grad = ctx.createLinearGradient(gx, GROUND_Y, gx, H);
+    for (var i = 0; i < groundSegments.length; i++) {
+      var seg = groundSegments[i];
+      var gx = seg.x;
+      var gw = seg.w;
+      var grad = ctx.createLinearGradient(gx, GROUND_Y, gx, H);
       grad.addColorStop(0, '#2a2a4a');
       grad.addColorStop(0.05, '#1e1e3a');
       grad.addColorStop(1, '#0f0f1e');
@@ -515,15 +494,15 @@
       ctx.stroke();
 
       ctx.fillStyle = 'rgba(255,255,255,0.03)';
-      for (let i = 0; i < gw / 20; i++) {
-        ctx.fillRect(gx + i * 20 + 5, GROUND_Y + 15 + (i % 3) * 10, 4, 4);
+      for (var j = 0; j < gw / 20; j++) {
+        ctx.fillRect(gx + j * 20 + 5, GROUND_Y + 15 + (j % 3) * 10, 4, 4);
       }
     }
   }
 
   function drawPlayer() {
-    const px = player.x;
-    const py = player.y;
+    var px = player.x;
+    var py = player.y;
 
     ctx.save();
 
@@ -534,7 +513,7 @@
     ctx.fill();
 
     // Body suit
-    const bodyColor = player.grounded ? '#ff7c4c' : '#ff5252';
+    var bodyColor = player.grounded ? '#ff7c4c' : '#ff5252';
     ctx.fillStyle = bodyColor;
     ctx.shadowColor = '#ff7c4c';
     ctx.shadowBlur = player.grounded ? 0 : 8;
@@ -566,7 +545,7 @@
 
     // Legs animation
     if (player.grounded) {
-      const legOffset = Math.sin(player.runFrame * Math.PI / 2) * 4;
+      var legOffset = Math.sin(player.runFrame * Math.PI / 2) * 4;
       ctx.fillStyle = '#1a1a3a';
       ctx.fillRect(px + 6, py + PLAYER_H - 8, 7, 8);
       ctx.fillRect(px + PLAYER_W - 13, py + PLAYER_H - 8, 7, 8);
@@ -583,12 +562,13 @@
   }
 
   function drawObstacles() {
-    for (const obs of obstacles) {
+    for (var i = 0; i < obstacles.length; i++) {
+      var obs = obstacles[i];
       ctx.save();
-      const gx = obs.x;
-      const gy = obs.y;
-      const gw = obs.w;
-      const gh = obs.h;
+      var gx = obs.x;
+      var gy = obs.y;
+      var gw = obs.w;
+      var gh = obs.h;
 
       ctx.shadowColor = '#44ff44';
       ctx.shadowBlur = 4;
@@ -602,8 +582,8 @@
 
       ctx.strokeStyle = '#4caf50';
       ctx.lineWidth = 1;
-      for (let i = 0; i < 3; i++) {
-        const sy = gy + 6 + i * 9;
+      for (var j = 0; j < 3; j++) {
+        var sy = gy + 6 + j * 9;
         ctx.beginPath();
         ctx.moveTo(gx + gw, sy);
         ctx.lineTo(gx + gw + 6, sy - 3);
@@ -624,11 +604,12 @@
   }
 
   function drawCoins() {
-    for (const coin of coinObjects) {
+    for (var i = 0; i < coinObjects.length; i++) {
+      var coin = coinObjects[i];
       if (coin.collected) continue;
       ctx.save();
 
-      const bobY = Math.sin(coin.bob) * 3;
+      var bobY = Math.sin(coin.bob) * 3;
       ctx.shadowColor = '#ffd700';
       ctx.shadowBlur = 8;
 
@@ -668,13 +649,19 @@
 
     ctx.fillStyle = '#ddd';
     ctx.font = '24px system-ui, -apple-system, sans-serif';
-    ctx.fillText(`分数: ${score}`, W / 2, H / 2 + 10);
+    ctx.fillText('分数: ' + score, W / 2, H / 2 + 10);
     ctx.fillStyle = '#aaa';
     ctx.font = '16px system-ui, -apple-system, sans-serif';
-    ctx.fillText(`距离: ${Math.floor(distance)}m  金币: ${coins}`, W / 2, H / 2 + 50);
+    ctx.fillText('距离: ' + Math.floor(distance) + 'm  金币: ' + coins, W / 2, H / 2 + 50);
     ctx.fillStyle = '#888';
     ctx.font = '16px system-ui, -apple-system, sans-serif';
-    ctx.fillText(`最高分: ${highScore}`, W / 2, H / 2 + 78);
+    ctx.fillText('最高分: ' + highScore, W / 2, H / 2 + 78);
+
+    if (newHighScoreAchieved) {
+      ctx.fillStyle = '#ffd700';
+      ctx.font = 'bold 20px system-ui, -apple-system, sans-serif';
+      ctx.fillText('★ 新纪录! ★', W / 2, H / 2 + 105);
+    }
   }
 
   function draw() {
@@ -694,7 +681,7 @@
       ctx.font = '12px system-ui, -apple-system, sans-serif';
       ctx.textAlign = 'right';
       ctx.textBaseline = 'top';
-      ctx.fillText(`速度 ${speed.toFixed(1)}`, W - 10, 10);
+      ctx.fillText('速度 ' + speed.toFixed(1), W - 10, 10);
     }
   }
 
@@ -705,7 +692,7 @@
   }
 
   // Input handling
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', function(e) {
     if (e.key === ' ' || e.key === 'Space' || e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
       e.preventDefault();
       if (!gameRunning && !gameOver) {
@@ -717,14 +704,14 @@
   });
 
   // Canvas click/tap
-  canvas.addEventListener('click', (e) => {
+  canvas.addEventListener('click', function(e) {
     if (!gameRunning && !gameOver) {
       startGame();
       return;
     }
     jump();
   });
-  canvas.addEventListener('touchstart', (e) => {
+  canvas.addEventListener('touchstart', function(e) {
     e.preventDefault();
     if (!gameRunning && !gameOver) {
       startGame();
@@ -735,11 +722,11 @@
 
   // Buttons
   startBtn.addEventListener('click', startGame);
-  startBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startGame(); });
+  startBtn.addEventListener('touchstart', function(e) { e.preventDefault(); startGame(); });
   resetBtn.addEventListener('click', resetGame);
-  resetBtn.addEventListener('touchstart', (e) => { e.preventDefault(); resetGame(); });
+  resetBtn.addEventListener('touchstart', function(e) { e.preventDefault(); resetGame(); });
   jumpBtn.addEventListener('click', jump);
-  jumpBtn.addEventListener('touchstart', (e) => { e.preventDefault(); jump(); });
+  jumpBtn.addEventListener('touchstart', function(e) { e.preventDefault(); jump(); });
 
   // Init
   initGame();

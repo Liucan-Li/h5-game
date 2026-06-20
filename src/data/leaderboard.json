@@ -1,0 +1,26 @@
+[
+  {
+    "gameId": "tetris",
+    "score": 300,
+    "playerName": "匿名玩家",
+    "timestamp": "2026-06-20T06:32:51.281Z"
+  },
+  {
+    "gameId": "tetris",
+    "score": 400,
+    "playerName": "匿名玩家",
+    "timestamp": "2026-06-20T06:32:53.826Z"
+  },
+  {
+    "gameId": "tetris",
+    "score": 500,
+    "playerName": "匿名玩家",
+    "timestamp": "2026-06-20T06:33:35.432Z"
+  },
+  {
+    "gameId": "2048",
+    "score": 2048,
+    "playerName": "测试",
+    "timestamp": "2026-06-20T06:42:08.117Z"
+  }
+]

@@ -1,190 +1,92 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-game-id="mahjong-link">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>连连看 - 麻将连连看</title>
+<link rel="stylesheet" href="framework.css">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: #f5f6fa;
-    font-family: 'Microsoft YaHei', 'PingFang SC', 'Noto Sans SC', sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    touch-action: manipulation;
-    user-select: none;
-    -webkit-user-select: none;
-  }
-  .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    padding: 15px;
-    max-width: 560px;
-    width: 100%;
-  }
-  h1 {
-    font-size: 28px;
-    color: #2c3e50;
-    letter-spacing: 6px;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
-  }
-  .info-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    max-width: 520px;
-    background: #fff;
-    border-radius: 12px;
-    padding: 8px 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    flex-wrap: wrap;
-    gap: 4px;
-  }
-  .info-item {
-    font-size: 14px;
-    color: #555;
-    white-space: nowrap;
-  }
-  .info-item span {
-    color: #e74c3c;
-    font-weight: bold;
-    font-size: 16px;
-  }
-  .info-item .score-val {
-    color: #2980b9;
-  }
   canvas {
-    display: block;
-    width: 100%;
-    max-width: 520px;
-    height: auto;
-    aspect-ratio: 1 / 1;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    background: #fcf8e8;
     cursor: pointer;
     touch-action: none;
   }
-  .btn-group {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    justify-content: center;
-    width: 100%;
-    max-width: 520px;
+  .fw-canvas {
+    background: #fcf8e8;
   }
-  .btn {
-    padding: 10px 22px;
-    border: none;
-    border-radius: 10px;
-    font-size: 15px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s;
-    color: #fff;
-    font-family: inherit;
-    flex: 1;
-    min-width: 80px;
-    max-width: 130px;
+  .fw-score-box {
+    min-width: 50px;
   }
-  .btn:active { transform: scale(0.95); }
-  .btn-start { background: #27ae60; }
-  .btn-start:hover { background: #219a52; }
-  .btn-hint { background: #f39c12; }
-  .btn-hint:hover { background: #e08e0b; }
-  .btn-shuffle { background: #8e44ad; }
-  .btn-shuffle:hover { background: #7d3c98; }
-  .btn:disabled { background: #bdc3c7; cursor: not-allowed; transform: none; }
-  .msg-overlay {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: rgba(0,0,0,0.45);
-    z-index: 100;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s;
+  .fw-controls-row {
+    margin-top: 10px;
   }
-  .msg-overlay.show {
-    opacity: 1;
-    pointer-events: auto;
+  .fw-overlay-title.win {
+    background: var(--gradient-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
-  .msg-box {
-    background: #fff;
-    border-radius: 20px;
-    padding: 30px 40px;
-    text-align: center;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-    max-width: 320px;
+  .fw-overlay-title.lose {
+    background: var(--gradient-warm);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
-  .msg-title {
-    font-size: 28px;
-    font-weight: bold;
-    margin-bottom: 10px;
-  }
-  .msg-title.win { color: #27ae60; }
-  .msg-title.lose { color: #e74c3c; }
-  .msg-sub {
-    font-size: 16px;
-    color: #666;
-    margin-bottom: 20px;
-  }
-  .msg-btn {
-    padding: 10px 36px;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    color: #fff;
-    background: #2980b9;
-    font-family: inherit;
-    transition: background 0.2s;
-  }
-  .msg-btn:hover { background: #2471a3; }
-  .msg-btn:active { transform: scale(0.95); }
-  @media (max-width: 540px) {
-    .container { padding: 10px; gap: 8px; }
-    h1 { font-size: 22px; }
-    .info-item { font-size: 12px; }
-    .btn { font-size: 13px; padding: 8px 14px; min-width: 70px; }
+  @media (max-width: 420px) {
+    .fw-score-box {
+      padding: 4px 8px;
+      min-width: 44px;
+    }
+    .fw-score-value {
+      font-size: 1em;
+    }
   }
 </style>
 </head>
 <body>
-<div class="container">
-  <h1>连连看</h1>
-  <div class="info-bar">
-    <div class="info-item">剩余 <span id="remainCount">30</span> 对</div>
-    <div class="info-item">时间 <span id="timerDisplay">600</span>s</div>
-    <div class="info-item">分数 <span class="score-val" id="scoreDisplay">0</span></div>
+<div class="fw-container">
+  <div class="fw-header">
+    <div class="fw-title">连连看</div>
+    <div class="fw-scores">
+      <div class="fw-score-box">
+        <div class="fw-score-label">剩余</div>
+        <div class="fw-score-value" id="remainCount">0</div>
+      </div>
+      <div class="fw-score-box">
+        <div class="fw-score-label">时间</div>
+        <div class="fw-score-value" id="timerDisplay">600</div>
+      </div>
+      <div class="fw-score-box">
+        <div class="fw-score-label">分数</div>
+        <div class="fw-score-value" id="scoreDisplay">0</div>
+      </div>
+    </div>
   </div>
-  <canvas id="gameCanvas" width="520" height="520"></canvas>
-  <div class="btn-group">
-    <button class="btn btn-hint" id="hintBtn">提示 (-30s)</button>
-    <button class="btn btn-shuffle" id="shuffleBtn">重排</button>
-    <button class="btn btn-start" id="startBtn">开始游戏</button>
+
+  <div class="fw-game-area">
+    <canvas id="gameCanvas" class="fw-canvas" width="520" height="520"></canvas>
+  </div>
+
+  <div class="fw-controls-row">
+    <button class="fw-btn fw-btn-warm" id="hintBtn">提示 (-30s)</button>
+    <button class="fw-btn fw-btn-ghost" id="shuffleBtn">重排</button>
+    <button class="fw-btn fw-btn-primary" id="startBtn">开始游戏</button>
   </div>
 </div>
 
-<div class="msg-overlay" id="msgOverlay">
-  <div class="msg-box">
-    <div class="msg-title" id="msgTitle">!</div>
-    <div class="msg-sub" id="msgSub"></div>
-    <button class="msg-btn" id="msgBtn">开始游戏</button>
+<div class="fw-overlay" id="msgOverlay">
+  <div class="fw-overlay-box">
+    <div class="fw-overlay-title" id="msgTitle">!</div>
+    <div class="fw-overlay-text" id="msgSub"></div>
+    <button class="fw-btn fw-btn-primary" id="msgBtn">开始游戏</button>
   </div>
 </div>
 
+<script src="framework.js"></script>
 <script>
 (function () {
   'use strict';
+
+  const FW = window.GameFramework;
 
   // ========== CONSTANTS ==========
   const ROWS = 8;
@@ -211,13 +113,13 @@
     tong: '#c0392b',
     honor: '#8e44ad',
   };
-  const getTileColor = function (idx) {
+  var getTileColor = function (idx) {
     if (idx < 9) return TILE_COLORS.wan;
     if (idx < 18) return TILE_COLORS.tiao;
     if (idx < 27) return TILE_COLORS.tong;
     return TILE_COLORS.honor;
   };
-  const getSuitChar = function (idx) {
+  var getSuitChar = function (idx) {
     if (idx < 9) return '万'; // 万
     if (idx < 18) return '条'; // 条
     if (idx < 27) return '筒'; // 筒
@@ -225,47 +127,40 @@
   };
 
   // ========== CANVAS SETUP ==========
-  const canvas = document.getElementById('gameCanvas');
-  const ctx = canvas.getContext('2d');
+  var canvas = document.getElementById('gameCanvas');
+  var ctx = canvas.getContext('2d');
 
   // ========== DOM REFS ==========
-  const remainEl = document.getElementById('remainCount');
-  const timerEl = document.getElementById('timerDisplay');
-  const scoreEl = document.getElementById('scoreDisplay');
-  const startBtn = document.getElementById('startBtn');
-  const hintBtn = document.getElementById('hintBtn');
-  const shuffleBtn = document.getElementById('shuffleBtn');
-  const msgOverlay = document.getElementById('msgOverlay');
-  const msgTitle = document.getElementById('msgTitle');
-  const msgSub = document.getElementById('msgSub');
-  const msgBtn = document.getElementById('msgBtn');
+  var remainEl = document.getElementById('remainCount');
+  var timerEl = document.getElementById('timerDisplay');
+  var scoreEl = document.getElementById('scoreDisplay');
+  var startBtn = document.getElementById('startBtn');
+  var hintBtn = document.getElementById('hintBtn');
+  var shuffleBtn = document.getElementById('shuffleBtn');
+  var msgOverlay = document.getElementById('msgOverlay');
+  var msgTitle = document.getElementById('msgTitle');
+  var msgSub = document.getElementById('msgSub');
+  var msgBtn = document.getElementById('msgBtn');
 
   // ========== GAME STATE ==========
-  let grid = [];          // ROWS x COLS, tileType index or -1 for empty
-  let selected = null;    // { row, col } or null
-  let path = null;        // [{r, c}, ...] or null
-  let score = 0;
-  let timeLeft = TOTAL_TIME;
-  let timerId = null;
-  let gameActive = false;
-  let matchedCount = 0;
-  let isProcessing = false;
-  let hintPairs = [];     // [{row, col}, {row, col}]
-  let highScore = 0;
-  let animatingTiles = []; // tiles being removed (with animation)
-  let animationId = null;
-  let hintFlashFrame = 0;
-  let hintTimer = null;
+  var grid = [];          // ROWS x COLS, tileType index or -1 for empty
+  var selected = null;    // { row, col } or null
+  var path = null;        // [{r, c}, ...] or null
+  var score = 0;
+  var timeLeft = TOTAL_TIME;
+  var timerId = null;
+  var gameActive = false;
+  var matchedCount = 0;
+  var isProcessing = false;
+  var hintPairs = [];     // [{row, col}, {row, col}]
+  var highScore = 0;
+  var animatingTiles = []; // tiles being removed (with animation)
+  var animationId = null;
+  var hintFlashFrame = 0;
+  var hintTimer = null;
 
   // ========== HIGH SCORE ==========
-  try {
-    var stored = localStorage.getItem('mahjonglink_hi');
-    if (stored) highScore = parseInt(stored, 10) || 0;
-  } catch (e) { /* ignore */ }
-
-  function saveHighScore() {
-    try { localStorage.setItem('mahjonglink_hi', String(highScore)); } catch (e) { /* ignore */ }
-  }
+  highScore = FW.storage.getHighScore();
 
   // ========== HELPERS ==========
   function isInGrid(r, c) {
@@ -287,10 +182,10 @@
   }
 
   function getTileFromPoint(px, py) {
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
+    for (var r = 0; r < ROWS; r++) {
+      for (var c = 0; c < COLS; c++) {
         if (grid[r][c] === -1) continue;
-        const rect = getTileRect(r, c);
+        var rect = getTileRect(r, c);
         if (px >= rect.x && px <= rect.x + rect.w &&
             py >= rect.y && py <= rect.y + rect.h) {
           return { row: r, col: c };
@@ -301,9 +196,9 @@
   }
 
   function shuffleArray(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      const tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    for (var i = arr.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
     }
     return arr;
   }
@@ -311,40 +206,40 @@
   // ========== GRID GENERATION ==========
   function generateGrid() {
     // Create pool of PAIR_COUNT * 2 tiles
-    const pool = [];
-    for (let i = 0; i < PAIR_COUNT; i++) {
+    var pool = [];
+    for (var i = 0; i < PAIR_COUNT; i++) {
       pool.push(i);
       pool.push(i);
     }
     shuffleArray(pool);
 
     // Fill grid
-    const newGrid = [];
-    for (let r = 0; r < ROWS; r++) {
-      const row = [];
-      for (let c = 0; c < COLS; c++) {
+    var newGrid = [];
+    for (var r = 0; r < ROWS; r++) {
+      var row = [];
+      for (var c = 0; c < COLS; c++) {
         row.push(-1);
       }
       newGrid.push(row);
     }
 
     // Determine empty cells
-    const emptyPositions = [];
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
-        emptyPositions.push({ r, c });
+    var emptyPositions = [];
+    for (var r = 0; r < ROWS; r++) {
+      for (var c = 0; c < COLS; c++) {
+        emptyPositions.push({ r: r, c: c });
       }
     }
     shuffleArray(emptyPositions);
-    const emptySet = {};
-    for (let i = 0; i < EMPTY_CELLS; i++) {
+    var emptySet = {};
+    for (var i = 0; i < EMPTY_CELLS; i++) {
       emptySet[emptyPositions[i].r + ',' + emptyPositions[i].c] = true;
     }
 
     // Place tiles
-    let poolIdx = 0;
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
+    var poolIdx = 0;
+    for (var r = 0; r < ROWS; r++) {
+      for (var c = 0; c < COLS; c++) {
         if (emptySet[r + ',' + c]) continue;
         newGrid[r][c] = pool[poolIdx++];
       }
@@ -355,10 +250,10 @@
 
   // ========== EXTENDED GRID FOR PATHFINDING ==========
   function makeExtGrid() {
-    const result = [];
-    for (let r = 0; r <= ROWS + 1; r++) {
-      const row = [];
-      for (let c = 0; c <= COLS + 1; c++) {
+    var result = [];
+    for (var r = 0; r <= ROWS + 1; r++) {
+      var row = [];
+      for (var c = 0; c <= COLS + 1; c++) {
         if (r === 0 || r === ROWS + 1 || c === 0 || c === COLS + 1) {
           row.push(-1);
         } else {
@@ -370,7 +265,7 @@
     return result;
   }
 
-  let extGrid = [];
+  var extGrid = [];
 
   function isEmptyExt(r, c) {
     if (r < 0 || r > ROWS + 1 || c < 0 || c > COLS + 1) return false;
@@ -378,20 +273,20 @@
   }
 
   function isHLineClear(row, c1, c2) {
-    const minC = Math.min(c1, c2);
-    const maxC = Math.max(c1, c2);
+    var minC = Math.min(c1, c2);
+    var maxC = Math.max(c1, c2);
     if (maxC - minC <= 1) return true;
-    for (let c = minC + 1; c < maxC; c++) {
+    for (var c = minC + 1; c < maxC; c++) {
       if (!isEmptyExt(row, c)) return false;
     }
     return true;
   }
 
   function isVLineClear(col, r1, r2) {
-    const minR = Math.min(r1, r2);
-    const maxR = Math.max(r1, r2);
+    var minR = Math.min(r1, r2);
+    var maxR = Math.max(r1, r2);
     if (maxR - minR <= 1) return true;
-    for (let r = minR + 1; r < maxR; r++) {
+    for (var r = minR + 1; r < maxR; r++) {
       if (!isEmptyExt(r, col)) return false;
     }
     return true;
@@ -403,8 +298,8 @@
     if (grid[r1][c1] === -1 || grid[r2][c2] === -1) return null;
     if (grid[r1][c1] !== grid[r2][c2]) return null;
 
-    const er1 = r1 + 1, ec1 = c1 + 1;
-    const er2 = r2 + 1, ec2 = c2 + 1;
+    var er1 = r1 + 1, ec1 = c1 + 1;
+    var er2 = r2 + 1, ec2 = c2 + 1;
 
     // 0 turns
     if (er1 === er2 && isHLineClear(er1, ec1, ec2)) {
@@ -423,7 +318,7 @@
     }
 
     // 2 turns - via column c
-    for (let c = 0; c <= COLS + 1; c++) {
+    for (var c = 0; c <= COLS + 1; c++) {
       if (c === ec1 || c === ec2) continue;
       if (isEmptyExt(er1, c) && isEmptyExt(er2, c) &&
           isHLineClear(er1, ec1, c) && isVLineClear(c, er1, er2) && isHLineClear(er2, ec2, c)) {
@@ -437,12 +332,11 @@
     }
 
     // 2 turns - via row r
-    for (let r = 0; r <= ROWS + 1; r++) {
+    for (var r = 0; r <= ROWS + 1; r++) {
       if (r === er1 || r === er2) continue;
       if (isEmptyExt(r, ec1) && isEmptyExt(r, ec2) &&
           isVLineClear(ec1, er1, r) && isHLineClear(r, ec1, ec2) && isVLineClear(ec2, er2, r)) {
         return [
-          { r: er1, c: ec1 },
           { r: r, c: ec1 },
           { r: r, c: ec2 },
           { r: er2, c: ec2 },
@@ -455,18 +349,18 @@
 
   // ========== FIND HINT ==========
   function findHint() {
-    const candidates = [];
-    for (let r1 = 0; r1 < ROWS; r1++) {
-      for (let c1 = 0; c1 < COLS; c1++) {
+    var candidates = [];
+    for (var r1 = 0; r1 < ROWS; r1++) {
+      for (var c1 = 0; c1 < COLS; c1++) {
         if (grid[r1][c1] === -1) continue;
-        for (let r2 = r1; r2 < ROWS; r2++) {
-          const cStart = (r2 === r1) ? c1 + 1 : 0;
-          for (let c2 = cStart; c2 < COLS; c2++) {
+        for (var r2 = r1; r2 < ROWS; r2++) {
+          var cStart = (r2 === r1) ? c1 + 1 : 0;
+          for (var c2 = cStart; c2 < COLS; c2++) {
             if (r1 === r2 && c1 === c2) continue;
             if (grid[r2][c2] === -1) continue;
             if (grid[r1][c1] !== grid[r2][c2]) continue;
             if (findPath(r1, c1, r2, c2)) {
-              candidates.push({ r1, c1, r2, c2 });
+              candidates.push({ r1: r1, c1: c1, r2: r2, c2: c2 });
             }
           }
         }
@@ -478,7 +372,7 @@
 
   function applyHint() {
     if (!gameActive || isProcessing) return;
-    const hint = findHint();
+    var hint = findHint();
     if (!hint) return;
     // Cost 30 seconds
     timeLeft = Math.max(0, timeLeft - 30);
@@ -509,20 +403,20 @@
   // ========== SHUFFLE ==========
   function shuffleTiles() {
     if (!gameActive || isProcessing) return;
-    const remaining = [];
-    const positions = [];
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
+    var remaining = [];
+    var positions = [];
+    for (var r = 0; r < ROWS; r++) {
+      for (var c = 0; c < COLS; c++) {
         if (grid[r][c] !== -1) {
           remaining.push(grid[r][c]);
-          positions.push({ r, c });
+          positions.push({ r: r, c: c });
         }
       }
     }
     if (remaining.length < 2) return;
     shuffleArray(remaining);
     shuffleArray(positions);
-    for (let i = 0; i < positions.length; i++) {
+    for (var i = 0; i < positions.length; i++) {
       grid[positions[i].r][positions[i].c] = remaining[i];
     }
     selected = null;
@@ -534,10 +428,11 @@
 
   // ========== SCORING ==========
   function addScore(timeRemaining) {
-    const bonus = Math.floor(timeRemaining / 30);
-    const pts = BASE_SCORE + bonus;
+    var bonus = Math.floor(timeRemaining / 30);
+    var pts = BASE_SCORE + bonus;
     score += pts;
     updateScoreDisplay();
+    FW.events.reportScore(score);
   }
 
   // ========== GAME FLOW ==========
@@ -551,7 +446,7 @@
       clearInterval(hintTimer);
       hintTimer = null;
     }
-    msgOverlay.classList.remove('show');
+    msgOverlay.classList.remove('active');
     score = 0;
     timeLeft = TOTAL_TIME;
     matchedCount = 0;
@@ -579,23 +474,28 @@
       clearInterval(hintTimer);
       hintTimer = null;
     }
+
+    FW.events.reportComplete(score, { won: won });
+
     if (won) {
-      const finalScore = score;
+      FW.audio.sfx('win');
+      var finalScore = score;
       if (finalScore > highScore) {
         highScore = finalScore;
-        saveHighScore();
+        FW.storage.setHighScore(highScore);
       }
       msgTitle.textContent = '恭喜过关!';
-      msgTitle.className = 'msg-title win';
+      msgTitle.className = 'fw-overlay-title win';
       msgSub.textContent = '最终得分: ' + finalScore + ' 分' +
         (finalScore >= highScore ? ' (新纪录!)' : ' 最高分: ' + highScore);
     } else {
+      FW.audio.sfx('gameover');
       msgTitle.textContent = '时间到!';
-      msgTitle.className = 'msg-title lose';
+      msgTitle.className = 'fw-overlay-title lose';
       msgSub.textContent = '剩余 ' + matchedCount + ' 对, 得分: ' + score;
     }
     msgBtn.textContent = '再来一局';
-    msgOverlay.classList.add('show');
+    msgOverlay.classList.add('active');
     setButtonsEnabled(false);
   }
 
@@ -608,8 +508,6 @@
       if (timeLeft <= 0) {
         endGame(false);
       }
-      // Update score display to reflect time bonus changes
-      // (for dynamic display, but score only changes on match)
     }, 1000);
   }
 
@@ -629,9 +527,9 @@
   }
 
   function updateRemainDisplay() {
-    let count = 0;
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
+    var count = 0;
+    for (var r = 0; r < ROWS; r++) {
+      for (var c = 0; c < COLS; c++) {
         if (grid[r][c] !== -1) count++;
       }
     }
@@ -651,12 +549,14 @@
     if (grid[r1][c1] === -1 || grid[r2][c2] === -1) return false;
 
     extGrid = makeExtGrid();
-    const p = findPath(r1, c1, r2, c2);
+    var p = findPath(r1, c1, r2, c2);
     if (!p) return false;
 
     // Show path and remove tiles
     path = p;
     render();
+
+    FW.audio.sfx('score');
 
     // Animate removal
     animatingTiles = [
@@ -672,7 +572,7 @@
     updateRemainDisplay();
 
     // Check win
-    const remaining = countRemainingTiles();
+    var remaining = countRemainingTiles();
     if (remaining === 0) {
       setTimeout(function () { endGame(true); }, 600);
       return true;
@@ -691,9 +591,9 @@
   }
 
   function countRemainingTiles() {
-    let cnt = 0;
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
+    var cnt = 0;
+    for (var r = 0; r < ROWS; r++) {
+      for (var c = 0; c < COLS; c++) {
         if (grid[r][c] !== -1) cnt++;
       }
     }
@@ -702,7 +602,7 @@
 
   // ========== RENDERING ==========
   function render() {
-    const dpr = 1; // canvas is already sized in physical pixels
+    var dpr = 1; // canvas is already sized in physical pixels
     ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
 
     // Background
@@ -710,8 +610,8 @@
     ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
 
     // Draw tiles
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
+    for (var r = 0; r < ROWS; r++) {
+      for (var c = 0; c < COLS; c++) {
         if (grid[r][c] === -1) continue;
         drawTile(r, c, grid[r][c]);
       }
@@ -723,7 +623,7 @@
     }
 
     // Draw hint flash
-    for (let i = 0; i < hintPairs.length; i++) {
+    for (var i = 0; i < hintPairs.length; i++) {
       if (hintFlashFrame % 2 === 0) {
         drawHint(hintPairs[i].row, hintPairs[i].col);
       }
@@ -736,8 +636,8 @@
   }
 
   function drawTile(r, c, typeIdx) {
-    const rect = getTileRect(r, c);
-    const { x, y, w, h } = rect;
+    var rect = getTileRect(r, c);
+    var x = rect.x, y = rect.y, w = rect.w, h = rect.h;
 
     // Shadow
     ctx.shadowColor = 'rgba(0,0,0,0.08)';
@@ -745,7 +645,7 @@
     ctx.shadowOffsetY = 2;
 
     // Tile body
-    const radius = 6;
+    var radius = 6;
     ctx.beginPath();
     ctx.moveTo(x + radius, y);
     ctx.lineTo(x + w - radius, y);
@@ -773,8 +673,8 @@
     ctx.stroke();
 
     // Text
-    const textColor = getTileColor(typeIdx);
-    const chars = TILE_TYPES[typeIdx];
+    var textColor = getTileColor(typeIdx);
+    var chars = TILE_TYPES[typeIdx];
 
     if (chars.length === 1) {
       ctx.fillStyle = textColor;
@@ -795,7 +695,7 @@
   }
 
   function drawSelection(r, c) {
-    const rect = getTileRect(r, c);
+    var rect = getTileRect(r, c);
     ctx.strokeStyle = '#e74c3c';
     ctx.lineWidth = 3;
     ctx.shadowColor = 'rgba(231,76,60,0.3)';
@@ -806,7 +706,7 @@
   }
 
   function drawHint(r, c) {
-    const rect = getTileRect(r, c);
+    var rect = getTileRect(r, c);
     ctx.fillStyle = 'rgba(241,196,15,0.35)';
     ctx.shadowColor = 'rgba(241,196,15,0.3)';
     ctx.shadowBlur = 10;
@@ -816,7 +716,7 @@
   }
 
   function extToCanvas(er, ec) {
-    const step = TILE_SIZE + GAP;
+    var step = TILE_SIZE + GAP;
     return {
       x: PADDING_X + (ec - 1) * step + TILE_SIZE / 2,
       y: PADDING_Y + (er - 1) * step + TILE_SIZE / 2,
@@ -834,11 +734,11 @@
     ctx.shadowBlur = 6;
 
     ctx.beginPath();
-    const first = extToCanvas(points[0].r, points[0].c);
+    var first = extToCanvas(points[0].r, points[0].c);
     ctx.moveTo(first.x, first.y);
 
-    for (let i = 1; i < points.length; i++) {
-      const pt = extToCanvas(points[i].r, points[i].c);
+    for (var i = 1; i < points.length; i++) {
+      var pt = extToCanvas(points[i].r, points[i].c);
       ctx.lineTo(pt.x, pt.y);
     }
     ctx.stroke();
@@ -859,14 +759,16 @@
   function handlePointer(clientX, clientY) {
     if (!gameActive || isProcessing) return;
 
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = CANVAS_SIZE / rect.width;
-    const scaleY = CANVAS_SIZE / rect.height;
-    const px = (clientX - rect.left) * scaleX;
-    const py = (clientY - rect.top) * scaleY;
+    var rect = canvas.getBoundingClientRect();
+    var scaleX = CANVAS_SIZE / rect.width;
+    var scaleY = CANVAS_SIZE / rect.height;
+    var px = (clientX - rect.left) * scaleX;
+    var py = (clientY - rect.top) * scaleY;
 
-    const tile = getTileFromPoint(px, py);
+    var tile = getTileFromPoint(px, py);
     if (!tile) return;
+
+    FW.audio.sfx('click');
 
     if (!selected) {
       selected = tile;
@@ -898,7 +800,7 @@
   // Touch events
   canvas.addEventListener('touchstart', function (e) {
     e.preventDefault();
-    const touch = e.touches[0];
+    var touch = e.touches[0];
     if (touch) handlePointer(touch.clientX, touch.clientY);
   }, { passive: false });
 
@@ -907,7 +809,7 @@
   hintBtn.addEventListener('click', applyHint);
   shuffleBtn.addEventListener('click', shuffleTiles);
   msgBtn.addEventListener('click', function () {
-    msgOverlay.classList.remove('show');
+    msgOverlay.classList.remove('active');
     startGame();
   });
 
@@ -915,9 +817,9 @@
   function init() {
     // Show initial empty board
     grid = [];
-    for (let r = 0; r < ROWS; r++) {
-      const row = [];
-      for (let c = 0; c < COLS; c++) {
+    for (var r = 0; r < ROWS; r++) {
+      var row = [];
+      for (var c = 0; c < COLS; c++) {
         row.push(-1);
       }
       grid.push(row);

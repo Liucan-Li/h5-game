@@ -1,124 +1,71 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-game-id="aim-trainer">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>瞄准射击</title>
+<link rel="stylesheet" href="framework.css">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  background: #f5f6fa;
-  color: #2d2d44;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: none;
-}
-.game-wrapper {
-  background: #fff;
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
-  padding: 20px;
-  max-width: 520px;
-  width: 100%;
-  margin: 16px;
-}
-.game-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 14px;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.game-title { font-size: 20px; font-weight: 700; }
-.stats-bar {
-  display: flex;
-  gap: 14px;
-  font-size: 14px;
-  color: #5a5a7a;
-}
-.stat-item { white-space: nowrap; }
-.stat-item span { color: #2d2d44; font-weight: 600; }
-canvas {
-  display: block;
-  width: 100%;
-  height: auto;
-  background: #f0f1f5;
-  border-radius: 12px;
-  cursor: crosshair;
-  touch-action: none;
-}
-.overlay {
+/* Keep overlays inside game area (override fw-overlay fixed positioning) */
+.fw-game-area > .fw-overlay {
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: rgba(255,255,255,0.85);
-  backdrop-filter: blur(4px);
-  border-radius: 12px;
-  z-index: 10;
+  border-radius: var(--radius-lg);
 }
-.overlay h2 { font-size: 28px; margin-bottom: 12px; }
-.overlay p { font-size: 16px; color: #5a5a7a; margin-bottom: 6px; }
-.overlay .result-stats { margin: 12px 0 20px; text-align: center; line-height: 1.8; }
-.overlay .result-stats .label { color: #5a5a7a; }
-.overlay .result-stats .value { font-weight: 700; color: #2d2d44; }
-.btn {
-  padding: 12px 36px;
-  font-size: 18px;
-  font-weight: 600;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  background: #4361ee;
-  color: #fff;
-  transition: transform 0.12s, box-shadow 0.12s;
-  touch-action: manipulation;
-}
-.btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(67,97,238,0.35); }
-.btn:active { transform: scale(0.97); }
-.btn-secondary { background: #e8e9f0; color: #2d2d44; }
-.btn-secondary:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-.canvas-wrap { position: relative; }
+/* Result stats text styling */
+.fw-overlay-text .label { color: var(--text-muted); }
+.fw-overlay-text .value { font-weight: 700; color: var(--text-primary); }
 </style>
 </head>
 <body>
-<div class="game-wrapper">
-  <div class="game-header">
-    <div class="game-title">瞄准射击</div>
-    <div class="stats-bar">
-      <div class="stat-item">得分 <span id="scoreDisplay">0</span></div>
-      <div class="stat-item">命中 <span id="hitDisplay">0</span></div>
-      <div class="stat-item">未中 <span id="missDisplay">0</span></div>
-      <div class="stat-item">时间 <span id="timeDisplay">30</span>s</div>
+<div class="fw-container">
+  <div class="fw-header">
+    <div class="fw-title">瞄准射击</div>
+    <div class="fw-scores">
+      <div class="fw-score-box">
+        <div class="fw-score-label">得分</div>
+        <div class="fw-score-value" id="scoreDisplay">0</div>
+      </div>
+      <div class="fw-score-box">
+        <div class="fw-score-label">命中</div>
+        <div class="fw-score-value" id="hitDisplay">0</div>
+      </div>
+      <div class="fw-score-box">
+        <div class="fw-score-label">未中</div>
+        <div class="fw-score-value" id="missDisplay">0</div>
+      </div>
+      <div class="fw-score-box">
+        <div class="fw-score-label">时间</div>
+        <div class="fw-score-value" id="timeDisplay">30</div>
+      </div>
     </div>
   </div>
-  <div class="canvas-wrap" id="canvasWrap">
-    <canvas id="gameCanvas" width="480" height="480"></canvas>
-    <div class="overlay" id="startOverlay">
-      <h2>瞄准射击</h2>
-      <p>点击靶心得分，环数越高分数越高</p>
-      <p style="font-size:13px;color:#8a8aaa;margin-top:4px;">30秒限时挑战</p>
-      <button class="btn" id="startBtn" style="margin-top:16px;">开始游戏</button>
+  <div class="fw-game-area" id="canvasWrap">
+    <canvas id="gameCanvas" class="fw-canvas" width="480" height="480"></canvas>
+    <div class="fw-overlay active" id="startOverlay">
+      <div class="fw-overlay-box">
+        <div class="fw-overlay-title">瞄准射击</div>
+        <div class="fw-overlay-text">
+          <p>点击靶心得分，环数越高分数越高</p>
+          <p style="font-size:0.85em;color:var(--text-muted);margin-top:4px;">30秒限时挑战</p>
+        </div>
+        <button class="fw-btn fw-btn-primary" id="startBtn">开始游戏</button>
+      </div>
     </div>
-    <div class="overlay" id="endOverlay" style="display:none;">
-      <h2>时间到！</h2>
-      <div class="result-stats" id="resultStats"></div>
-      <button class="btn" id="replayBtn">再来一局</button>
+    <div class="fw-overlay" id="endOverlay">
+      <div class="fw-overlay-box">
+        <div class="fw-overlay-title">时间到！</div>
+        <div class="fw-overlay-text" id="resultStats"></div>
+        <button class="fw-btn fw-btn-primary" id="replayBtn">再来一局</button>
+      </div>
     </div>
   </div>
 </div>
+<script src="framework.js"></script>
 <script>
 (function() {
   'use strict';
 
+  const FW = window.GameFramework;
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
   const W = 480, H = 480;
@@ -148,20 +95,9 @@ canvas {
   let missIndicators = [];
   let spawnTimer = 0;
   let spawnInterval = 700;
-  let highScore = 0;
+  let highScore = FW.storage.getHighScore();
   let animFrameId = null;
   let timerInterval = null;
-
-  function loadHighScore() {
-    try {
-      const val = localStorage.getItem('aimTrainer_highScore');
-      if (val) highScore = parseInt(val, 10) || 0;
-    } catch(e) {}
-  }
-  function saveHighScore() {
-    try { localStorage.setItem('aimTrainer_highScore', String(highScore)); } catch(e) {}
-  }
-  loadHighScore();
 
   // --- Utility ---
   function rand(min, max) { return Math.random() * (max - min) + min; }
@@ -170,17 +106,17 @@ canvas {
 
   // --- Target ---
   function createTarget() {
-    const difficulty = score / 50;
-    const radius = Math.max(10, BASE_TARGET_RADIUS - difficulty * 3);
-    const duration = Math.max(600, BASE_TARGET_DURATION - difficulty * 60);
-    const padding = radius + 10;
-    const x = rand(padding, W - padding);
-    const y = rand(padding, H - padding);
+    var difficulty = score / 50;
+    var radius = Math.max(10, BASE_TARGET_RADIUS - difficulty * 3);
+    var duration = Math.max(600, BASE_TARGET_DURATION - difficulty * 60);
+    var padding = radius + 10;
+    var x = rand(padding, W - padding);
+    var y = rand(padding, H - padding);
     return {
-      x, y,
-      radius,
+      x: x, y: y,
+      radius: radius,
       maxRadius: radius,
-      duration,
+      duration: duration,
       elapsed: 0,
       alive: true,
       opacity: 1,
@@ -191,8 +127,8 @@ canvas {
   }
 
   function spawnTargets() {
-    targets = targets.filter(t => t.alive);
-    const maxNow = Math.min(MAX_TARGETS, 3 + Math.floor(score / 30));
+    targets = targets.filter(function(t) { return t.alive; });
+    var maxNow = Math.min(MAX_TARGETS, 3 + Math.floor(score / 30));
     if (targets.length < maxNow) {
       targets.push(createTarget());
     }
@@ -201,11 +137,11 @@ canvas {
   // --- Particles ---
   function spawnBurst(x, y, color, count) {
     count = count || 18;
-    for (let i = 0; i < count; i++) {
-      const angle = rand(0, Math.PI * 2);
-      const speed = rand(1.5, 5);
+    for (var i = 0; i < count; i++) {
+      var angle = rand(0, Math.PI * 2);
+      var speed = rand(1.5, 5);
       particles.push({
-        x, y,
+        x: x, y: y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
         radius: rand(2, 6),
@@ -217,21 +153,21 @@ canvas {
   }
 
   function spawnMiss(x, y) {
-    missIndicators.push({ x, y, life: 1, decay: 0.035 });
+    missIndicators.push({ x: x, y: y, life: 1, decay: 0.035 });
   }
 
   // --- Hit detection ---
   function handleShot(px, py) {
     if (state !== 'playing') return;
-    let hit = false;
-    for (let i = targets.length - 1; i >= 0; i--) {
-      const t = targets[i];
+    var hit = false;
+    for (var i = targets.length - 1; i >= 0; i--) {
+      var t = targets[i];
       if (!t.alive) continue;
-      const d = dist(px, py, t.x, t.y);
+      var d = dist(px, py, t.x, t.y);
       if (d <= t.radius) {
         // Hit! Determine ring
-        let points = 10;
-        let color = '#ff6b6b';
+        var points = 10;
+        var color = '#ff6b6b';
         if (d <= t.bullseye) { points = 50; color = '#ff2d2d'; }
         else if (d <= t.ring2) { points = 30; color = '#ff6b6b'; }
         else if (d <= t.ring1) { points = 20; color = '#ffa94d'; }
@@ -240,19 +176,22 @@ canvas {
         t.alive = false;
         spawnBurst(t.x, t.y, color, 22);
         hit = true;
+        FW.audio.sfx('score');
         break;
       }
     }
     if (!hit) {
       misses++;
       spawnMiss(px, py);
+      FW.audio.sfx('click');
     }
   }
 
   // --- Game loop ---
   function update(dt) {
     // Update targets
-    for (const t of targets) {
+    for (var i = 0; i < targets.length; i++) {
+      var t = targets[i];
       if (!t.alive) continue;
       t.elapsed += dt;
       if (t.elapsed >= t.duration) {
@@ -260,7 +199,7 @@ canvas {
         misses++;
       }
     }
-    targets = targets.filter(t => t.alive);
+    targets = targets.filter(function(t) { return t.alive; });
 
     // Spawn
     spawnTimer += dt;
@@ -268,21 +207,24 @@ canvas {
       spawnTimer = 0;
       spawnTargets();
     }
-    const diff = score / 50;
+    var diff = score / 50;
     spawnInterval = Math.max(300, 700 - diff * 30);
 
     // Particles
-    for (const p of particles) {
+    for (var i = 0; i < particles.length; i++) {
+      var p = particles[i];
       p.x += p.vx;
       p.y += p.vy;
       p.vy += 0.06;
       p.life -= p.decay;
     }
-    particles = particles.filter(p => p.life > 0);
+    particles = particles.filter(function(p) { return p.life > 0; });
 
     // Miss indicators
-    for (const m of missIndicators) m.life -= m.decay;
-    missIndicators = missIndicators.filter(m => m.life > 0);
+    for (var i = 0; i < missIndicators.length; i++) {
+      missIndicators[i].life -= missIndicators[i].decay;
+    }
+    missIndicators = missIndicators.filter(function(m) { return m.life > 0; });
   }
 
   function draw() {
@@ -293,19 +235,20 @@ canvas {
     ctx.fillRect(0, 0, W, H);
     ctx.strokeStyle = '#e2e4ec';
     ctx.lineWidth = 1;
-    for (let x = 0; x <= W; x += 40) {
+    for (var x = 0; x <= W; x += 40) {
       ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
     }
-    for (let y = 0; y <= H; y += 40) {
+    for (var y = 0; y <= H; y += 40) {
       ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
     }
 
     // Targets
-    for (const t of targets) {
+    for (var i = 0; i < targets.length; i++) {
+      var t = targets[i];
       if (!t.alive) continue;
-      const shrink = 1 - (t.elapsed / t.duration) * 0.15;
-      const r = t.radius * shrink;
-      const fade = Math.min(1, (t.duration - t.elapsed) / 200);
+      var shrink = 1 - (t.elapsed / t.duration) * 0.15;
+      var r = t.radius * shrink;
+      var fade = Math.min(1, (t.duration - t.elapsed) / 200);
       if (r < 3) continue;
 
       ctx.globalAlpha = fade;
@@ -343,7 +286,8 @@ canvas {
     }
 
     // Particles
-    for (const p of particles) {
+    for (var i = 0; i < particles.length; i++) {
+      var p = particles[i];
       ctx.globalAlpha = Math.max(0, p.life);
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.radius * p.life, 0, Math.PI * 2);
@@ -353,11 +297,12 @@ canvas {
     ctx.globalAlpha = 1;
 
     // Miss indicators
-    for (const m of missIndicators) {
+    for (var i = 0; i < missIndicators.length; i++) {
+      var m = missIndicators[i];
       ctx.globalAlpha = Math.max(0, m.life);
       ctx.strokeStyle = '#e74c3c';
       ctx.lineWidth = 3;
-      const s = 12 * (1 - m.life * 0.5);
+      var s = 12 * (1 - m.life * 0.5);
       ctx.beginPath();
       ctx.moveTo(m.x - s, m.y - s); ctx.lineTo(m.x + s, m.y + s);
       ctx.moveTo(m.x + s, m.y - s); ctx.lineTo(m.x - s, m.y + s);
@@ -377,7 +322,7 @@ canvas {
   function gameLoop(timestamp) {
     if (state !== 'playing') return;
     if (!gameLoop.lastTime) gameLoop.lastTime = timestamp;
-    const dt = Math.min(timestamp - gameLoop.lastTime, 50);
+    var dt = Math.min(timestamp - gameLoop.lastTime, 50);
     gameLoop.lastTime = timestamp;
 
     update(dt);
@@ -417,10 +362,11 @@ canvas {
     if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
     if (animFrameId) { cancelAnimationFrame(animFrameId); animFrameId = null; }
 
-    const accuracy = (hits + misses) > 0 ? (hits / (hits + misses) * 100) : 0;
+    var accuracy = (hits + misses) > 0 ? (hits / (hits + misses) * 100) : 0;
     if (score > highScore) {
       highScore = score;
-      saveHighScore();
+      FW.storage.setHighScore(score);
+      FW.audio.sfx('win');
     }
 
     resultStats.innerHTML =
@@ -430,8 +376,12 @@ canvas {
       '<div><span class="label">命中率 </span><span class="value">' + accuracy.toFixed(1) + '%</span></div>' +
       '<div style="margin-top:6px;"><span class="label">最高纪录 </span><span class="value">' + highScore + '</span></div>';
 
-    endOverlay.style.display = 'flex';
+    endOverlay.classList.add('active');
     draw();
+
+    FW.audio.sfx('gameover');
+    FW.events.reportScore(score);
+    FW.events.reportComplete(score, { won: score > 0 });
   }
 
   // --- Start ---
@@ -440,13 +390,13 @@ canvas {
     targets = []; particles = []; missIndicators = [];
     spawnTimer = 0; spawnInterval = 700;
     state = 'playing';
-    startOverlay.style.display = 'none';
-    endOverlay.style.display = 'none';
+    startOverlay.classList.remove('active');
+    endOverlay.classList.remove('active');
     updateUI();
     gameLoop.lastTime = 0;
 
     // Initial targets
-    for (let i = 0; i < 3; i++) targets.push(createTarget());
+    for (var i = 0; i < 3; i++) targets.push(createTarget());
 
     if (animFrameId) cancelAnimationFrame(animFrameId);
     animFrameId = requestAnimationFrame(gameLoop);
@@ -455,10 +405,10 @@ canvas {
 
   // --- Input ---
   function getCanvasPos(e) {
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = W / rect.width;
-    const scaleY = H / rect.height;
-    let clientX, clientY;
+    var rect = canvas.getBoundingClientRect();
+    var scaleX = W / rect.width;
+    var scaleY = H / rect.height;
+    var clientX, clientY;
     if (e.touches) {
       clientX = e.touches[0].clientX;
       clientY = e.touches[0].clientY;
@@ -474,7 +424,7 @@ canvas {
   }
 
   function onPointerDown(e) {
-    const pos = getCanvasPos(e);
+    var pos = getCanvasPos(e);
     handleShot(pos.x, pos.y);
   }
 

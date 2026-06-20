@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-game-id="pong">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>乒乓球</title>
+<link rel="stylesheet" href="framework.css">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -104,8 +105,11 @@
 </style>
 </head>
 <body>
-<div class="game-wrapper">
-  <div class="scoreboard">
+<div class="fw-container game-wrapper">
+  <div class="fw-header">
+    <div class="fw-title">乒乓球</div>
+  </div>
+  <div class="fw-score-box scoreboard">
     <div class="score-item">
       <div class="score-label">玩家</div>
       <div class="score-value player" id="playerScore">0</div>
@@ -124,24 +128,25 @@
   </div>
   <div class="controls-hint">移动鼠标或触摸控制球拍</div>
 </div>
+<script src="framework.js"></script>
 <script>
 (function(){
-  const canvas = document.getElementById('gameCanvas');
-  const ctx = canvas.getContext('2d');
-  const W = 480, H = 320;
-  const WIN_SCORE = 7;
-  const PADDLE_W = 10, PADDLE_H = 50;
-  const BALL_SIZE = 8;
-  const PLAYER_SPEED = 6;
-  const AI_SPEED = 4.5;
-  const INITIAL_BALL_SPEED = 5;
+  var canvas = document.getElementById('gameCanvas');
+  var ctx = canvas.getContext('2d');
+  var W = 480, H = 320;
+  var WIN_SCORE = 7;
+  var PADDLE_W = 10, PADDLE_H = 50;
+  var BALL_SIZE = 8;
+  var PLAYER_SPEED = 6;
+  var AI_SPEED = 4.5;
+  var INITIAL_BALL_SPEED = 5;
 
-  const playerScoreEl = document.getElementById('playerScore');
-  const aiScoreEl = document.getElementById('aiScore');
-  const statusEl = document.getElementById('statusText');
-  const hiEl = document.getElementById('hiDisplay');
+  var playerScoreEl = document.getElementById('playerScore');
+  var aiScoreEl = document.getElementById('aiScore');
+  var statusEl = document.getElementById('statusText');
+  var hiEl = document.getElementById('hiDisplay');
 
-  let game = {};
+  var game = {};
 
   function initGame() {
     game = {
@@ -153,12 +158,12 @@
         vx: INITIAL_BALL_SPEED * (Math.random() > 0.5 ? 1 : -1),
         vy: (Math.random() - 0.5) * 3,
       },
-      state: 'ready', // 'ready', 'playing', 'over'
+      state: 'ready',
       winner: null,
     };
     playerScoreEl.textContent = '0';
     aiScoreEl.textContent = '0';
-    const hi = parseInt(localStorage.getItem('pong_hi')) || 0;
+    var hi = FW.storage.load('pong_hi', 0);
     hiEl.textContent = hi;
     statusEl.textContent = '点击开始';
     statusEl.className = 'status-text';
@@ -166,6 +171,7 @@
 
   function startGame() {
     if (game.state === 'ready') {
+      FW.audio.sfx('click');
       game.state = 'playing';
       statusEl.textContent = '游戏中';
       statusEl.className = 'status-text playing';
@@ -177,7 +183,6 @@
     game.ball.y = H/2;
     game.ball.vx = INITIAL_BALL_SPEED * (Math.random() > 0.5 ? 1 : -1);
     game.ball.vy = (Math.random() - 0.5) * 3;
-    // Ensure ball goes toward whoever lost the point
     if (game.lastScorer === 'player') {
       game.ball.vx = -INITIAL_BALL_SPEED;
     } else {
@@ -188,9 +193,9 @@
   function update() {
     if (game.state !== 'playing') return;
 
-    const ball = game.ball;
-    const player = game.player;
-    const ai = game.ai;
+    var ball = game.ball;
+    var player = game.player;
+    var ai = game.ai;
 
     // Move ball
     ball.x += ball.vx;
@@ -208,8 +213,7 @@
         ball.x - ball.r >= player.x &&
         ball.y >= player.y && ball.y <= player.y + player.h) {
       ball.vx = -ball.vx;
-      // Angle based on where ball hits paddle
-      const hitPos = (ball.y - (player.y + player.h/2)) / (player.h/2);
+      var hitPos = (ball.y - (player.y + player.h/2)) / (player.h/2);
       ball.vy = hitPos * 4;
       ball.x = player.x + player.w + ball.r;
     }
@@ -220,7 +224,7 @@
         ball.x + ball.r <= ai.x + ai.w &&
         ball.y >= ai.y && ball.y <= ai.y + ai.h) {
       ball.vx = -ball.vx;
-      const hitPos = (ball.y - (ai.y + ai.h/2)) / (ai.h/2);
+      var hitPos = (ball.y - (ai.y + ai.h/2)) / (ai.h/2);
       ball.vy = hitPos * 4;
       ball.x = ai.x - ball.r;
     }
@@ -231,15 +235,19 @@
       ai.score++;
       aiScoreEl.textContent = ai.score;
       game.lastScorer = 'ai';
+      FW.audio.sfx('score');
       if (ai.score >= WIN_SCORE) {
         game.state = 'over';
         game.winner = 'AI';
         statusEl.textContent = '电脑赢了！';
         statusEl.className = 'status-text';
-        if (player.score > (parseInt(localStorage.getItem('pong_hi')) || 0)) {
-          localStorage.setItem('pong_hi', player.score);
+        FW.audio.sfx('gameover');
+        if (player.score > FW.storage.getHighScore()) {
+          FW.storage.setHighScore(player.score);
           hiEl.textContent = player.score;
         }
+        FW.events.reportScore(player.score);
+        FW.events.reportComplete(player.score, {won: false});
       } else {
         resetBall();
       }
@@ -248,23 +256,27 @@
       player.score++;
       playerScoreEl.textContent = player.score;
       game.lastScorer = 'player';
+      FW.audio.sfx('score');
       if (player.score >= WIN_SCORE) {
         game.state = 'over';
         game.winner = 'Player';
         statusEl.textContent = '你赢了！';
         statusEl.className = 'status-text';
-        if (player.score > (parseInt(localStorage.getItem('pong_hi')) || 0)) {
-          localStorage.setItem('pong_hi', player.score);
+        FW.audio.sfx('win');
+        if (player.score > FW.storage.getHighScore()) {
+          FW.storage.setHighScore(player.score);
           hiEl.textContent = player.score;
         }
+        FW.events.reportScore(player.score);
+        FW.events.reportComplete(player.score, {won: true});
       } else {
         resetBall();
       }
     }
 
     // AI movement - follows ball with slight delay
-    const aiTarget = ball.y;
-    const aiDiff = aiTarget - (ai.y + ai.h/2);
+    var aiTarget = ball.y;
+    var aiDiff = aiTarget - (ai.y + ai.h/2);
     if (Math.abs(aiDiff) > 15) {
       ai.y += Math.sign(aiDiff) * AI_SPEED;
     }
@@ -275,8 +287,8 @@
     ai.y = Math.max(0, Math.min(H - ai.h, ai.y));
 
     // Limit ball speed
-    const speed = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
-    const maxSpeed = 9;
+    var speed = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
+    var maxSpeed = 9;
     if (speed > maxSpeed) {
       ball.vx = (ball.vx / speed) * maxSpeed;
       ball.vy = (ball.vy / speed) * maxSpeed;
@@ -305,19 +317,18 @@
     ctx.stroke();
 
     // Draw player paddle
-    const p = game.player;
+    var p = game.player;
     ctx.shadowColor = '#00ffcc';
     ctx.shadowBlur = 15;
     ctx.fillStyle = '#00ffcc';
     ctx.fillRect(p.x, p.y, p.w, p.h);
     ctx.shadowBlur = 0;
-    // Edge glow
     ctx.strokeStyle = 'rgba(0,255,204,0.3)';
     ctx.lineWidth = 1;
     ctx.strokeRect(p.x, p.y, p.w, p.h);
 
     // Draw AI paddle
-    const a = game.ai;
+    var a = game.ai;
     ctx.shadowColor = '#ff4466';
     ctx.shadowBlur = 15;
     ctx.fillStyle = '#ff4466';
@@ -328,7 +339,7 @@
     ctx.strokeRect(a.x, a.y, a.w, a.h);
 
     // Draw ball
-    const b = game.ball;
+    var b = game.ball;
     ctx.shadowColor = '#ffffff';
     ctx.shadowBlur = 20;
     ctx.fillStyle = '#ffffff';
@@ -336,7 +347,6 @@
     ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
     ctx.fill();
     ctx.shadowBlur = 0;
-    // Ball glow ring
     ctx.strokeStyle = 'rgba(255,255,255,0.2)';
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -345,7 +355,7 @@
 
     // Particle trail on ball
     ctx.fillStyle = 'rgba(255,255,255,0.05)';
-    for (let i = 1; i <= 3; i++) {
+    for (var i = 1; i <= 3; i++) {
       ctx.beginPath();
       ctx.arc(b.x - b.vx * i * 1.5, b.y - b.vy * i * 1.5, b.r - i, 0, Math.PI * 2);
       ctx.fill();
@@ -390,62 +400,71 @@
   }
 
   // Mouse controls
-  canvas.addEventListener('mousemove', (e) => {
+  canvas.addEventListener('mousemove', function(e) {
     if (game.state === 'over' || game.state === 'ready') return;
-    const rect = canvas.getBoundingClientRect();
-    const scaleY = H / rect.height;
-    const mouseY = (e.clientY - rect.top) * scaleY;
+    var rect = canvas.getBoundingClientRect();
+    var scaleY = H / rect.height;
+    var mouseY = (e.clientY - rect.top) * scaleY;
     game.player.y = Math.max(0, Math.min(H - game.player.h, mouseY - game.player.h/2));
   });
 
   // Touch controls
-  canvas.addEventListener('touchmove', (e) => {
+  canvas.addEventListener('touchmove', function(e) {
     e.preventDefault();
     if (game.state === 'over' || game.state === 'ready') return;
-    const rect = canvas.getBoundingClientRect();
-    const scaleY = H / rect.height;
-    const touchY = (e.touches[0].clientY - rect.top) * scaleY;
+    var rect = canvas.getBoundingClientRect();
+    var scaleY = H / rect.height;
+    var touchY = (e.touches[0].clientY - rect.top) * scaleY;
     game.player.y = Math.max(0, Math.min(H - game.player.h, touchY - game.player.h/2));
   }, { passive: false });
 
   // Click/Tap to start
-  canvas.addEventListener('click', () => {
+  canvas.addEventListener('click', function() {
     if (game.state === 'ready') {
       startGame();
     } else if (game.state === 'over') {
+      FW.audio.sfx('click');
       initGame();
     }
   });
 
-  canvas.addEventListener('touchstart', (e) => {
+  canvas.addEventListener('touchstart', function(e) {
     e.preventDefault();
     if (game.state === 'ready') {
       startGame();
     } else if (game.state === 'over') {
+      FW.audio.sfx('click');
       initGame();
     } else {
-      // Position paddle on touch
-      const rect = canvas.getBoundingClientRect();
-      const scaleY = H / rect.height;
-      const touchY = (e.touches[0].clientY - rect.top) * scaleY;
+      var rect = canvas.getBoundingClientRect();
+      var scaleY = H / rect.height;
+      var touchY = (e.touches[0].clientY - rect.top) * scaleY;
       game.player.y = Math.max(0, Math.min(H - game.player.h, touchY - game.player.h/2));
     }
   }, { passive: false });
 
   // Keyboard
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', function(e) {
     if (e.key === ' ' || e.key === 'Enter') {
       e.preventDefault();
-      if (game.state === 'ready') startGame();
-      else if (game.state === 'over') initGame();
+      if (game.state === 'ready') {
+        FW.audio.sfx('click');
+        startGame();
+      } else if (game.state === 'over') {
+        FW.audio.sfx('click');
+        initGame();
+      }
     }
   });
 
   // Restart button
-  document.getElementById('restartBtn').addEventListener('click', initGame);
+  document.getElementById('restartBtn').addEventListener('click', function() {
+    FW.audio.sfx('click');
+    initGame();
+  });
 
   // Prevent scrolling on touch devices
-  document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+  document.addEventListener('touchmove', function(e) { e.preventDefault(); }, { passive: false });
 
   function gameLoop() {
     update();

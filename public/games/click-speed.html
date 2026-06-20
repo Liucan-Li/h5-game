@@ -1,78 +1,54 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-game-id="click-speed">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>点击速度测试</title>
+<link rel="stylesheet" href="framework.css">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: #1a1a2e; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px;
-    -webkit-user-select: none; user-select: none;
-  }
-  .container {
-    text-align: center; width: 100%; max-width: 400px;
-    display: flex; flex-direction: column; align-items: center; gap: 20px;
-  }
-  h1 { font-size: 2em; font-weight: 800; background: linear-gradient(135deg, #f97316, #ef4444); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .fw-container { max-width: 400px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
   .timer-ring {
     width: 120px; height: 120px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     font-size: 2.5em; font-weight: 800; position: relative;
-    background: conic-gradient(#f97316 0deg, #16213e 0deg);
+    background: conic-gradient(var(--accent-3) 0deg, var(--bg-secondary) 0deg);
   }
   .timer-ring::before {
-    content: ''; position: absolute; inset: 6px; border-radius: 50%; background: #1a1a2e;
+    content: ''; position: absolute; inset: 6px; border-radius: 50%; background: var(--bg-primary);
   }
-  .timer-text { position: relative; z-index: 1; color: #fff; }
-  .timer-ring.ready { background: conic-gradient(#4ecca3 0deg, #16213e 360deg); }
-  .timer-ring.playing { background: conic-gradient(#f97316 var(--progress), #16213e var(--progress)); }
-  .timer-ring.done { background: conic-gradient(#ef4444 0deg, #16213e 360deg); }
+  .timer-text { position: relative; z-index: 1; color: var(--text-primary); }
+  .timer-ring.ready { background: conic-gradient(var(--accent-1) 0deg, var(--bg-secondary) 360deg); }
+  .timer-ring.playing { background: conic-gradient(var(--accent-3) var(--progress), var(--bg-secondary) var(--progress)); }
+  .timer-ring.done { background: conic-gradient(#ef4444 0deg, var(--bg-secondary) 360deg); }
   .stats { display: flex; gap: 24px; }
-  .stat-box { background: #16213e; padding: 12px 20px; border-radius: 12px; min-width: 100px; }
-  .stat-label { font-size: 0.7em; text-transform: uppercase; color: #7f8c8d; letter-spacing: 1px; margin-bottom: 4px; }
-  .stat-value { font-size: 1.8em; font-weight: 700; color: #fff; }
   .click-area {
-    width: 100%; padding: 40px 20px; border-radius: 16px; cursor: pointer;
-    font-size: 1.4em; font-weight: 700; border: 2px solid #333;
+    width: 100%; padding: 40px 20px; border-radius: var(--radius-xl); cursor: pointer;
+    font-size: 1.4em; font-weight: 700; border: 2px solid var(--glass-border);
     transition: all 0.15s; min-height: 120px;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
   }
-  .click-area.ready { background: #16213e; border-color: #4ecca3; color: #4ecca3; }
-  .click-area.ready:hover { background: #1a3a5c; }
-  .click-area.playing { background: #0f3460; border-color: #f97316; color: #fff; }
+  .click-area.ready { background: var(--bg-secondary); border-color: var(--accent-1); color: var(--accent-1); }
+  .click-area.playing { background: var(--bg-tertiary); border-color: var(--accent-3); color: var(--text-primary); }
   .click-area.playing:active { transform: scale(0.98); }
-  .click-area.done { background: #1a1a2e; border-color: #ef4444; color: #ef4444; }
+  .click-area.done { background: var(--bg-primary); border-color: #ef4444; color: #ef4444; }
   .click-count { font-size: 2.5em; font-weight: 800; }
-  button.action {
-    background: linear-gradient(135deg, #f97316, #ef4444); color: #fff;
-    border: none; padding: 12px 32px; border-radius: 10px; font-size: 1.1em;
-    font-weight: 700; cursor: pointer; transition: transform 0.1s;
-  }
-  button.action:active { transform: scale(0.95); }
   .result { display: none; flex-direction: column; align-items: center; gap: 10px; }
   .result.active { display: flex; }
-  .result h2 { color: #f97316; }
-  .result .big { font-size: 3em; font-weight: 800; color: #fff; }
-  .history { margin-top: 10px; color: #7f8c8d; font-size: 0.85em; }
-  .history span { color: #e0e0e0; }
-  @media (max-width: 420px) {
-    h1 { font-size: 1.6em; }
-    .stat-value { font-size: 1.4em; }
-    .click-count { font-size: 2em; }
-  }
+  .result h2 { color: var(--accent-3); }
+  .result .big { font-size: 3em; font-weight: 800; color: var(--text-primary); }
+  .history { margin-top: 10px; color: var(--text-muted); font-size: 0.85em; }
+  .history span { color: var(--text-primary); }
 </style>
 </head>
 <body>
-<div class="container">
-  <h1>点击速度测试</h1>
+<div class="fw-container fw-cat-casual">
+  <h1 class="fw-title">点击速度测试</h1>
   <div class="timer-ring ready" id="timerRing">
     <span class="timer-text" id="timerText">10</span>
   </div>
   <div class="stats">
-    <div class="stat-box"><div class="stat-label">点击</div><div class="stat-value" id="clickCount">0</div></div>
-    <div class="stat-box"><div class="stat-label">CPS</div><div class="stat-value" id="cpsDisplay">0.0</div></div>
+    <div class="fw-score-box"><div class="fw-score-label">点击</div><div class="fw-score-value" id="clickCount">0</div></div>
+    <div class="fw-score-box"><div class="fw-score-label">CPS</div><div class="fw-score-value" id="cpsDisplay">0.0</div></div>
   </div>
   <div class="click-area ready" id="clickArea">
     <span id="clickAreaText">点击开始！</span>
@@ -80,116 +56,75 @@
   <div class="result" id="resultBox">
     <h2>结果</h2>
     <div class="big"><span id="resultCps">0.0</span> CPS</div>
-    <div><span id="resultClicks">0</span> 次点击 / 10秒</div>
+    <div style="color:var(--text-secondary)"><span id="resultClicks">0</span> 次点击 / 10秒</div>
   </div>
-  <button class="action" id="restartBtn">再试一次</button>
-  <div class="history">最高：<span id="bestCps">0.0</span> CPS</div>
+  <button class="fw-btn fw-btn-primary" id="restartBtn">再试一次</button>
+  <div class="history">最高: <span id="bestCps">0.0</span> CPS</div>
 </div>
+<script src="framework.js"></script>
 <script>
 (function() {
+  const FW = window.GameFramework;
   const DURATION = 10;
-  let state = 'idle'; // idle, playing, done
-  let clicks = 0;
-  let timeLeft = DURATION;
-  let timerInterval = null;
-  let bestCps = parseFloat(localStorage.getItem('clickSpeedBest') || '0');
+  var state = 'idle', clicks = 0, timeLeft = DURATION, timerInterval = null;
+  var bestCps = FW.storage.load('bestCps', 0);
 
-  const timerRing = document.getElementById('timerRing');
-  const timerText = document.getElementById('timerText');
-  const clickCount = document.getElementById('clickCount');
-  const cpsDisplay = document.getElementById('cpsDisplay');
-  const clickArea = document.getElementById('clickArea');
-  const clickAreaText = document.getElementById('clickAreaText');
-  const resultBox = document.getElementById('resultBox');
-  const resultCps = document.getElementById('resultCps');
-  const resultClicks = document.getElementById('resultClicks');
-  const bestCpsEl = document.getElementById('bestCps');
-
+  var timerRing = document.getElementById('timerRing');
+  var timerText = document.getElementById('timerText');
+  var clickCount = document.getElementById('clickCount');
+  var cpsDisplay = document.getElementById('cpsDisplay');
+  var clickArea = document.getElementById('clickArea');
+  var clickAreaText = document.getElementById('clickAreaText');
+  var resultBox = document.getElementById('resultBox');
+  var resultCps = document.getElementById('resultCps');
+  var resultClicks = document.getElementById('resultClicks');
+  var bestCpsEl = document.getElementById('bestCps');
   bestCpsEl.textContent = bestCps.toFixed(1);
 
   function updateUI() {
     clickCount.textContent = clicks;
-    const cps = clicks > 0 && timeLeft < DURATION ? (clicks / (DURATION - timeLeft)).toFixed(1) : '0.0';
+    var cps = clicks > 0 && timeLeft < DURATION ? (clicks / (DURATION - timeLeft)).toFixed(1) : '0.0';
     cpsDisplay.textContent = cps;
-
-    const elapsed = DURATION - timeLeft;
-    const progress = (elapsed / DURATION) * 360;
-    timerRing.style.setProperty('--progress', progress + 'deg');
-
+    timerRing.style.setProperty('--progress', ((DURATION - timeLeft) / DURATION * 360) + 'deg');
     timerText.textContent = timeLeft;
   }
 
   function startGame() {
-    state = 'playing';
-    clicks = 0;
-    timeLeft = DURATION;
+    state = 'playing'; clicks = 0; timeLeft = DURATION;
     resultBox.classList.remove('active');
     clickArea.className = 'click-area playing';
     clickAreaText.textContent = '尽可能快地点击！';
     timerRing.className = 'timer-ring playing';
     updateUI();
-
-    timerInterval = setInterval(() => {
-      timeLeft--;
-      updateUI();
-      if (timeLeft <= 0) {
-        endGame();
-      }
-    }, 1000);
+    timerInterval = setInterval(function() { timeLeft--; updateUI(); if (timeLeft <= 0) endGame(); }, 1000);
   }
 
   function endGame() {
-    state = 'done';
-    clearInterval(timerInterval);
-    timerInterval = null;
-    clickArea.className = 'click-area done';
-    clickAreaText.textContent = '时间到！';
+    state = 'done'; clearInterval(timerInterval); timerInterval = null;
+    clickArea.className = 'click-area done'; clickAreaText.textContent = '时间到！';
     timerRing.className = 'timer-ring done';
-
-    const finalCps = (clicks / DURATION);
-    resultCps.textContent = finalCps.toFixed(1);
-    resultClicks.textContent = clicks;
-    resultBox.classList.add('active');
-    cpsDisplay.textContent = finalCps.toFixed(1);
-
-    if (finalCps > bestCps) {
-      bestCps = finalCps;
-      bestCpsEl.textContent = bestCps.toFixed(1);
-      try { localStorage.setItem('clickSpeedBest', String(bestCps)); } catch(e) {}
-    }
+    var finalCps = clicks / DURATION;
+    resultCps.textContent = finalCps.toFixed(1); resultClicks.textContent = clicks;
+    resultBox.classList.add('active'); cpsDisplay.textContent = finalCps.toFixed(1);
+    if (finalCps > bestCps) { bestCps = finalCps; bestCpsEl.textContent = bestCps.toFixed(1); FW.storage.save('bestCps', bestCps); FW.audio.sfx('win'); }
+    else { FW.audio.sfx('gameover'); }
+    FW.events.reportComplete(clicks, { cps: finalCps });
   }
 
   function handleClick() {
-    if (state === 'idle') {
-      startGame();
-      clicks++;
-      updateUI();
-    } else if (state === 'playing') {
-      clicks++;
-      updateUI();
-    }
+    if (state === 'idle') { FW.audio.sfx('select'); startGame(); clicks++; updateUI(); }
+    else if (state === 'playing') { clicks++; updateUI(); FW.audio.sfx('click'); }
   }
 
   clickArea.addEventListener('click', handleClick);
-  clickArea.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    handleClick();
-  }, { passive: false });
-
-  document.getElementById('restartBtn').addEventListener('click', () => {
+  clickArea.addEventListener('touchstart', function(e) { e.preventDefault(); handleClick(); }, { passive: false });
+  document.getElementById('restartBtn').addEventListener('click', function() {
     if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
-    state = 'idle';
-    clicks = 0;
-    timeLeft = DURATION;
-    resultBox.classList.remove('active');
-    clickArea.className = 'click-area ready';
-    clickAreaText.textContent = '点击开始！';
-    timerRing.className = 'timer-ring ready';
-    updateUI();
+    state = 'idle'; clicks = 0; timeLeft = DURATION; resultBox.classList.remove('active');
+    clickArea.className = 'click-area ready'; clickAreaText.textContent = '点击开始！';
+    timerRing.className = 'timer-ring ready'; updateUI();
   });
-
-  // Prevent context menu on long press
-  clickArea.addEventListener('contextmenu', (e) => e.preventDefault());
+  clickArea.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 })();
 </script>
 </body>

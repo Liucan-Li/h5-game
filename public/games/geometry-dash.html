@@ -1,51 +1,50 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-game-id="geometry-dash">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Geometry Dash</title>
+<link rel="stylesheet" href="framework.css">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: #1a1a2e; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px;
-    -webkit-user-select: none; user-select: none; touch-action: none;
-  }
-  .container { text-align: center; width: 100%; max-width: 500px; }
-  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-  h1 { font-size: 1.8em; font-weight: 800; background: linear-gradient(135deg, #e74c3c, #8e44ad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .score-box { background: #16213e; padding: 6px 14px; border-radius: 8px; min-width: 70px; }
-  .score-label { font-size: 0.7em; color: #7f8c8d; }
-  .score-value { font-size: 1.3em; font-weight: 700; color: #fff; }
-  canvas { display: block; width: 100%; aspect-ratio: 2; background: #0f3460; border-radius: 12px; }
-  .overlay { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); border-radius: 12px; z-index: 10; }
-  .overlay.active { display: flex; }
-  .overlay h2 { font-size: 1.8em; color: #fff; margin-bottom: 8px; }
-  .overlay p { color: #ccc; margin-bottom: 16px; }
-  .overlay button { background: linear-gradient(135deg, #e74c3c, #8e44ad); color: #fff; border: none; padding: 10px 28px; border-radius: 8px; font-size: 1em; font-weight: 700; cursor: pointer; }
+  canvas { display: block; width: 100%; aspect-ratio: 2; }
   .game-wrapper { position: relative; }
-  .instructions { color:#7f8c8d; font-size:0.8em; margin-top:12px; }
+  .instructions { color: var(--text-muted); font-size: 0.8em; margin-top: 12px; }
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="header"><h1>Geometry Dash</h1><div class="score-box"><div class="score-label">分数</div><div class="score-value" id="score">0</div></div></div>
-  <div class="game-wrapper">
-    <canvas id="gc" width="600" height="300"></canvas>
-    <div class="overlay" id="overlay"><h2 id="ot">游戏结束</h2><p id="os">分数：0</p><button id="rb">重新开始</button></div>
+<div class="fw-container fw-cat-arcade">
+  <div class="fw-header">
+    <h1 class="fw-title">Geometry Dash</h1>
+    <div class="fw-scores">
+      <div class="fw-score-box"><div class="fw-score-label">分数</div><div class="fw-score-value" id="score">0</div></div>
+      <div class="fw-score-box"><div class="fw-score-label">最高分</div><div class="fw-score-value" id="highScore">0</div></div>
+    </div>
   </div>
-  <div class="instructions">按 空格/↑/点击屏幕 跳跃，长按跳更高</div>
+  <div class="game-wrapper fw-game-area">
+    <canvas id="gc" width="600" height="300" class="fw-canvas"></canvas>
+  </div>
+  <div class="fw-status instructions">按 空格/↑/点击屏幕 跳跃，长按跳更高</div>
 </div>
+<div class="fw-overlay" id="overlay">
+  <div class="fw-overlay-box">
+    <div class="fw-overlay-title" id="ot">游戏结束</div>
+    <div class="fw-overlay-text" id="os">分数：0</div>
+    <button class="fw-btn fw-btn-primary" id="rb">重新开始</button>
+  </div>
+</div>
+<script src="framework.js"></script>
 <script>
 (function(){
+  const FW = window.GameFramework;
   const c=document.getElementById('gc'),ctx=c.getContext('2d');
   const s=document.getElementById('score'),ov=document.getElementById('overlay');
   const ot=document.getElementById('ot'),os=document.getElementById('os');
+  const hs=document.getElementById('highScore');
   const W=600,H=300;
 
   const GRAVITY=0.8, JUMP=-12, GROUND=250;
   let player,obstacles,score,speed,gameOver,jumping,holdJump;
-  let frame,obsTimer,particles;
+  let frame,obsTimer,particles,lastScoreFloor;
 
   const COLORS=['#e74c3c','#f39c12','#2ecc71','#3498db','#9b59b6','#1abc9c'];
 
@@ -53,8 +52,9 @@
     player={x:80,y:GROUND,w:20,h:20,vy:0};
     obstacles=[]; particles=[];
     score=0; speed=4; gameOver=false; jumping=false; holdJump=false;
-    frame=0; obsTimer=0;
-    ov.classList.remove('active');
+    frame=0; obsTimer=0; lastScoreFloor=0;
+    hs.textContent=FW.storage.getHighScore();
+    FW.ui.hideOverlay(ov);
     requestAnimationFrame(loop);
   }
 
@@ -62,8 +62,15 @@
     if(gameOver)return;
     frame++;
     score+=0.1;
-    s.textContent=Math.floor(score);
+    const floorScore=Math.floor(score);
+    s.textContent=floorScore;
     speed=4+Math.floor(score/30);
+
+    // Score sound every 10 points
+    if(floorScore>0&&floorScore%10===0&&floorScore!==lastScoreFloor){
+      FW.audio.sfx('score');
+      lastScoreFloor=floorScore;
+    }
 
     // Physics
     if(holdJump&&jumping)player.vy=-9;
@@ -84,14 +91,21 @@
     }
 
     // Move obstacles
-    obstacles=obstacles.filter(o=>{
+    obstacles=obstacles.filter(function(o){
       o.x-=speed;
       if(o.x+o.w<0)return false;
       // Collision
       if(player.x<o.x+o.w&&player.x+player.w>o.x&&player.y<o.y+o.h&&player.y+player.h>o.y){
         gameOver=true;
-        ot.textContent='游戏结束';os.textContent='分数：'+Math.floor(score);
-        ov.classList.add('active');return false;
+        FW.audio.sfx('gameover');
+        const finalScore=Math.floor(score);
+        const isNew=FW.storage.setHighScore(finalScore);
+        hs.textContent=FW.storage.getHighScore();
+        if(isNew&&finalScore>0)FW.audio.sfx('win');
+        FW.events.reportScore(finalScore);
+        FW.events.reportComplete(finalScore,{won:false});
+        ot.textContent='游戏结束';os.textContent='分数：'+finalScore;
+        FW.ui.showOverlay(ov);return false;
       }
       return true;
     });
@@ -100,7 +114,7 @@
     if(frame%3===0){
       particles.push({x:player.x+5,y:player.y+20,size:2+Math.random()*3,life:20,color:'rgba(255,255,255,0.5)'});
     }
-    particles=particles.filter(p=>{p.life--;p.y+=0.5;p.x-=speed*0.5;return p.life>0;});
+    particles=particles.filter(function(p){p.life--;p.y+=0.5;p.x-=speed*0.5;return p.life>0;});
 
     render();
     requestAnimationFrame(loop);
@@ -110,16 +124,16 @@
     ctx.fillStyle='#0f3460';ctx.fillRect(0,0,W,H);
     // Background pattern
     ctx.fillStyle='rgba(255,255,255,0.02)';
-    for(let i=0;i<W;i+=40)for(let j=0;j<H;j+=40)ctx.fillRect(i,j,20,20);
+    for(var i=0;i<W;i+=40)for(var j=0;j<H;j+=40)ctx.fillRect(i,j,20,20);
     // Ground
     ctx.fillStyle='#16213e';ctx.fillRect(0,GROUND,600,H-GROUND);
     ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=2;
     ctx.beginPath();ctx.moveTo(0,GROUND);ctx.lineTo(W,GROUND);ctx.stroke();
     // Particles
-    particles.forEach(p=>{ctx.fillStyle=p.color;ctx.globalAlpha=p.life/20;ctx.fillRect(p.x,p.y,p.size,p.size);});
+    particles.forEach(function(p){ctx.fillStyle=p.color;ctx.globalAlpha=p.life/20;ctx.fillRect(p.x,p.y,p.size,p.size);});
     ctx.globalAlpha=1;
     // Obstacles
-    obstacles.forEach(o=>{
+    obstacles.forEach(function(o){
       if(o.type===0){ // Spike
         ctx.fillStyle=o.color;
         ctx.beginPath();ctx.moveTo(o.x,o.y+o.h);ctx.lineTo(o.x+o.w/2,o.y);ctx.lineTo(o.x+o.w,o.y+o.h);ctx.closePath();ctx.fill();
@@ -140,22 +154,28 @@
   }
 
   function doJump(){
-    if(!jumping&&!gameOver){player.vy=JUMP;jumping=true;holdJump=true;}
+    if(!jumping&&!gameOver){
+      player.vy=JUMP;jumping=true;holdJump=true;
+      FW.audio.sfx('click');
+    }
   }
   function releaseJump(){holdJump=false;}
 
-  document.addEventListener('keydown',e=>{
+  document.addEventListener('keydown',function(e){
     if(e.key===' '||e.key==='ArrowUp'){e.preventDefault();doJump();}
     if(gameOver)init();
   });
-  document.addEventListener('keyup',e=>{
+  document.addEventListener('keyup',function(e){
     if(e.key===' '||e.key==='ArrowUp')releaseJump();
   });
 
-  c.addEventListener('touchstart',e=>{e.preventDefault();doJump();},{passive:false});
-  c.addEventListener('touchend',e=>{releaseJump();});
+  c.addEventListener('touchstart',function(e){e.preventDefault();doJump();},{passive:false});
+  c.addEventListener('touchend',function(e){releaseJump();});
 
-  document.getElementById('rb').addEventListener('click',init);
+  document.getElementById('rb').addEventListener('click',function(){
+    FW.audio.sfx('click');
+    init();
+  });
   init();
 })();
 </script>

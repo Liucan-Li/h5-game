@@ -1,96 +1,55 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-game-id="24-game">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>24点</title>
+<link rel="stylesheet" href="framework.css">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: #f5f6fa; color: #2d3436; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px;
-    -webkit-user-select: none; user-select: none; touch-action: none;
-  }
-  .container { text-align: center; width: 100%; max-width: 440px; }
-  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 4px; }
-  h1 { font-size: 1.8em; font-weight: 800; color: #e17055; }
-  .score-row { display: flex; gap: 6px; flex-wrap: wrap; }
-  .score-box { background: #dfe6e9; padding: 3px 10px; border-radius: 8px; min-width: 50px; }
-  .score-label { font-size: 0.5em; text-transform: uppercase; color: #636e72; letter-spacing: 1px; }
-  .score-value { font-size: 1.1em; font-weight: 700; color: #2d3436; }
-  .score-value.timer { color: #e17055; }
-  .score-value.timer.warning { color: #d63031; }
-  .score-value.streak { color: #6c5ce7; }
-  #gameCanvas {
-    display: block; width: 100%; aspect-ratio: 400/480; max-height: 75vh;
-    margin: 0 auto; border-radius: 12px; background: #1a6b3c; box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-  }
-  .expression-display {
-    background: #fff; border: 2px solid #b2bec3; border-radius: 10px;
-    padding: 10px 14px; margin: 8px 0; min-height: 44px;
-    font-size: 1.2em; font-weight: 600; color: #2d3436;
-    text-align: center; letter-spacing: 2px;
-    display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 2px;
-  }
+  .fw-cat-puzzle { --accent-1: #7c3aed; --gradient-cool: linear-gradient(135deg, #7c3aed, #a78bfa); }
+  .timer { color: var(--accent-3); }
+  .timer.warning { color: var(--accent-4); }
+  .streak { color: var(--accent-2); }
+  #gameCanvas { display: block; width: 100%; aspect-ratio: 400/480; max-height: 75vh; margin: 0 auto; border-radius: var(--radius-lg); background: var(--game-bg); box-shadow: var(--glass-shadow); }
+  .expression-display { background: var(--glass-bg); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 10px 14px; margin: 8px 0; min-height: 44px; font-size: 1.2em; font-weight: 600; color: var(--text-primary); text-align: center; letter-spacing: 2px; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 2px; }
   .expression-display .token { padding: 0 2px; }
-  .expression-display .token.num { color: #0984e3; }
-  .expression-display .token.op { color: #e17055; }
-  .expression-display .hint-text { color: #00b894; font-size: 0.85em; }
+  .expression-display .token.num { color: var(--accent-2); }
+  .expression-display .token.op { color: var(--accent-3); }
+  .expression-display .hint-text { color: var(--accent-1); font-size: 0.85em; }
   .op-buttons { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 4px 0; }
-  .op-btn {
-    width: 48px; height: 48px; border: 2px solid #b2bec3; border-radius: 10px;
-    background: #fff; color: #2d3436; font-size: 1.3em; font-weight: 700;
-    cursor: pointer; transition: all 0.1s;
-  }
-  .op-btn:active { background: #dfe6e9; transform: scale(0.92); }
-  .op-btn.operator { color: #e17055; border-color: #e17055; }
-  .op-btn.paren { color: #636e72; border-color: #636e72; font-size: 1em; }
+  .op-btn { width: 48px; height: 48px; border: 1px solid var(--glass-border); border-radius: var(--radius-md); background: var(--glass-bg); color: var(--text-primary); font-size: 1.3em; font-weight: 700; cursor: pointer; transition: transform var(--transition-fast); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+  .op-btn:active { background: var(--bg-card-hover); transform: scale(0.92); }
+  .op-btn.operator { color: var(--accent-3); border-color: rgba(245,158,11,0.3); }
+  .op-btn.paren { color: var(--text-muted); border-color: var(--glass-border); font-size: 1em; }
   .controls { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 4px 0; }
-  button {
-    background: linear-gradient(135deg, #e17055, #fdcb6e); color: #fff;
-    border: none; padding: 8px 18px; border-radius: 8px; font-size: 0.9em;
-    font-weight: 700; cursor: pointer; transition: transform 0.1s;
-  }
-  button:active { transform: scale(0.95); }
-  button.secondary { background: #b2bec3; color: #2d3436; }
-  button.danger { background: linear-gradient(135deg, #d63031, #e17055); }
-  button.success { background: linear-gradient(135deg, #00b894, #55efc4); color: #fff; }
-  button.submit-btn { background: linear-gradient(135deg, #0984e3, #74b9ff); }
-  button.hint-btn { background: linear-gradient(135deg, #00b894, #55efc4); }
-  #startBtn {
-    margin-top: 6px; padding: 10px 32px; font-size: 1em;
-    background: linear-gradient(135deg, #e17055, #d63031);
-  }
-  .message {
-    color: #636e72; font-size: 0.85em; min-height: 22px;
-    margin-top: 4px; font-weight: 600;
-  }
-  .message.success { color: #00b894; }
-  .message.error { color: #d63031; }
-  .message.info { color: #0984e3; }
-  .status-text { color: #636e72; font-size: 0.7em; margin-top: 2px; }
+  .controls .fw-btn { padding: 8px 18px; font-size: 0.9em; }
+  .message { color: var(--text-muted); font-size: 0.85em; min-height: 22px; margin-top: 4px; font-weight: 600; }
+  .message.success { color: var(--accent-1); }
+  .message.error { color: var(--accent-4); }
+  .message.info { color: var(--accent-2); }
+  .status-text { color: var(--text-muted); font-size: 0.7em; margin-top: 2px; }
   @media (max-width: 420px) {
-    h1 { font-size: 1.4em; }
+    .fw-title { font-size: 1.5em; }
     .op-btn { width: 42px; height: 42px; font-size: 1.1em; }
-    .score-box { padding: 2px 8px; min-width: 40px; }
-    .score-value { font-size: 0.95em; }
+    .fw-score-box { padding: 4px 8px; min-width: 40px; }
+    .fw-score-value { font-size: 0.95em; }
   }
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="header">
-    <h1>24点</h1>
-    <div class="score-row">
-      <div class="score-box"><div class="score-label">分数</div><div class="score-value" id="score">0</div></div>
-      <div class="score-box"><div class="score-label">最高</div><div class="score-value" id="hiScore">0</div></div>
-      <div class="score-box"><div class="score-label">时间</div><div class="score-value timer" id="timerDisplay">60</div></div>
-      <div class="score-box"><div class="score-label">连击</div><div class="score-value streak" id="streak">0</div></div>
+<div class="fw-container fw-cat-puzzle">
+  <div class="fw-header">
+    <h1 class="fw-title">24点</h1>
+    <div class="fw-scores">
+      <div class="fw-score-box"><div class="fw-score-label">分数</div><div class="fw-score-value" id="score">0</div></div>
+      <div class="fw-score-box"><div class="fw-score-label">最高</div><div class="fw-score-value" id="hiScore">0</div></div>
+      <div class="fw-score-box"><div class="fw-score-label">时间</div><div class="fw-score-value timer" id="timerDisplay">60</div></div>
+      <div class="fw-score-box"><div class="fw-score-label">连击</div><div class="fw-score-value streak" id="streak">0</div></div>
     </div>
   </div>
   <canvas id="gameCanvas" width="400" height="480"></canvas>
   <div class="expression-display" id="exprDisplay">
-    <span style="color:#b2bec3;font-size:0.85em">点击卡牌或操作符构建算式</span>
+    <span style="color:var(--text-muted);font-size:0.85em">点击卡牌或操作符构建算式</span>
   </div>
   <div class="op-buttons">
     <button class="op-btn operator" data-op="+">+</button>
@@ -101,17 +60,26 @@
     <button class="op-btn paren" data-op=")">)</button>
   </div>
   <div class="controls">
-    <button class="submit-btn" id="submitBtn">提交</button>
-    <button class="secondary" id="clearBtn">清除</button>
-    <button class="hint-btn" id="hintBtn">提示</button>
-    <button class="secondary" id="newCardsBtn">换牌</button>
+    <button class="fw-btn fw-btn-primary" id="submitBtn">提交</button>
+    <button class="fw-btn fw-btn-ghost" id="clearBtn">清除</button>
+    <button class="fw-btn fw-btn-warm" id="hintBtn">提示</button>
+    <button class="fw-btn fw-btn-ghost" id="newCardsBtn">换牌</button>
   </div>
-  <button id="startBtn">开始游戏</button>
+  <button class="fw-btn fw-btn-warm" id="startBtn" style="margin-top:6px;padding:10px 32px;font-size:1em">开始游戏</button>
   <div class="message" id="message"></div>
-  <div class="status-text">点击卡牌加数 | 点击操作符 | Enter提交</div>
+  <div class="fw-status">点击卡牌加数 | 点击操作符 | Enter提交</div>
 </div>
+<div class="fw-overlay" id="gameOverlay">
+  <div class="fw-overlay-box">
+    <div class="fw-overlay-title" id="overlayTitle">24点</div>
+    <div class="fw-overlay-text" id="overlayText">用4张牌通过加减乘除算出24</div>
+    <button class="fw-btn fw-btn-primary" id="fwRestartBtn">开始游戏</button>
+  </div>
+</div>
+<script src="framework.js"></script>
 <script>
 (function() {
+  const FW = window.GameFramework;
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
   const scoreEl = document.getElementById('score');
@@ -126,6 +94,9 @@
   const hintBtn = document.getElementById('hintBtn');
   const newCardsBtn = document.getElementById('newCardsBtn');
   const opBtns = document.querySelectorAll('.op-btn');
+  const overlay = document.getElementById('gameOverlay');
+  const overlayTitle = document.getElementById('overlayTitle');
+  const overlayText = document.getElementById('overlayText');
 
   // Canvas dimensions
   const W = 400, H = 480;
@@ -141,37 +112,35 @@
   const CARD_Y = 55;
 
   // Game state
-  let cards = []; // [{ rank, suit, value }]
-  let usedCards = [false, false, false, false];
-  let expressionTokens = []; // string tokens
-  let score = 0;
-  let hiScore = 0;
-  let streak = 0;
-  let timer = 60;
-  let timerInterval = null;
-  let gameState = 'idle'; // idle, playing, solved, failed, gameover
-  let message = '';
-  let messageType = '';
-  let hintSolution = '';
-  let animationId = null;
-  let cardClickRegions = []; // { x, y, w, h, index }
+  var cards = [];
+  var usedCards = [false, false, false, false];
+  var expressionTokens = [];
+  var score = 0;
+  var hiScore = 0;
+  var streak = 0;
+  var timer = 60;
+  var timerInterval = null;
+  var gameState = 'idle';
+  var message = '';
+  var messageType = '';
+  var hintSolution = '';
+  var animationId = null;
+  var cardClickRegions = [];
 
   // High score
-  hiScore = parseInt(localStorage.getItem('24game_hi')) || 0;
+  hiScore = FW.storage.getHighScore();
   hiEl.textContent = hiScore;
 
-  // ====== CARD SUIT COLORS ======
-  function isRed(suit) { return suit === 1 || suit === 2; } // hearts, diamonds
+  function isRed(suit) { return suit === 1 || suit === 2; }
 
-  // ====== DECK ======
   function createDeck() {
-    const deck = [];
-    for (let suit = 0; suit < 4; suit++) {
-      for (let rank = 0; rank < 13; rank++) {
+    var deck = [];
+    for (var suit = 0; suit < 4; suit++) {
+      for (var rank = 0; rank < 13; rank++) {
         deck.push({
           suit: suit,
           rank: rank,
-          value: rank < 9 ? rank + 1 : rank + 1 // A=1, 2-10=2-10, J=11, Q=12, K=13
+          value: rank < 9 ? rank + 1 : rank + 1
         });
       }
     }
@@ -179,9 +148,11 @@
   }
 
   function shuffle(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
+    for (var i = arr.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = arr[i];
+      arr[i] = arr[j];
+      arr[j] = tmp;
     }
     return arr;
   }
@@ -190,7 +161,6 @@
     return RANKS[value - 1];
   }
 
-  // ====== BRUTE FORCE SOLVER ======
   function calc(a, op, b) {
     switch (op) {
       case '+': return a + b;
@@ -202,51 +172,49 @@
   }
 
   function findSolution(vals) {
-    const ops = ['+', '-', '*', '/'];
-    const opSymbols = { '+': '+', '-': '-', '*': '×', '/': '÷' };
+    var ops = ['+', '-', '*', '/'];
+    var opSymbols = { '+': '+', '-': '-', '*': '×', '/': '÷' };
 
-    // All permutations of 4 indices
-    const perms = [
+    var perms = [
       [0,1,2,3],[0,1,3,2],[0,2,1,3],[0,2,3,1],[0,3,1,2],[0,3,2,1],
       [1,0,2,3],[1,0,3,2],[1,2,0,3],[1,2,3,0],[1,3,0,2],[1,3,2,0],
       [2,0,1,3],[2,0,3,1],[2,1,0,3],[2,1,3,0],[2,3,0,1],[2,3,1,0],
       [3,0,1,2],[3,0,2,1],[3,1,0,2],[3,1,2,0],[3,2,0,1],[3,2,1,0]
     ];
 
-    for (const p of perms) {
-      const a = vals[p[0]], b = vals[p[1]], c = vals[p[2]], d = vals[p[3]];
-      for (const o1 of ops) {
-        for (const o2 of ops) {
-          for (const o3 of ops) {
-            // Pattern 1: ((a o1 b) o2 c) o3 d
-            let r = calc(calc(calc(a, o1, b), o2, c), o3, d);
+    for (var pi = 0; pi < perms.length; pi++) {
+      var p = perms[pi];
+      var a = vals[p[0]], b = vals[p[1]], c = vals[p[2]], d = vals[p[3]];
+      for (var o1i = 0; o1i < ops.length; o1i++) {
+        var o1 = ops[o1i];
+        for (var o2i = 0; o2i < ops.length; o2i++) {
+          var o2 = ops[o2i];
+          for (var o3i = 0; o3i < ops.length; o3i++) {
+            var o3 = ops[o3i];
+            var r = calc(calc(calc(a, o1, b), o2, c), o3, d);
             if (Math.abs(r - 24) < 1e-9) {
-              const s1 = opSymbols[o1], s2 = opSymbols[o2], s3 = opSymbols[o3];
-              return `((${a} ${s1} ${b}) ${s2} ${c}) ${s3} ${d}`;
+              var s1 = opSymbols[o1], s2 = opSymbols[o2], s3 = opSymbols[o3];
+              return '((' + a + ' ' + s1 + ' ' + b + ') ' + s2 + ' ' + c + ') ' + s3 + ' ' + d;
             }
-            // Pattern 2: (a o1 (b o2 c)) o3 d
             r = calc(calc(a, o1, calc(b, o2, c)), o3, d);
             if (Math.abs(r - 24) < 1e-9) {
-              const s1 = opSymbols[o1], s2 = opSymbols[o2], s3 = opSymbols[o3];
-              return `(${a} ${s1} (${b} ${s2} ${c})) ${s3} ${d}`;
+              var s1 = opSymbols[o1], s2 = opSymbols[o2], s3 = opSymbols[o3];
+              return '(' + a + ' ' + s1 + ' (' + b + ' ' + s2 + ' ' + c + ')) ' + s3 + ' ' + d;
             }
-            // Pattern 3: a o1 ((b o2 c) o3 d)
             r = calc(a, o1, calc(calc(b, o2, c), o3, d));
             if (Math.abs(r - 24) < 1e-9) {
-              const s1 = opSymbols[o1], s2 = opSymbols[o2], s3 = opSymbols[o3];
-              return `${a} ${s1} ((${b} ${s2} ${c}) ${s3} ${d})`;
+              var s1 = opSymbols[o1], s2 = opSymbols[o2], s3 = opSymbols[o3];
+              return a + ' ' + s1 + ' ((' + b + ' ' + s2 + ' ' + c + ') ' + s3 + ' ' + d + ')';
             }
-            // Pattern 4: a o1 (b o2 (c o3 d))
             r = calc(a, o1, calc(b, o2, calc(c, o3, d)));
             if (Math.abs(r - 24) < 1e-9) {
-              const s1 = opSymbols[o1], s2 = opSymbols[o2], s3 = opSymbols[o3];
-              return `${a} ${s1} (${b} ${s2} (${c} ${s3} ${d}))`;
+              var s1 = opSymbols[o1], s2 = opSymbols[o2], s3 = opSymbols[o3];
+              return a + ' ' + s1 + ' (' + b + ' ' + s2 + ' (' + c + ' ' + s3 + ' ' + d + '))';
             }
-            // Pattern 5: (a o1 b) o2 (c o3 d)
             r = calc(calc(a, o1, b), o2, calc(c, o3, d));
             if (Math.abs(r - 24) < 1e-9) {
-              const s1 = opSymbols[o1], s2 = opSymbols[o2], s3 = opSymbols[o3];
-              return `(${a} ${s1} ${b}) ${s2} (${c} ${s3} ${d})`;
+              var s1 = opSymbols[o1], s2 = opSymbols[o2], s3 = opSymbols[o3];
+              return '(' + a + ' ' + s1 + ' ' + b + ') ' + s2 + ' (' + c + ' ' + s3 + ' ' + d + ')';
             }
           }
         }
@@ -255,36 +223,27 @@
     return null;
   }
 
-  // ====== DEAL CARDS ======
   function dealCards() {
-    const deck = shuffle(createDeck());
-    // Deal 4 cards, making sure a solution exists
-    let attempts = 0;
-    do {
-      const hand = deck.slice(0, 4);
-      const vals = hand.map(c => c.value);
-      const sol = findSolution(vals);
+    var deck = shuffle(createDeck());
+    var attempts = 0;
+    while (attempts < 1000) {
+      var hand = deck.slice(0, 4);
+      var vals = hand.map(function(c) { return c.value; });
+      var sol = findSolution(vals);
       if (sol) {
         cards = hand;
         hintSolution = sol;
         return;
       }
-      // Shuffle and try again
       shuffle(deck);
       attempts++;
-    } while (attempts < 1000);
-
-    // Fallback: just use first 4 (shouldn't happen)
+    }
     cards = deck.slice(0, 4);
-    hintSolution = findSolution(cards.map(c => c.value)) || '无解';
+    hintSolution = findSolution(cards.map(function(c) { return c.value; })) || '无解';
   }
 
-  // ====== EXPRESSION EVALUATOR ======
-  // Recursive descent parser for expressions with +, -, *, /, (, )
-  // Handles order of operations correctly
-
-  let exprPos = 0;
-  let exprStr = '';
+  var exprPos = 0;
+  var exprStr = '';
 
   function peek() {
     while (exprPos < exprStr.length && exprStr[exprPos] === ' ') exprPos++;
@@ -292,13 +251,13 @@
   }
 
   function consume() {
-    const c = peek();
+    var c = peek();
     if (c !== '\0') exprPos++;
     return c;
   }
 
   function parseNumber() {
-    let num = '';
+    var num = '';
     while (exprPos < exprStr.length && /[\d.]/.test(exprStr[exprPos])) {
       num += exprStr[exprPos++];
     }
@@ -307,19 +266,19 @@
 
   function parseFactor() {
     if (peek() === '(') {
-      consume(); // '('
-      const val = parseExpression();
-      if (peek() === ')') consume(); // ')'
+      consume();
+      var val = parseExpression();
+      if (peek() === ')') consume();
       return val;
     }
     return parseNumber();
   }
 
   function parseTerm() {
-    let val = parseFactor();
+    var val = parseFactor();
     while (peek() === '*' || peek() === '/') {
-      const op = consume();
-      const right = parseFactor();
+      var op = consume();
+      var right = parseFactor();
       if (op === '*') val *= right;
       else {
         if (Math.abs(right) < 1e-10) return NaN;
@@ -330,10 +289,10 @@
   }
 
   function parseExpression() {
-    let val = parseTerm();
+    var val = parseTerm();
     while (peek() === '+' || peek() === '-') {
-      const op = consume();
-      const right = parseTerm();
+      var op = consume();
+      var right = parseTerm();
       if (op === '+') val += right;
       else val -= right;
     }
@@ -344,65 +303,57 @@
     exprPos = 0;
     exprStr = expr;
     try {
-      const val = parseExpression();
-      return val;
+      return parseExpression();
     } catch (e) {
       return NaN;
     }
   }
 
-  // ====== EXTRACT NUMBERS FROM EXPRESSION ======
   function extractNumbers(expr) {
-    const nums = expr.match(/\d+/g);
+    var nums = expr.match(/\d+/g);
     return nums ? nums.map(Number) : [];
   }
 
-  // ====== VALIDATE EXPRESSION ======
   function validateExpression() {
-    const expr = expressionTokens.join(' ').replace(/×/g, '*').replace(/÷/g, '/');
+    var expr = expressionTokens.join(' ').replace(/×/g, '*').replace(/÷/g, '/');
     if (expressionTokens.length === 0) {
       return { valid: false, message: '请构建算式' };
     }
 
-    const nums = extractNumbers(expr);
-    const cardVals = cards.map(c => c.value).sort((a, b) => a - b);
-    const usedNums = nums.sort((a, b) => a - b);
+    var nums = extractNumbers(expr);
+    var cardVals = cards.map(function(c) { return c.value; }).sort(function(a, b) { return a - b; });
+    var usedNums = nums.sort(function(a, b) { return a - b; });
 
-    // Check if using exactly these 4 cards
     if (nums.length !== 4) {
       return { valid: false, message: '必须使用所有4张牌' };
     }
 
-    // Validate the expression syntax (balanced parens)
-    let parenCount = 0;
-    for (const t of expressionTokens) {
+    var parenCount = 0;
+    for (var ti = 0; ti < expressionTokens.length; ti++) {
+      var t = expressionTokens[ti];
       if (t === '(') parenCount++;
       if (t === ')') parenCount--;
       if (parenCount < 0) return { valid: false, message: '括号不匹配' };
     }
     if (parenCount !== 0) return { valid: false, message: '括号不匹配' };
 
-    // Check correct numbers used
-    const sortedUsed = [...usedNums].sort((a, b) => a - b);
-    for (let i = 0; i < 4; i++) {
-      if (sortedUsed[i] !== cardVals[i]) {
+    var sortedUsed = usedNums.slice().sort(function(a, b) { return a - b; });
+    for (var vi = 0; vi < 4; vi++) {
+      if (sortedUsed[vi] !== cardVals[vi]) {
         return { valid: false, message: '必须使用所有4张牌各一次' };
       }
     }
 
-    // Evaluate
-    const result = evaluate(expr);
+    var result = evaluate(expr);
     if (isNaN(result)) {
       return { valid: false, message: '算式有误' };
     }
     if (Math.abs(result - 24) > 1e-9) {
-      return { valid: false, message: `等于 ${Math.round(result * 100) / 100}，不等于 24` };
+      return { valid: false, message: '等于 ' + Math.round(result * 100) / 100 + '，不等于 24' };
     }
 
     return { valid: true, message: '' };
   }
-
-  // ====== GAME ACTIONS ======
 
   function addCardToExpression(index) {
     if (gameState !== 'playing') return;
@@ -413,18 +364,18 @@
     usedCards[index] = true;
     expressionTokens.push(String(cards[index].value));
     updateExprDisplay();
+    FW.audio.sfx('click');
     draw();
   }
 
   function addOperator(op) {
     if (gameState !== 'playing') return;
-    // Check last token isn't an operator (except for negative numbers)
-    const last = expressionTokens[expressionTokens.length - 1];
-    if (last && ['+', '-', '×', '÷', '('].includes(last)) {
+    var last = expressionTokens[expressionTokens.length - 1];
+    if (last && ['+', '-', '×', '÷', '('].indexOf(last) !== -1) {
       if (op === '-' && last !== '-') {
-        // Allow negative numbers
         expressionTokens.push(op);
         updateExprDisplay();
+        FW.audio.sfx('click');
         draw();
         return;
       }
@@ -437,6 +388,7 @@
     }
     expressionTokens.push(op);
     updateExprDisplay();
+    FW.audio.sfx('click');
     draw();
   }
 
@@ -444,6 +396,7 @@
     if (gameState !== 'playing') return;
     expressionTokens.push(p);
     updateExprDisplay();
+    FW.audio.sfx('click');
     draw();
   }
 
@@ -460,27 +413,30 @@
       setMessage('游戏未开始', 'error');
       return;
     }
-    const result = validateExpression();
+    var result = validateExpression();
     if (result.valid) {
-      // Correct!
-      const timeBonus = Math.ceil(timer / 10);
-      const earned = 10 + timeBonus;
+      var timeBonus = Math.ceil(timer / 10);
+      var earned = 10 + timeBonus;
       score += earned;
       streak++;
-      const totalTimer = timer;
+      var totalTimer = timer;
       gameState = 'solved';
       clearTimer();
 
       updateUI();
-      setMessage(`正确！+${earned}分 (剩余${totalTimer}秒)`, 'success');
+      setMessage('正确！+' + earned + '分 (剩余' + totalTimer + '秒)', 'success');
       startBtn.textContent = '下一局';
 
-      // High score check
-      if (score > hiScore) {
-        hiScore = score;
-        localStorage.setItem('24game_hi', hiScore);
-        hiEl.textContent = hiScore;
-        setMessage(`正确！+${earned}分 新纪录！`, 'success');
+      var isNew = FW.storage.setHighScore(score);
+      hiScore = FW.storage.getHighScore();
+      hiEl.textContent = hiScore;
+      FW.audio.sfx('score');
+      FW.audio.sfx('win');
+      FW.events.reportScore(score);
+      FW.events.reportComplete(score, { won: true });
+
+      if (isNew) {
+        setMessage('正确！+' + earned + '分 新纪录！', 'success');
       }
 
       draw();
@@ -494,8 +450,9 @@
 
   function showHint() {
     if (gameState !== 'playing') return;
+    FW.audio.sfx('click');
     if (hintSolution) {
-      setMessage(`提示: ${hintSolution}`, 'info');
+      setMessage('提示: ' + hintSolution, 'info');
     } else {
       setMessage('无解，请换牌', 'error');
     }
@@ -503,9 +460,7 @@
 
   function newCards() {
     if (gameState === 'idle' || gameState === 'gameover') return;
-    // Reset streak if skipping
     streak = 0;
-    // Deal new hand
     dealCards();
     usedCards = [false, false, false, false];
     expressionTokens = [];
@@ -527,11 +482,9 @@
     messageEl.className = 'message' + (type ? ' ' + type : '');
   }
 
-  // ====== TIMER ======
-
   function startTimer() {
     clearTimer();
-    timerInterval = setInterval(() => {
+    timerInterval = setInterval(function() {
       if (gameState !== 'playing') return;
       timer--;
       updateUI();
@@ -539,13 +492,14 @@
         timerEl.classList.add('warning');
       }
       if (timer <= 0) {
-        // Time's up
         gameState = 'failed';
         streak = 0;
         clearTimer();
         updateUI();
         startBtn.textContent = '下一局';
         setMessage('时间到！', 'error');
+        FW.audio.sfx('gameover');
+        FW.events.reportComplete(score, { won: false });
         draw();
       }
     }, 1000);
@@ -559,13 +513,10 @@
     timerEl.classList.remove('warning');
   }
 
-  // ====== UI UPDATE ======
-
   function updateUI() {
     scoreEl.textContent = score;
     timerEl.textContent = timer;
     streakEl.textContent = streak;
-    // Check hi score
     if (score > hiScore) {
       hiEl.textContent = score;
     }
@@ -573,86 +524,77 @@
 
   function updateExprDisplay() {
     if (expressionTokens.length === 0) {
-      exprDisplay.innerHTML = '<span style="color:#b2bec3;font-size:0.85em">点击卡牌或操作符构建算式</span>';
+      exprDisplay.innerHTML = '<span style="color:var(--text-muted);font-size:0.85em">点击卡牌或操作符构建算式</span>';
       return;
     }
-    let html = '';
-    for (const t of expressionTokens) {
+    var html = '';
+    for (var ti = 0; ti < expressionTokens.length; ti++) {
+      var t = expressionTokens[ti];
       if (/^\d+$/.test(t)) {
-        html += `<span class="token num">${t}</span>`;
-      } else if (['+', '-', '×', '÷'].includes(t)) {
-        html += `<span class="token op">${t}</span>`;
+        html += '<span class="token num">' + t + '</span>';
+      } else if (['+', '-', '×', '÷'].indexOf(t) !== -1) {
+        html += '<span class="token op">' + t + '</span>';
       } else {
-        html += `<span class="token">${t}</span>`;
+        html += '<span class="token">' + t + '</span>';
       }
     }
     exprDisplay.innerHTML = html;
   }
 
-  // ====== CANVAS DRAWING ======
-
   function draw() {
     ctx.clearRect(0, 0, W, H);
 
-    // Green felt background
-    const feltGrad = ctx.createRadialGradient(200, 240, 50, 200, 240, 350);
+    var feltGrad = ctx.createRadialGradient(200, 240, 50, 200, 240, 350);
     feltGrad.addColorStop(0, '#1a7a3e');
     feltGrad.addColorStop(1, '#0f5c2e');
     ctx.fillStyle = feltGrad;
     ctx.fillRect(0, 0, W, H);
 
-    // Felt texture lines (subtle)
     ctx.strokeStyle = 'rgba(255,255,255,0.03)';
     ctx.lineWidth = 1;
-    for (let i = 0; i < 20; i++) {
-      const y = 20 + i * 24;
+    for (var li = 0; li < 20; li++) {
+      var ly = 20 + li * 24;
       ctx.beginPath();
-      ctx.moveTo(0, y + Math.sin(i * 2) * 5);
-      ctx.lineTo(W, y + Math.cos(i * 3) * 5);
+      ctx.moveTo(0, ly + Math.sin(li * 2) * 5);
+      ctx.lineTo(W, ly + Math.cos(li * 3) * 5);
       ctx.stroke();
     }
 
-    // Title on felt
     ctx.fillStyle = 'rgba(255,255,255,0.1)';
     ctx.font = 'bold 14px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
     ctx.fillText('用 + - × ÷ 算出24', W / 2, 10);
 
-    // Draw cards
     cardClickRegions = [];
-    for (let i = 0; i < 4; i++) {
-      const cx = CARD_START_X + i * (CARD_W + CARD_GAP);
-      const cy = CARD_Y;
-      cardClickRegions.push({ x: cx, y: cy, w: CARD_W, h: CARD_H, index: i });
-      drawCard(cx, cy, cards[i], usedCards[i]);
+    for (var ci = 0; ci < 4; ci++) {
+      var cx = CARD_START_X + ci * (CARD_W + CARD_GAP);
+      var cy = CARD_Y;
+      cardClickRegions.push({ x: cx, y: cy, w: CARD_W, h: CARD_H, index: ci });
+      drawCard(cx, cy, cards[ci], usedCards[ci]);
     }
 
-    // Draw cards label
     ctx.fillStyle = 'rgba(255,255,255,0.5)';
     ctx.font = '10px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
     ctx.fillText('点击卡牌添加到算式', W / 2, CARD_Y + CARD_H + 6);
 
-    // Draw usage hints under cards
-    for (let i = 0; i < 4; i++) {
-      const cx = CARD_START_X + i * (CARD_W + CARD_GAP) + CARD_W / 2;
-      ctx.fillStyle = usedCards[i] ? 'rgba(0,230,118,0.6)' : 'rgba(255,255,255,0.3)';
+    for (var ui = 0; ui < 4; ui++) {
+      var ux = CARD_START_X + ui * (CARD_W + CARD_GAP) + CARD_W / 2;
+      ctx.fillStyle = usedCards[ui] ? 'rgba(0,230,118,0.6)' : 'rgba(255,255,255,0.3)';
       ctx.font = '9px sans-serif';
-      ctx.fillText(usedCards[i] ? '已用' : `牌${i + 1}`, cx, CARD_Y + CARD_H + 20);
+      ctx.fillText(usedCards[ui] ? '已用' : '牌' + (ui + 1), ux, CARD_Y + CARD_H + 20);
     }
 
-    // Expression area background at bottom
-    const exprBgY = 175;
+    var exprBgY = 175;
     ctx.fillStyle = 'rgba(0,0,0,0.2)';
     ctx.beginPath();
     ctx.roundRect(10, exprBgY, W - 20, 44, 8);
     ctx.fill();
 
-    // Expression text on canvas
     if (expressionTokens.length > 0) {
-      const exprText = expressionTokens.join(' ');
+      var exprText = expressionTokens.join(' ');
       ctx.fillStyle = '#fff';
       ctx.font = 'bold 20px sans-serif';
       ctx.textAlign = 'center';
@@ -666,9 +608,6 @@
       ctx.fillText('构建算式', W / 2, exprBgY + 22);
     }
 
-    // ====== STATUS OVERLAYS ======
-
-    // Solved overlay
     if (gameState === 'solved') {
       ctx.fillStyle = 'rgba(0, 184, 148, 0.25)';
       ctx.fillRect(0, 0, W, H);
@@ -679,10 +618,9 @@
       ctx.fillText('✓ 正确!', W / 2, H / 2 - 20);
       ctx.fillStyle = 'rgba(255,255,255,0.7)';
       ctx.font = '16px sans-serif';
-      ctx.fillText(`+${10 + Math.ceil((timer > 0 ? timer : 0) / 10)} 分`, W / 2, H / 2 + 25);
+      ctx.fillText('+' + (10 + Math.ceil((timer > 0 ? timer : 0) / 10)) + ' 分', W / 2, H / 2 + 25);
     }
 
-    // Failed overlay (time ran out)
     if (gameState === 'failed') {
       ctx.fillStyle = 'rgba(214, 48, 49, 0.2)';
       ctx.fillRect(0, 0, W, H);
@@ -693,7 +631,6 @@
       ctx.fillText('时间到', W / 2, H / 2);
     }
 
-    // Idle / Game over overlay
     if (gameState === 'idle' || gameState === 'gameover') {
       ctx.fillStyle = 'rgba(0,0,0,0.5)';
       ctx.fillRect(0, 0, W, H);
@@ -710,59 +647,50 @@
         ctx.font = '24px sans-serif';
         ctx.fillText('最终分数: ' + score, W / 2, H / 2 + 55);
       }
-      // Shadow cards behind overlay
     }
   }
 
   function drawCard(x, y, card, used) {
-    const isRedSuit = isRed(card.suit);
-    const rank = rankLabel(card.value);
-    const suit = SUITS[card.suit];
+    var isRedSuit = isRed(card.suit);
+    var rank = rankLabel(card.value);
+    var suit = SUITS[card.suit];
 
     ctx.save();
     if (used) {
       ctx.globalAlpha = 0.45;
     }
 
-    // Card shadow
     ctx.shadowColor = 'rgba(0,0,0,0.3)';
     ctx.shadowBlur = 6;
     ctx.shadowOffsetY = 3;
 
-    // Card body
     ctx.fillStyle = '#fff';
     ctx.beginPath();
     ctx.roundRect(x, y, CARD_W, CARD_H, 8);
     ctx.fill();
 
-    // Card border
     ctx.shadowBlur = 0;
     ctx.shadowOffsetY = 0;
     ctx.strokeStyle = used ? '#b2bec3' : '#dfe6e9';
     ctx.lineWidth = 1;
     ctx.stroke();
 
-    // Card color
-    const color = isRedSuit ? '#d63031' : '#2d3436';
+    var color = isRedSuit ? '#d63031' : '#2d3436';
 
-    // Rank at top-left
     ctx.fillStyle = color;
     ctx.font = 'bold 20px sans-serif';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
     ctx.fillText(rank, x + 8, y + 6);
 
-    // Suit beside rank
     ctx.font = '14px sans-serif';
     ctx.fillText(suit, x + 8, y + 30);
 
-    // Large center symbol
     ctx.font = '30px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(suit, x + CARD_W / 2, y + CARD_H / 2 + 4);
 
-    // Rank at bottom-right (upside down)
     ctx.save();
     ctx.translate(x + CARD_W - 8, y + CARD_H - 6);
     ctx.rotate(Math.PI);
@@ -773,7 +701,6 @@
     ctx.fillText(rank, 0, 0);
     ctx.restore();
 
-    // Used stamp
     if (used) {
       ctx.fillStyle = 'rgba(0, 230, 118, 0.15)';
       ctx.fillRect(x, y, CARD_W, CARD_H);
@@ -782,17 +709,15 @@
     ctx.restore();
   }
 
-  // ====== CANVAS CLICK HANDLING ======
+  canvas.addEventListener('click', function(e) {
+    var rect = canvas.getBoundingClientRect();
+    var scaleX = canvas.width / rect.width;
+    var scaleY = canvas.height / rect.height;
+    var mx = (e.clientX - rect.left) * scaleX;
+    var my = (e.clientY - rect.top) * scaleY;
 
-  canvas.addEventListener('click', (e) => {
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-    const mx = (e.clientX - rect.left) * scaleX;
-    const my = (e.clientY - rect.top) * scaleY;
-
-    // Check card clicks
-    for (const region of cardClickRegions) {
+    for (var ri = 0; ri < cardClickRegions.length; ri++) {
+      var region = cardClickRegions[ri];
       if (mx >= region.x && mx <= region.x + region.w &&
           my >= region.y && my <= region.y + region.h) {
         addCardToExpression(region.index);
@@ -801,17 +726,17 @@
     }
   });
 
-  // Touch support for canvas
-  canvas.addEventListener('touchstart', (e) => {
+  canvas.addEventListener('touchstart', function(e) {
     e.preventDefault();
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-    const touch = e.touches[0];
-    const mx = (touch.clientX - rect.left) * scaleX;
-    const my = (touch.clientY - rect.top) * scaleY;
+    var rect = canvas.getBoundingClientRect();
+    var scaleX = canvas.width / rect.width;
+    var scaleY = canvas.height / rect.height;
+    var touch = e.touches[0];
+    var mx = (touch.clientX - rect.left) * scaleX;
+    var my = (touch.clientY - rect.top) * scaleY;
 
-    for (const region of cardClickRegions) {
+    for (var ri = 0; ri < cardClickRegions.length; ri++) {
+      var region = cardClickRegions[ri];
       if (mx >= region.x && mx <= region.x + region.w &&
           my >= region.y && my <= region.y + region.h) {
         addCardToExpression(region.index);
@@ -820,46 +745,44 @@
     }
   }, { passive: false });
 
-  // ====== OPERATOR BUTTONS ======
-
-  for (const btn of opBtns) {
-    btn.addEventListener('click', () => {
-      const op = btn.dataset.op;
-      if (op === '(' || op === ')') {
-        addParen(op);
-      } else {
-        addOperator(op);
-      }
-    });
-    // Touch support
-    btn.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      const op = btn.dataset.op;
-      if (op === '(' || op === ')') {
-        addParen(op);
-      } else {
-        addOperator(op);
-      }
-    }, { passive: false });
+  for (var bi = 0; bi < opBtns.length; bi++) {
+    var btn = opBtns[bi];
+    (function(b) {
+      b.addEventListener('click', function() {
+        var op = b.dataset.op;
+        if (op === '(' || op === ')') {
+          addParen(op);
+        } else {
+          addOperator(op);
+        }
+        FW.audio.sfx('click');
+      });
+      b.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        var op = b.dataset.op;
+        if (op === '(' || op === ')') {
+          addParen(op);
+        } else {
+          addOperator(op);
+        }
+        FW.audio.sfx('click');
+      }, { passive: false });
+    })(btn);
   }
 
-  // ====== ACTION BUTTONS ======
-
-  submitBtn.addEventListener('click', submitExpression);
-  submitBtn.addEventListener('touchstart', (e) => { e.preventDefault(); submitExpression(); }, { passive: false });
+  submitBtn.addEventListener('click', function() { submitExpression(); FW.audio.sfx('click'); });
+  submitBtn.addEventListener('touchstart', function(e) { e.preventDefault(); submitExpression(); FW.audio.sfx('click'); }, { passive: false });
 
   clearBtn.addEventListener('click', clearExpression);
-  clearBtn.addEventListener('touchstart', (e) => { e.preventDefault(); clearExpression(); }, { passive: false });
+  clearBtn.addEventListener('touchstart', function(e) { e.preventDefault(); clearExpression(); }, { passive: false });
 
   hintBtn.addEventListener('click', showHint);
-  hintBtn.addEventListener('touchstart', (e) => { e.preventDefault(); showHint(); }, { passive: false });
+  hintBtn.addEventListener('touchstart', function(e) { e.preventDefault(); showHint(); }, { passive: false });
 
   newCardsBtn.addEventListener('click', newCards);
-  newCardsBtn.addEventListener('touchstart', (e) => { e.preventDefault(); newCards(); }, { passive: false });
+  newCardsBtn.addEventListener('touchstart', function(e) { e.preventDefault(); newCards(); }, { passive: false });
 
-  // ====== KEYBOARD SUPPORT ======
-
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
       e.preventDefault();
       if (gameState === 'idle' || gameState === 'gameover') {
@@ -870,33 +793,28 @@
         nextHand();
       }
     }
-    // Number keys 1-4 can select cards (if game is playing)
     if (gameState === 'playing') {
-      const num = parseInt(e.key);
+      var num = parseInt(e.key);
       if (num >= 1 && num <= 4 && !e.ctrlKey && !e.altKey && !e.metaKey) {
-        // Find the num-th unused card with any value, or the num-th card overall
-        // Actually, let's just map 1-4 to card indices
-        const idx = num - 1;
+        var idx = num - 1;
         if (idx < cards.length && !usedCards[idx]) {
           addCardToExpression(idx);
         }
       }
-      if (['+', '-'].includes(e.key)) {
+      if (['+', '-'].indexOf(e.key) !== -1) {
         addOperator(e.key);
       }
       if (e.key === '*') addOperator('×');
       if (e.key === '/') addOperator('÷');
       if (e.key === '(' || e.key === ')') addParen(e.key);
       if (e.key === 'Backspace') {
-        // Remove last token
         if (expressionTokens.length > 0) {
-          const last = expressionTokens.pop();
+          var last = expressionTokens.pop();
           if (/^\d+$/.test(last)) {
-            // Find the most recently used card with this value
-            const val = parseInt(last);
-            for (let i = usedCards.length - 1; i >= 0; i--) {
-              if (usedCards[i] && cards[i].value === val) {
-                usedCards[i] = false;
+            var val = parseInt(last);
+            for (var ui = usedCards.length - 1; ui >= 0; ui--) {
+              if (usedCards[ui] && cards[ui].value === val) {
+                usedCards[ui] = false;
                 break;
               }
             }
@@ -907,8 +825,6 @@
       }
     }
   });
-
-  // ====== GAME START / NEXT ======
 
   function startGame() {
     score = 0;
@@ -924,6 +840,7 @@
     updateUI();
     updateExprDisplay();
     setMessage('', '');
+    FW.ui.hideOverlay(overlay);
     draw();
   }
 
@@ -942,17 +859,18 @@
     draw();
   }
 
-  startBtn.addEventListener('click', () => {
+  startBtn.addEventListener('click', function() {
     if (gameState === 'idle' || gameState === 'gameover') {
       startGame();
-    } else if (gameState === 'playing') {
-      // During playing, the start button shows "游戏中" - do nothing
     } else if (gameState === 'solved' || gameState === 'failed') {
       nextHand();
     }
   });
 
-  // ====== RESET / INIT ======
+  document.getElementById('fwRestartBtn').addEventListener('click', function() {
+    FW.ui.hideOverlay(overlay);
+    startGame();
+  });
 
   function resetGame() {
     clearTimer();
@@ -965,7 +883,7 @@
     gameState = 'idle';
     setMessage('', '');
     startBtn.textContent = '开始游戏';
-    hiScore = parseInt(localStorage.getItem('24game_hi')) || 0;
+    hiScore = FW.storage.getHighScore();
     hiEl.textContent = hiScore;
     updateUI();
     updateExprDisplay();
@@ -973,7 +891,6 @@
     draw();
   }
 
-  // ====== ROUNDRECT POLYFILL ======
   if (!CanvasRenderingContext2D.prototype.roundRect) {
     CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
       if (r > w / 2) r = w / 2;
@@ -991,17 +908,15 @@
     };
   }
 
-  // ====== RESPONSIVE ======
   function resizeCanvas() {
-    const container = canvas.parentElement;
-    const w = container.clientWidth;
+    var container = canvas.parentElement;
+    var w = container.clientWidth;
     canvas.style.width = w + 'px';
     canvas.style.height = (w * 480 / 400) + 'px';
   }
 
-  // ====== INIT ======
   function init() {
-    hiScore = parseInt(localStorage.getItem('24game_hi')) || 0;
+    hiScore = FW.storage.getHighScore();
     hiEl.textContent = hiScore;
     dealCards();
     usedCards = [false, false, false, false];
@@ -1014,6 +929,7 @@
     draw();
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
+    FW.ui.hideOverlay(overlay);
   }
 
   init();

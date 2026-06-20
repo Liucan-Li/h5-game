@@ -29,6 +29,12 @@
     "notFound": "ゲームが見つかりません",
     "exitFullscreen": "全画面終了"
   },
+  "gameEvent": {
+    "score": "スコア +{score}",
+    "victory": "勝利！",
+    "gameOver": "ゲームオーバー",
+    "finalScore": "最終スコア：{score}"
+  },
   "breadcrumb": {
     "home": "ホーム",
     "games": "ゲーム"

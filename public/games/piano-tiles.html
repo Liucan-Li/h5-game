@@ -1,133 +1,41 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-game-id="piano-tiles">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Piano Tiles</title>
+<link rel="stylesheet" href="framework.css">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: #1a1a2e; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px;
-    -webkit-user-select: none; user-select: none; touch-action: none;
-  }
-  .container { text-align: center; width: 100%; max-width: 360px; }
-  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  h1 { font-size: 1.5em; font-weight: 800; background: linear-gradient(135deg, #fff, #ddd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .score-box { background: #16213e; padding: 4px 12px; border-radius: 8px; }
-  .score-label { font-size: 0.65em; color: #7f8c8d; }
-  .score-value { font-size: 1.1em; font-weight: 700; color: #fff; }
-  .game-area {
-    position: relative; background: #0a0a0a; border-radius: 12px; overflow: hidden;
-    width: 100%; aspect-ratio: 3/4; touch-action: none;
-  }
-  .tile { position: absolute; width: 25%; border-radius: 0; cursor: pointer; transition: background 0.05s; }
-  .tile.black { background: #1a1a1a; border: 1px solid #333; }
-  .tile.black:active { background: #444; }
-  .overlay { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.8); z-index: 10; border-radius: 12px; }
-  .overlay.active { display: flex; }
-  .overlay h2 { font-size: 1.5em; color: #e74c3c; margin-bottom: 4px; }
-  .overlay p { color: #ccc; margin-bottom: 12px; }
-  .overlay button { background: #2ecc71; color: #1a1a2e; border: none; padding: 10px 28px; border-radius: 8px; font-size: 1em; font-weight: 700; cursor: pointer; }
-  .instructions { color: #7f8c8d; font-size: 0.75em; margin-top: 8px; }
+  .game-area{position:relative;background:#0a0a0a;border-radius:var(--radius-lg);overflow:hidden;width:100%;aspect-ratio:3/4;touch-action:none}
+  .tile{position:absolute;width:25%;border-radius:0;cursor:pointer;transition:background 0.05s}
+  .tile.black{background:#1a1a1a;border:1px solid #333}
+  .tile.black:active{background:#444}
+  @media(max-width:420px){.fw-title{font-size:1.2em}}
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="header"><h1>Piano Tiles</h1><div class="score-box"><div class="score-label">得分</div><div class="score-value" id="score">0</div></div></div>
+<div class="fw-container" style="max-width:360px;">
+  <div class="fw-header"><h1 class="fw-title">Piano Tiles</h1><div class="fw-score-box"><div class="fw-score-label">得分</div><div class="fw-score-value" id="score">0</div></div></div>
   <div class="game-area" id="gameArea">
-    <div class="overlay" id="overlay"><h2 id="ot">游戏结束</h2><p id="os">得分：0</p><button id="rb">重新开始</button></div>
+    <div class="fw-overlay" id="overlay"><div class="fw-overlay-box"><div class="fw-overlay-title" id="ot">游戏结束</div><div class="fw-overlay-text" id="os">得分：0</div><button class="fw-btn fw-btn-primary" id="rb">重新开始</button></div></div>
   </div>
-  <div class="instructions">点击黑色方块，不要点白色区域！</div>
+  <div class="fw-status">点击黑色方块，不要点白色区域！</div>
 </div>
+<script src="framework.js"></script>
 <script>
 (function(){
-  const ga=document.getElementById('gameArea');
-  const s=document.getElementById('score');
-  const ov=document.getElementById('overlay');
-  const ot=document.getElementById('ot'),os=document.getElementById('os');
-
-  const COLS=4;
-  let tiles=[],score=0,speed=1.5,gameOver=false,animId,lastTime;
-
-  function init(){
-    tiles=[];score=0;speed=1.5;gameOver=false;
-    ov.classList.remove('active');
-    ga.innerHTML='<div class="overlay" id="overlay"><h2 id="ot">游戏结束</h2><p id="os">得分：0</p><button id="rb">重新开始</button></div>';
-    for(let i=0;i<6;i++)spawnRow();
-    updateScore();
-    lastTime=performance.now();
-    animId=requestAnimationFrame(tick);
-  }
-
-  function spawnRow(){
-    const col=Math.floor(Math.random()*COLS);
-    for(let i=0;i<COLS;i++){
-      const tile=document.createElement('div');
-      tile.className='tile'+(i===col?' black':'');
-      tile.dataset.col=i;
-      tile.dataset.black=i===col?'true':'false';
-      tile.style.left=(i*25)+'%';
-      tile.style.top='-25%';
-      tile.style.height='25%';
-      tile.style.width='25%';
-      if(i===col){
-        tile.addEventListener('click',()=>hitTile(tile));
-        tile.addEventListener('touchstart',(e)=>{e.preventDefault();hitTile(tile);},{passive:false});
-      }
-      ga.appendChild(tile);
-      tiles.push(tile);
-    }
-  }
-
-  function hitTile(tile){
-    if(gameOver||tile.dataset.hit==='true')return;
-    tile.dataset.hit='true';
-    tile.style.background='#555';
-    score++;updateScore();
-    speed=1.5+score*0.008;
-  }
-
-  function updateScore(){s.textContent=score;}
-
-  function tick(now){
-    if(gameOver)return;
-    const dt=now-lastTime;lastTime=now;
-    const move=speed*dt*0.03;
-
-    tiles.forEach(t=>{
-      const top=parseFloat(t.style.top||'-25');
-      t.style.top=(top+move)+'%';
-    });
-
-    // Check misses and remove off-screen
-    tiles=tiles.filter(t=>{
-      const top=parseFloat(t.style.top);
-      if(top>100){
-        t.remove();
-        if(t.dataset.black==='true'&&t.dataset.hit!=='true'){
-          gameOver=true;
-          ot.textContent='😵 错过了！';os.textContent='得分：'+score;
-          ov.classList.add('active');
-        }
-        return false;
-      }
-      // Check if a black tile is in clickable zone and not hit
-      if(top>60&&top<80&&t.dataset.black==='true'&&t.dataset.hit!=='true'){
-        // Give a small window
-      }
-      return true;
-    });
-
-    // Spawn new rows
-    const highest=tiles.reduce((min,t)=>Math.min(min,parseFloat(t.style.top||0)),0);
-    if(highest>-50){
-      for(let i=0;i<2;i++)spawnRow();
-    }
-
+  const FW=window.GameFramework;
+  const ga=document.getElementById('gameArea'),s=document.getElementById('score'),ov=document.getElementById('overlay'),ot=document.getElementById('ot'),os=document.getElementById('os');
+  var COLS=4,tiles=[],score=0,speed=1.5,gameOver=false,animId,lastTime;
+  function init(){tiles=[];score=0;speed=1.5;gameOver=false;FW.ui.hideOverlay(ov);ga.innerHTML='<div class="fw-overlay" id="overlay"><div class="fw-overlay-box"><div class="fw-overlay-title" id="ot">游戏结束</div><div class="fw-overlay-text" id="os">得分：0</div><button class="fw-btn fw-btn-primary" id="rb">重新开始</button></div></div>';for(var i=0;i<6;i++)spawnRow();s.textContent='0';lastTime=performance.now();animId=requestAnimationFrame(tick);}
+  function spawnRow(){var col=Math.floor(Math.random()*COLS);for(var i=0;i<COLS;i++){var tile=document.createElement('div');tile.className='tile'+(i===col?' black':'');tile.dataset.col=i;tile.dataset.black=i===col?'true':'false';tile.style.left=(i*25)+'%';tile.style.top='-25%';tile.style.height='25%';tile.style.width='25%';if(i===col){tile.addEventListener('click',function(t){return function(){hitTile(t);};}(tile));tile.addEventListener('touchstart',function(t){return function(e){e.preventDefault();hitTile(t);};}(tile),{passive:false});}ga.appendChild(tile);tiles.push(tile);}}
+  function hitTile(tile){if(gameOver||tile.dataset.hit==='true')return;tile.dataset.hit='true';tile.style.background='#555';score++;s.textContent=score;speed=1.5+score*0.008;FW.audio.sfx('click');FW.events.reportScore(score);}
+  function tick(now){if(gameOver)return;var dt=now-lastTime;lastTime=now;var move=speed*dt*0.03;tiles.forEach(function(t){var top=parseFloat(t.style.top||'-25');t.style.top=(top+move)+'%';});
+    tiles=tiles.filter(function(t){var top=parseFloat(t.style.top);if(top>100){t.remove();if(t.dataset.black==='true'&&t.dataset.hit!=='true'){gameOver=true;FW.audio.sfx('gameover');FW.storage.setHighScore(score);FW.events.reportComplete(score,{won:false});ot.textContent='错过了！';os.textContent='得分：'+score;FW.ui.showOverlay(ov);}return false;}return true;});
+    var highest=tiles.reduce(function(m,t){return Math.min(m,parseFloat(t.style.top||0));},0);
+    if(highest>-50)for(var i=0;i<2;i++)spawnRow();
     requestAnimationFrame(tick);
   }
-
   document.getElementById('rb').addEventListener('click',init);
   init();
 })();

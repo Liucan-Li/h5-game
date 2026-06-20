@@ -1,31 +1,15 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-game-id="war-card">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>卡牌对战</title>
+<link rel="stylesheet" href="framework.css">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: #0a0a0a;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100dvh;
-    font-family: 'Courier New', monospace;
-  }
-  .wrapper {
-    background: #0d0d1a;
-    border-radius: 16px;
-    padding: 20px 16px;
-    box-shadow: 0 0 60px rgba(200,100,255,0.08);
-    max-width: 460px;
-    width: 100%;
-    margin: 8px;
-    text-align: center;
-  }
-  h1 { font-size: 20px; color: #df7; letter-spacing: 3px; margin-bottom: 4px; }
-  .subtitle { font-size: 12px; color: #446; margin-bottom: 16px; }
+  body.fw-body { background: var(--bg-primary); }
+  .fw-container { padding: 20px 16px; }
+  .subtitle { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
   .deck-row {
     display: flex;
     justify-content: space-between;
@@ -34,10 +18,10 @@
     padding: 0 8px;
   }
   .deck-info { text-align: center; }
-  .deck-label { font-size: 10px; color: #446; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+  .deck-label { font-size: 10px; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
   .deck-count { font-size: 28px; font-weight: bold; }
-  .player-count { color: #7df; }
-  .ai-count { color: #f74; }
+  .player-count { color: var(--accent-1); }
+  .ai-count { color: var(--accent-3); }
   .card-area {
     display: flex;
     justify-content: center;
@@ -48,9 +32,9 @@
   .card {
     width: 80px;
     height: 110px;
-    border-radius: 10px;
-    border: 2px solid #334;
-    background: #111;
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--border-default);
+    background: var(--bg-card);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -62,63 +46,61 @@
   }
   .card .suit { font-size: 22px; }
   .card .rank { font-size: 26px; line-height: 1; }
-  .card.red-suit { color: #f55; }
-  .card.black-suit { color: #eee; }
-  .card.win { border-color: #df7; box-shadow: 0 0 20px rgba(180,255,100,0.3); transform: scale(1.05); }
-  .card.lose { border-color: #f74; opacity: 0.7; }
-  .card.war { border-color: #fa4; box-shadow: 0 0 20px rgba(255,160,50,0.3); }
+  .card.red-suit { color: var(--accent-4); }
+  .card.black-suit { color: var(--text-primary); }
+  .card.win { border-color: var(--accent-1); box-shadow: 0 0 20px rgba(78,204,163,0.3); transform: scale(1.05); }
+  .card.lose { border-color: var(--accent-3); opacity: 0.7; }
+  .card.war { border-color: var(--accent-3); box-shadow: 0 0 20px rgba(245,158,11,0.3); }
   .card.back { background: linear-gradient(135deg, #1a1a3a 25%, #2a1a3a 25%, #2a1a3a 50%, #1a1a3a 50%, #1a1a3a 75%, #2a1a3a 75%); background-size: 20px 20px; }
-  .card-label { font-size: 10px; color: #446; margin-top: 6px; letter-spacing: 1px; }
+  .card-label { font-size: 10px; color: var(--text-muted); margin-top: 6px; letter-spacing: 1px; }
   .result-msg {
     font-size: 18px;
     font-weight: bold;
     min-height: 28px;
     margin-bottom: 14px;
   }
-  .result-win { color: #df7; }
-  .result-lose { color: #f74; }
-  .result-war { color: #fa4; }
-  .result-draw { color: #888; }
+  .result-win { color: var(--accent-1); }
+  .result-lose { color: var(--accent-3); }
+  .result-war { color: var(--accent-3); }
+  .result-draw { color: var(--text-muted); }
   .pot-area {
     margin-bottom: 14px;
     font-size: 12px;
-    color: #556;
+    color: var(--text-muted);
   }
-  .pot-count { color: #fa4; font-size: 18px; font-weight: bold; }
+  .pot-count { color: var(--accent-3); font-size: 18px; font-weight: bold; }
   .btn-row { display: flex; justify-content: center; gap: 12px; margin-bottom: 12px; }
-  .btn {
-    padding: 10px 28px;
-    border-radius: 8px;
-    border: 1px solid #334;
-    background: #111;
-    font-family: inherit;
-    font-size: 14px;
-    cursor: pointer;
-    letter-spacing: 1px;
-    transition: all 0.12s;
-  }
-  .btn-draw { color: #df7; border-color: #df7; }
-  .btn-draw:hover { background: #df73; }
-  .btn-draw:disabled { opacity: 0.3; cursor: not-allowed; }
-  .btn-reset { color: #7df; border-color: #7df; }
-  .btn-reset:hover { background: #7df3; }
   .log {
     font-size: 11px;
-    color: #445;
+    color: var(--text-muted);
     max-height: 60px;
     overflow-y: auto;
     text-align: left;
     padding: 6px;
-    background: #111;
-    border-radius: 6px;
-    border: 1px solid #222;
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-default);
   }
   .log-entry { margin-bottom: 2px; }
+  .versus { font-size:20px; color: var(--text-muted); }
+  .deck-label-between { color: var(--text-muted); font-size:12px; }
 </style>
 </head>
 <body>
-<div class="wrapper">
-  <h1>🃏 卡牌对战</h1>
+<div class="fw-container">
+  <div class="fw-header">
+    <div class="fw-title">卡牌对战</div>
+    <div class="fw-scores">
+      <div class="fw-score-box">
+        <div class="fw-score-label">回合胜</div>
+        <div class="fw-score-value" id="scoreDisplay">0</div>
+      </div>
+      <div class="fw-score-box">
+        <div class="fw-score-label">最高分</div>
+        <div class="fw-score-value" id="highScoreDisplay">0</div>
+      </div>
+    </div>
+  </div>
   <div class="subtitle">点数大的赢走所有牌 · 先赢得全部牌者胜</div>
 
   <div class="deck-row">
@@ -126,7 +108,7 @@
       <div class="deck-label">你的牌堆</div>
       <div class="deck-count player-count" id="playerCount">26</div>
     </div>
-    <div style="color:#445;font-size:12px;">剩余张数</div>
+    <div class="deck-label-between">剩余张数</div>
     <div class="deck-info">
       <div class="deck-label">AI 牌堆</div>
       <div class="deck-count ai-count" id="aiCount">26</div>
@@ -135,12 +117,12 @@
 
   <div class="card-area">
     <div>
-      <div class="card black-suit" id="playerCard"><span class="rank">🂠</span></div>
+      <div class="card black-suit" id="playerCard"><span class="rank">&#x1F0A0;</span></div>
       <div class="card-label">你</div>
     </div>
-    <div style="font-size:20px;color:#445;">VS</div>
+    <div class="versus">VS</div>
     <div>
-      <div class="card black-suit" id="aiCard"><span class="rank">🂠</span></div>
+      <div class="card black-suit" id="aiCard"><span class="rank">&#x1F0A0;</span></div>
       <div class="card-label">AI</div>
     </div>
   </div>
@@ -152,83 +134,119 @@
   <div class="result-msg" id="resultMsg">&nbsp;</div>
 
   <div class="btn-row">
-    <button class="btn btn-draw" id="drawBtn" onclick="drawCards()">翻牌</button>
-    <button class="btn btn-reset" onclick="resetGame()">重新开始</button>
+    <button class="fw-btn fw-btn-primary" id="drawBtn" onclick="drawCards();FW.audio.sfx('click')">翻牌</button>
+    <button class="fw-btn fw-btn-ghost" onclick="resetGame();FW.audio.sfx('click')">重新开始</button>
   </div>
 
   <div class="log" id="log"></div>
 </div>
 
-<script>
-const SUITS = ['♠','♥','♦','♣'];
-const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
-const RANK_VAL = { A:14, '2':2, '3':3, '4':4, '5':5, '6':6, '7':7, '8':8, '9':9, '10':10, J:11, Q:12, K:13 };
-const RED_SUITS = new Set(['♥','♦']);
+<!-- Game Over Overlay -->
+<div class="fw-overlay" id="gameOverOverlay">
+  <div class="fw-overlay-box">
+    <div class="fw-overlay-title" id="overlayTitle">游戏结束</div>
+    <div class="fw-overlay-text" id="overlayText">得分: 0</div>
+    <button class="fw-btn fw-btn-primary" onclick="resetGame();document.getElementById('gameOverOverlay').classList.remove('active');FW.audio.sfx('click')">再玩一次</button>
+  </div>
+</div>
 
-let playerDeck = [], aiDeck = [], pot = [], gameOver = false;
+<script src="framework.js"></script>
+<script>
+var FW = window.GameFramework;
+var SUITS = ['♠','♥','♦','♣'];
+var RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+var RANK_VAL = { A:14, '2':2, '3':3, '4':4, '5':5, '6':6, '7':7, '8':8, '9':9, '10':10, J:11, Q:12, K:13 };
+var RED_SUITS = new Set(['♥','♦']);
+
+var playerDeck = [], aiDeck = [], pot = [], gameOver = false;
+var roundsWon = 0;
 
 function makeDeck() {
-  const deck = [];
-  for (const suit of SUITS) for (const rank of RANKS) deck.push({ suit, rank, value: RANK_VAL[rank] });
+  var deck = [];
+  for (var si = 0; si < SUITS.length; si++) {
+    for (var ri = 0; ri < RANKS.length; ri++) {
+      deck.push({ suit: SUITS[si], rank: RANKS[ri], value: RANK_VAL[RANKS[ri]] });
+    }
+  }
   return deck;
 }
 
 function shuffle(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
+  for (var i = arr.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = tmp;
   }
 }
 
 function renderCard(elId, card) {
-  const el = document.getElementById(elId);
-  if (!card) { el.innerHTML = '<span class="rank">🂠</span>'; el.className = 'card back'; return; }
-  el.innerHTML = `<span class="suit">${card.suit}</span><span class="rank">${card.rank}</span>`;
+  var el = document.getElementById(elId);
+  if (!card) {
+    el.innerHTML = '<span class="rank">&#x1F0A0;</span>';
+    el.className = 'card back';
+    return;
+  }
+  el.innerHTML = '<span class="suit">' + card.suit + '</span><span class="rank">' + card.rank + '</span>';
   el.className = 'card ' + (RED_SUITS.has(card.suit) ? 'red-suit' : 'black-suit');
 }
 
 function addLog(msg) {
-  const log = document.getElementById('log');
-  const entry = document.createElement('div');
+  var log = document.getElementById('log');
+  var entry = document.createElement('div');
   entry.className = 'log-entry';
   entry.textContent = msg;
   log.insertBefore(entry, log.firstChild);
+}
+
+function updateScoreUI() {
+  document.getElementById('scoreDisplay').textContent = roundsWon;
+}
+
+function showGameOverOverlay(title, text) {
+  document.getElementById('overlayTitle').textContent = title;
+  document.getElementById('overlayText').textContent = text;
+  document.getElementById('gameOverOverlay').classList.add('active');
 }
 
 function drawCards() {
   if (gameOver) return;
   if (playerDeck.length === 0 || aiDeck.length === 0) { checkEnd(); return; }
 
-  const pCard = playerDeck.shift();
-  const aCard = aiDeck.shift();
+  var pCard = playerDeck.shift();
+  var aCard = aiDeck.shift();
 
   renderCard('playerCard', pCard);
   renderCard('aiCard', aCard);
 
-  const rm = document.getElementById('resultMsg');
-  const pc = document.getElementById('playerCard');
-  const ac = document.getElementById('aiCard');
+  var rm = document.getElementById('resultMsg');
+  var pc = document.getElementById('playerCard');
+  var ac = document.getElementById('aiCard');
 
   if (pCard.value > aCard.value) {
     pot.push(pCard, aCard);
-    playerDeck.push(...pot.splice(0));
+    playerDeck.push.apply(playerDeck, pot.splice(0));
     pc.classList.add('win'); ac.classList.add('lose');
     rm.className = 'result-msg result-win';
     rm.textContent = '🎉 你赢得 ' + (pot.length === 0 ? 2 : pot.length + 2) + ' 张牌！';
-    addLog(`你的 ${pCard.rank}${pCard.suit} 胜 AI 的 ${aCard.rank}${aCard.suit}`);
+    addLog('你的 ' + pCard.rank + pCard.suit + ' 胜 AI 的 ' + aCard.rank + aCard.suit);
+    roundsWon++;
+    updateScoreUI();
+    FW.audio.sfx('score');
+    FW.events.reportScore(roundsWon);
   } else if (aCard.value > pCard.value) {
     pot.push(pCard, aCard);
-    aiDeck.push(...pot.splice(0));
+    aiDeck.push.apply(aiDeck, pot.splice(0));
     pc.classList.add('lose'); ac.classList.add('win');
     rm.className = 'result-msg result-lose';
     rm.textContent = '😤 AI 赢走牌！';
-    addLog(`AI 的 ${aCard.rank}${aCard.suit} 胜你的 ${pCard.rank}${pCard.suit}`);
+    addLog('AI 的 ' + aCard.rank + aCard.suit + ' 胜你的 ' + pCard.rank + pCard.suit);
   } else {
     pot.push(pCard, aCard);
     pc.classList.add('war'); ac.classList.add('war');
     rm.className = 'result-msg result-war';
     rm.textContent = '⚔️ 战争！底池 ' + pot.length + ' 张，继续翻牌...';
-    addLog(`平局战争！底池 ${pot.length} 张`);
+    addLog('平局战争！底池 ' + pot.length + ' 张');
   }
 
   document.getElementById('playerCount').textContent = playerDeck.length;
@@ -240,23 +258,35 @@ function drawCards() {
 
 function checkEnd() {
   if (playerDeck.length === 0 && pot.length === 0) {
-    document.getElementById('resultMsg').textContent = '💀 AI 赢得比赛！你的牌用完了';
+    var msg = '💀 AI 赢得比赛！你的牌用完了';
+    document.getElementById('resultMsg').textContent = msg;
     document.getElementById('drawBtn').disabled = true;
     gameOver = true;
+    FW.audio.sfx('gameover');
+    FW.events.reportComplete(roundsWon, { won: false });
+    showGameOverOverlay('💀 游戏结束', 'AI 获胜！得分: ' + roundsWon);
   } else if (aiDeck.length === 0 && pot.length === 0) {
-    document.getElementById('resultMsg').textContent = '🏆 你赢了！AI 的牌用完了！';
+    var msg = '🏆 你赢了！AI 的牌用完了！';
+    document.getElementById('resultMsg').textContent = msg;
     document.getElementById('drawBtn').disabled = true;
     gameOver = true;
+    var isNewRecord = FW.storage.setHighScore(roundsWon);
+    FW.audio.sfx('win');
+    FW.events.reportComplete(roundsWon, { won: true });
+    var highText = '得分: ' + roundsWon + (isNewRecord ? ' 🏆 新纪录！' : '');
+    showGameOverOverlay('🏆 你赢了！', highText);
+    document.getElementById('highScoreDisplay').textContent = FW.storage.getHighScore();
   }
 }
 
 function resetGame() {
-  const deck = makeDeck();
+  var deck = makeDeck();
   shuffle(deck);
   playerDeck = deck.slice(0, 26);
   aiDeck = deck.slice(26);
   pot = [];
   gameOver = false;
+  roundsWon = 0;
   renderCard('playerCard', null);
   renderCard('aiCard', null);
   document.getElementById('playerCount').textContent = '26';
@@ -265,8 +295,11 @@ function resetGame() {
   document.getElementById('resultMsg').textContent = ' ';
   document.getElementById('drawBtn').disabled = false;
   document.getElementById('log').innerHTML = '';
+  document.getElementById('gameOverOverlay').classList.remove('active');
+  updateScoreUI();
 }
 
+document.getElementById('highScoreDisplay').textContent = FW.storage.getHighScore();
 resetGame();
 </script>
 </body>

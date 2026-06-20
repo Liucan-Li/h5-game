@@ -44,7 +44,7 @@ export default function LanguageSwitcher({ dark }: Props) {
   }
 
   const btnClass = dark
-    ? "flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.04] px-3 py-2 text-xs font-medium text-[var(--text-on-dark-muted)] transition-all hover:border-white/[0.15] hover:text-[var(--text-on-dark)]"
+    ? "flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.04] px-3 py-2 text-xs font-medium text-[var(--text-secondary)] transition-all hover:border-white/[0.15] hover:text-[var(--text-primary)]"
     : "flex items-center gap-1.5 rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] px-3 py-2 text-xs font-medium text-[var(--text-secondary)] transition-all hover:border-[var(--accent-1)]/40 hover:text-[var(--text-primary)]"
 
   const dropdownBg = dark
@@ -76,8 +76,8 @@ export default function LanguageSwitcher({ dark }: Props) {
                   : "hover:bg-black/[0.04]"
               } ${
                 loc === locale
-                  ? "text-[var(--accent-1)] font-medium"
-                  : dark ? "text-[var(--text-on-dark-muted)]" : "text-[var(--text-secondary)]"
+                  ? "text-white font-bold"
+                  : dark ? "text-white/60" : "text-[var(--text-secondary)]"
               }`}
             >
               <span>{flagMap[loc]}</span>

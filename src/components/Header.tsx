@@ -32,6 +32,7 @@ export default function Header() {
   const navLinks = [
     { href: `/${locale}`, label: t("home") },
     { href: `/${locale}/games`, label: t("allGames") },
+    { href: `/${locale}/achievements`, label: "成就" },
   ]
 
   return (
@@ -61,7 +62,7 @@ export default function Header() {
             <Link
               key={link.href}
               href={link.href}
-              className="relative rounded-xl px-4 py-2 text-sm font-medium text-[var(--text-on-dark-muted)] transition-all duration-200 hover:bg-white/[0.06] hover:text-[var(--text-on-dark)]"
+              className="relative rounded-xl px-4 py-2 text-sm font-medium text-[var(--text-on-dark-muted)] transition-all duration-200 hover:bg-white/[0.06] hover:text-[var(--text-primary)]"
             >
               {link.label}
             </Link>
@@ -75,7 +76,7 @@ export default function Header() {
 
         {/* Mobile menu button */}
         <button
-          className="ml-auto flex h-10 w-10 items-center justify-center rounded-xl text-[var(--text-on-dark-muted)] transition-colors hover:bg-white/[0.06] hover:text-[var(--text-on-dark)] md:hidden"
+          className="ml-auto flex h-10 w-10 items-center justify-center rounded-xl text-[var(--text-on-dark-muted)] transition-colors hover:bg-white/[0.06] hover:text-[var(--text-primary)] md:hidden"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="菜单"
         >
@@ -109,7 +110,7 @@ export default function Header() {
           </span>
           <button
             onClick={() => setMenuOpen(false)}
-            className="flex h-9 w-9 items-center justify-center rounded-xl text-[var(--text-on-dark-muted)] transition-colors hover:bg-white/[0.06] hover:text-[var(--text-on-dark)]"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-[var(--text-on-dark-muted)] transition-colors hover:bg-white/[0.06] hover:text-[var(--text-primary)]"
             aria-label="关闭"
           >
             <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
@@ -128,7 +129,7 @@ export default function Header() {
               key={link.href}
               href={link.href}
               onClick={() => setMenuOpen(false)}
-              className="rounded-xl px-3 py-2.5 text-sm font-medium text-[var(--text-on-dark-muted)] transition-colors hover:bg-white/[0.06] hover:text-[var(--text-on-dark)]"
+              className="rounded-xl px-3 py-2.5 text-sm font-medium text-[var(--text-on-dark-muted)] transition-colors hover:bg-white/[0.06] hover:text-[var(--text-primary)]"
             >
               {link.label}
             </Link>

@@ -1,106 +1,56 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-game-id="rhythm-tap">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>节奏敲击</title>
+<link rel="stylesheet" href="framework.css">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  background: #f5f6fa;
-  color: #2d2d44;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: none;
-  overflow: hidden;
-}
-.game-wrapper {
-  background: #fff;
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
-  padding: 20px;
-  max-width: 460px;
-  width: 100%;
-  margin: 16px;
-}
-.game-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 14px;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.game-title { font-size: 20px; font-weight: 700; }
-.stats-bar {
-  display: flex;
-  gap: 14px;
-  font-size: 14px;
-  color: #5a5a7a;
-}
-.stat-item span { color: #2d2d44; font-weight: 600; }
-canvas {
-  display: block;
-  width: 100%;
-  height: auto;
-  background: #f8f9fc;
-  border-radius: 12px;
+
+/* Canvas overrides for light-themed game */
+canvas.fw-canvas {
   cursor: pointer;
   touch-action: none;
+  background: #f8f9fc;
 }
-.overlay {
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: rgba(255,255,255,0.9);
-  backdrop-filter: blur(4px);
-  border-radius: 12px;
-  z-index: 10;
-}
-.overlay h2 { font-size: 28px; margin-bottom: 8px; }
-.overlay p { font-size: 15px; color: #5a5a7a; margin-bottom: 2px; }
-.overlay .key-hint {
-  font-size: 13px;
-  color: #8a8aaa;
+
+/* Key hint text in overlay */
+.fw-key-hint {
+  font-size: 0.85em;
+  color: var(--text-secondary);
   margin-top: 8px;
-  line-height: 1.6;
+  margin-bottom: 16px;
+  line-height: 1.8;
 }
-.overlay .key-hint kbd {
+.fw-key-hint kbd {
   display: inline-block;
   padding: 2px 8px;
-  background: #e8e9f0;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid var(--border-default);
   border-radius: 4px;
-  font-size: 12px;
+  font-size: 0.85em;
   font-weight: 600;
-  font-family: monospace;
+  font-family: var(--font-mono);
+  color: var(--text-accent);
 }
-.btn {
-  padding: 12px 36px;
-  font-size: 18px;
-  font-weight: 600;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  background: #4361ee;
-  color: #fff;
-  transition: transform 0.12s, box-shadow 0.12s;
-  touch-action: manipulation;
-  margin-top: 14px;
-}
-.btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(67,97,238,0.35); }
-.btn:active { transform: scale(0.97); }
-.btn-secondary { background: #e8e9f0; color: #2d2d44; }
-.canvas-wrap { position: relative; }
 
-/* Touch lane zones */
+/* End stats styling */
+#endStats {
+  margin: 12px 0;
+  text-align: center;
+  line-height: 2;
+  color: var(--text-primary);
+  font-size: 0.95em;
+}
+#endStats .stat-perfect { color: #6bcb77; }
+#endStats .stat-good { color: #ffd93d; }
+#endStats .stat-miss { color: #ff6b6b; }
+#endStats .stat-highscore { color: var(--text-muted); font-size: 0.85em; }
+
+/* Combo text on canvas uses inline styles */
+
+/* Mobile touch lanes */
 .touch-zones {
   display: none;
   gap: 0;
@@ -112,50 +62,67 @@ canvas {
   text-align: center;
   font-size: 14px;
   font-weight: 600;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   touch-action: manipulation;
-  background: #e8e9f0;
-  color: #5a5a7a;
-  transition: background 0.1s;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-muted);
+  transition: background var(--transition-fast);
 }
-.touch-zone:active { background: #4361ee; color: #fff; }
+.touch-zone:active { background: var(--accent-1); color: var(--bg-primary); }
 @media (max-width: 500px) {
   .touch-zones { display: flex; }
 }
 </style>
 </head>
 <body>
-<div class="game-wrapper">
-  <div class="game-header">
-    <div class="game-title">节奏敲击</div>
-    <div class="stats-bar">
-      <div class="stat-item">得分 <span id="scoreDisplay">0</span></div>
-      <div class="stat-item">连击 <span id="comboDisplay">0</span></div>
-      <div class="stat-item">时间 <span id="timeDisplay">60</span>s</div>
+<div class="fw-container">
+  <div class="fw-header">
+    <div class="fw-title">节奏敲击</div>
+    <div class="fw-scores">
+      <div class="fw-score-box">
+        <div class="fw-score-label">得分</div>
+        <div class="fw-score-value" id="scoreDisplay">0</div>
+      </div>
+      <div class="fw-score-box">
+        <div class="fw-score-label">连击</div>
+        <div class="fw-score-value" id="comboDisplay">0</div>
+      </div>
+      <div class="fw-score-box">
+        <div class="fw-score-label">时间</div>
+        <div class="fw-score-value" id="timeDisplay">60</div>
+      </div>
     </div>
   </div>
-  <div class="canvas-wrap" id="canvasWrap">
-    <canvas id="gameCanvas" width="400" height="500"></canvas>
-    <div class="overlay" id="startOverlay">
-      <h2>节奏敲击</h2>
-      <p>在音符到达目标线时点击！</p>
-      <div class="key-hint">
-        <kbd>D</kbd> 第一列 &nbsp; <kbd>F</kbd> 第二列 &nbsp;
-        <kbd>J</kbd> 第三列 &nbsp; <kbd>K</kbd> 第四列
+  <div class="fw-game-area" id="canvasWrap">
+    <canvas id="gameCanvas" width="400" height="500" class="fw-canvas"></canvas>
+    <div class="fw-overlay active" id="startOverlay">
+      <div class="fw-overlay-box">
+        <div class="fw-overlay-title">节奏敲击</div>
+        <div class="fw-overlay-text">在音符到达目标线时点击！</div>
+        <div class="fw-key-hint">
+          <kbd>D</kbd> 第一列 &nbsp; <kbd>F</kbd> 第二列 &nbsp;
+          <kbd>J</kbd> 第三列 &nbsp; <kbd>K</kbd> 第四列
+        </div>
+        <button class="fw-btn fw-btn-primary" id="startBtn">开始游戏</button>
       </div>
-      <button class="btn" id="startBtn">开始游戏</button>
     </div>
-    <div class="overlay" id="endOverlay" style="display:none;">
-      <h2>结束！</h2>
-      <div id="endStats" style="margin:12px 0;text-align:center;line-height:1.9;"></div>
-      <button class="btn" id="replayBtn">再来一局</button>
+    <div class="fw-overlay" id="endOverlay">
+      <div class="fw-overlay-box">
+        <div class="fw-overlay-title">结束！</div>
+        <div id="endStats"></div>
+        <button class="fw-btn fw-btn-primary" id="replayBtn">再来一局</button>
+      </div>
     </div>
   </div>
 </div>
+<script src="framework.js"></script>
 <script>
 (function() {
   'use strict';
+
+  const FW = window.GameFramework;
 
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
@@ -196,13 +163,10 @@ canvas {
   let laneIndicators = [0, 0, 0, 0]; // flash timer
 
   function loadHighScore() {
-    try {
-      const val = localStorage.getItem('rhythmTap_highScore');
-      if (val) highScore = parseInt(val, 10) || 0;
-    } catch(e) {}
+    highScore = FW.storage.getHighScore();
   }
   function saveHighScore() {
-    try { localStorage.setItem('rhythmTap_highScore', String(highScore)); } catch(e) {}
+    FW.storage.setHighScore(highScore);
   }
   loadHighScore();
 
@@ -262,6 +226,7 @@ canvas {
         spawnHitEffect(n.x, TARGET_Y, '#6bcb77', 'PERFECT');
         laneIndicators[lane] = 12;
         hit = true;
+        FW.audio.sfx('score');
         break;
       } else if (dist <= GOOD_RANGE) {
         n.alive = false;
@@ -273,6 +238,7 @@ canvas {
         spawnHitEffect(n.x, TARGET_Y, '#ffd93d', 'GOOD');
         laneIndicators[lane] = 8;
         hit = true;
+        FW.audio.sfx('score');
         break;
       }
     }
@@ -282,6 +248,7 @@ canvas {
       accuracyStats.miss++;
       spawnHitEffect(getLaneX(lane), TARGET_Y, '#ff6b6b', 'MISS');
       laneIndicators[lane] = 6;
+      FW.audio.sfx('click');
     }
   }
 
@@ -307,7 +274,7 @@ canvas {
       }
     }
 
-    notes = notes.filter(n => n.alive || n.judged);
+    notes = notes.filter(function(n) { return n.alive || n.judged; });
 
     // Spawn
     const diff = (ROUND_TIME - timeLeft) / 10;
@@ -326,7 +293,7 @@ canvas {
 
     // Hit effects
     for (const e of hitEffects) e.life -= e.decay;
-    hitEffects = hitEffects.filter(e => e.life > 0);
+    hitEffects = hitEffects.filter(function(e) { return e.life > 0; });
 
     // Lane indicators
     for (let i = 0; i < LANE_COUNT; i++) {
@@ -334,7 +301,7 @@ canvas {
     }
 
     // Auto-miss any notes way past the target
-    notes = notes.filter(n => n.y < H + 50);
+    notes = notes.filter(function(n) { return n.y < H + 50; });
   }
 
   // --- Draw ---
@@ -524,13 +491,18 @@ canvas {
       '<div>得分: <strong>' + score + '</strong></div>' +
       '<div>最大连击: <strong>' + maxCombo + '</strong></div>' +
       '<div style="margin-top:6px;font-size:14px;">' +
-      'PERFECT: <strong style="color:#6bcb77;">' + accuracyStats.perfect + '</strong> (' + perfectPct.toFixed(1) + '%)<br>' +
-      'GOOD: <strong style="color:#ffd93d;">' + accuracyStats.good + '</strong> (' + goodPct.toFixed(1) + '%)<br>' +
-      'MISS: <strong style="color:#ff6b6b;">' + accuracyStats.miss + '</strong> (' + missPct.toFixed(1) + '%)<br>' +
+      'PERFECT: <strong class="stat-perfect">' + accuracyStats.perfect + '</strong> (' + perfectPct.toFixed(1) + '%)<br>' +
+      'GOOD: <strong class="stat-good">' + accuracyStats.good + '</strong> (' + goodPct.toFixed(1) + '%)<br>' +
+      'MISS: <strong class="stat-miss">' + accuracyStats.miss + '</strong> (' + missPct.toFixed(1) + '%)<br>' +
       '</div>' +
-      '<div style="margin-top:6px;font-size:13px;color:#8a8aaa;">最高纪录: ' + highScore + '</div>';
+      '<div style="margin-top:6px;font-size:13px;color:var(--text-muted);">最高纪录: ' + highScore + '</div>';
 
-    endOverlay.style.display = 'flex';
+    endOverlay.classList.add('active');
+
+    const won = score > 0;
+    FW.audio.sfx(won ? 'win' : 'gameover');
+    FW.events.reportScore(score);
+    FW.events.reportComplete(score, { won: won });
   }
 
   // --- Start ---
@@ -543,14 +515,15 @@ canvas {
     accuracyStats = { perfect: 0, good: 0, miss: 0 };
     laneIndicators = [0, 0, 0, 0];
     state = 'playing';
-    startOverlay.style.display = 'none';
-    endOverlay.style.display = 'none';
+    startOverlay.classList.remove('active');
+    endOverlay.classList.remove('active');
     gameLoop.lastTime = 0;
     updateUI();
 
     if (animFrameId) cancelAnimationFrame(animFrameId);
     animFrameId = requestAnimationFrame(gameLoop);
     startTimer();
+    FW.audio.sfx('click');
   }
 
   // --- Input ---

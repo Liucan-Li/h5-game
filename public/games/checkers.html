@@ -1,48 +1,19 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-game-id="checkers">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>国际跳棋</title>
+<link rel="stylesheet" href="framework.css">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: #0a0a0a;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100dvh;
-    font-family: 'Courier New', monospace;
-  }
-  .wrapper {
-    background: #0d0d1a;
-    border-radius: 16px;
-    padding: 16px;
-    box-shadow: 0 0 60px rgba(200,150,50,0.08);
-    max-width: 460px;
-    width: 100%;
-    margin: 8px;
-    text-align: center;
-  }
-  h1 { font-size: 18px; color: #fa4; letter-spacing: 3px; margin-bottom: 4px; }
-  .score-row {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-    margin-bottom: 10px;
-    font-size: 12px;
-    color: #446;
-  }
-  .s-num { font-size: 22px; font-weight: bold; }
-  .s-p { color: #eee; }
-  .s-a { color: #f74; }
   #board {
     display: grid;
     grid-template-columns: repeat(8, 1fr);
     gap: 1px;
     background: #333;
-    border: 2px solid #445;
-    border-radius: 6px;
+    border: 2px solid var(--border-accent, #445);
+    border-radius: var(--radius-sm, 6px);
     overflow: hidden;
     touch-action: none;
   }
@@ -58,7 +29,7 @@
   .sq.light { background: #c8a878; }
   .sq.highlight { background: #4a3a1a; }
   .sq.move-target { background: #2a4a1a; cursor: pointer; }
-  .sq.move-target::after { content: '·'; color: #7f7; font-size: 20px; position: absolute; }
+  .sq.move-target::after { content: '\00B7'; color: #7f7; font-size: 20px; position: absolute; }
   .piece {
     width: 76%;
     height: 76%;
@@ -75,135 +46,159 @@
   }
   .piece.white { background: radial-gradient(circle at 35% 35%, #eee, #aaa); }
   .piece.red { background: radial-gradient(circle at 35% 35%, #f88, #c00); }
-  .piece.king::after { content: '♛'; font-size: 13px; }
+  .piece.king::after { content: '\265B'; font-size: 13px; }
   .piece.selected { transform: scale(1.15); box-shadow: 0 0 12px rgba(255,220,50,0.8); border-color: #fd0; }
-  .status { font-size: 13px; color: #fa4; margin-top: 8px; min-height: 20px; }
-  .info { font-size: 11px; color: #446; margin-top: 4px; }
-  .btn-row { margin-top: 10px; }
-  .btn {
-    padding: 8px 24px;
-    border-radius: 8px;
-    border: 1.5px solid #fa4;
-    background: #111;
-    color: #fa4;
-    font-family: inherit;
-    font-size: 13px;
-    cursor: pointer;
-    letter-spacing: 1px;
-  }
-  .btn:hover { background: #fa43; }
+  .fw-info { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
 </style>
 </head>
 <body>
-<div class="wrapper">
-  <h1>♟ 国际跳棋</h1>
-  <div class="score-row">
-    <div>你(白): <span class="s-num s-p" id="wCount">12</span></div>
-    <div>AI(红): <span class="s-num s-a" id="rCount">12</span></div>
+<div class="fw-container">
+  <div class="fw-header">
+    <div class="fw-title">&#9823; 国际跳棋</div>
+    <div class="fw-scores">
+      <div class="fw-score-box">
+        <div class="fw-score-label">你(白)</div>
+        <div class="fw-score-value" id="wCount">12</div>
+      </div>
+      <div class="fw-score-box">
+        <div class="fw-score-label">AI(红)</div>
+        <div class="fw-score-value" id="rCount">12</div>
+      </div>
+    </div>
   </div>
   <div id="board"></div>
-  <div class="status" id="status">你先手！点击白棋选择</div>
-  <div class="info" id="info">移动方向：白棋向上，王棋可任意方向</div>
-  <div class="btn-row">
-    <button class="btn" onclick="initGame()">重新开始</button>
+  <div class="fw-status" id="status">你先手！点击白棋选择</div>
+  <div class="fw-info">移动方向：白棋向上，王棋可任意方向</div>
+  <div class="fw-controls-row" style="margin-top:10px">
+    <button class="fw-btn fw-btn-primary" onclick="restartGame()">重新开始</button>
   </div>
 </div>
 
+<div class="fw-overlay" id="overlay">
+  <div class="fw-overlay-box">
+    <div class="fw-overlay-title" id="overlay-title">&#127942; 你赢了！</div>
+    <div class="fw-overlay-text" id="overlay-text"></div>
+    <button class="fw-btn fw-btn-primary" onclick="closeOverlay(); restartGame();">再来一局</button>
+  </div>
+</div>
+
+<script src="framework.js"></script>
 <script>
 // board[r][c]: null | {color:'w'|'r', king:bool}
-let board, selected, validMoves, turn, thinking;
+var board, selected, validMoves, turn, thinking;
+
+function closeOverlay() {
+  document.getElementById('overlay').classList.remove('active');
+}
+
+function showOverlay(title, text) {
+  document.getElementById('overlay-title').textContent = title;
+  document.getElementById('overlay-text').textContent = text;
+  document.getElementById('overlay').classList.add('active');
+}
 
 function initGame() {
-  board = Array.from({length:8}, () => Array(8).fill(null));
+  board = Array.from({length:8}, function() { return Array(8).fill(null); });
   // Place pieces: red top rows, white bottom rows
-  for (let r = 0; r < 3; r++) for (let c = 0; c < 8; c++) {
-    if ((r+c)%2===1) board[r][c] = {color:'r', king:false};
-  }
-  for (let r = 5; r < 8; r++) for (let c = 0; c < 8; c++) {
-    if ((r+c)%2===1) board[r][c] = {color:'w', king:false};
-  }
+  for (var r = 0; r < 3; r++) { for (var c = 0; c < 8; c++) {
+    if ((r + c) % 2 === 1) board[r][c] = {color:'r', king:false};
+  }}
+  for (var r = 5; r < 8; r++) { for (var c = 0; c < 8; c++) {
+    if ((r + c) % 2 === 1) board[r][c] = {color:'w', king:false};
+  }}
   selected = null; validMoves = []; turn = 'w'; thinking = false;
   render();
   setStatus('你先手！点击白棋选择');
 }
 
-function getMoves(b, r, c, mustCapture = false) {
-  const p = b[r][c];
+function restartGame() {
+  closeOverlay();
+  initGame();
+}
+
+function getMoves(b, r, c, mustCapture) {
+  if (mustCapture === undefined) mustCapture = false;
+  var p = b[r][c];
   if (!p) return [];
-  const moves = [], caps = [];
-  const dirs = p.color === 'w' ? [[-1,-1],[-1,1]] : [[1,-1],[1,1]];
-  const allDirs = [[-1,-1],[-1,1],[1,-1],[1,1]];
-  const moveDirs = p.king ? allDirs : dirs;
-  for (const [dr,dc] of moveDirs) {
-    const nr = r+dr, nc = c+dc;
-    if (nr<0||nr>7||nc<0||nc>7) continue;
+  var moves = [], caps = [];
+  var dirs = p.color === 'w' ? [[-1,-1],[-1,1]] : [[1,-1],[1,1]];
+  var allDirs = [[-1,-1],[-1,1],[1,-1],[1,1]];
+  var moveDirs = p.king ? allDirs : dirs;
+  for (var i = 0; i < moveDirs.length; i++) {
+    var dr = moveDirs[i][0], dc = moveDirs[i][1];
+    var nr = r + dr, nc = c + dc;
+    if (nr < 0 || nr > 7 || nc < 0 || nc > 7) continue;
     if (!b[nr][nc]) {
       if (!mustCapture) moves.push({from:[r,c],to:[nr,nc],cap:null});
     } else if (b[nr][nc].color !== p.color) {
-      const jr = nr+dr, jc = nc+dc;
-      if (jr>=0&&jr<8&&jc>=0&&jc<8&&!b[jr][jc]) caps.push({from:[r,c],to:[jr,jc],cap:[nr,nc]});
+      var jr = nr + dr, jc = nc + dc;
+      if (jr >= 0 && jr < 8 && jc >= 0 && jc < 8 && !b[jr][jc]) caps.push({from:[r,c],to:[jr,jc],cap:[nr,nc]});
     }
   }
   return caps.length ? caps : (mustCapture ? [] : moves);
 }
 
 function getAllMoves(b, color) {
-  const caps = [], normals = [];
-  for (let r=0;r<8;r++) for (let c=0;c<8;c++) {
-    if (b[r][c]?.color === color) {
-      const ms = getMoves(b,r,c);
-      for (const m of ms) (m.cap ? caps : normals).push(m);
+  var caps = [], normals = [];
+  for (var r = 0; r < 8; r++) { for (var c = 0; c < 8; c++) {
+    if (b[r][c] && b[r][c].color === color) {
+      var ms = getMoves(b, r, c);
+      for (var i = 0; i < ms.length; i++) {
+        (ms[i].cap ? caps : normals).push(ms[i]);
+      }
     }
-  }
+  }}
   return caps.length ? caps : normals;
 }
 
 function applyMove(b, move) {
-  const nb = b.map(row => row.map(cell => cell ? {...cell} : null));
-  const [fr,fc] = move.from, [tr,tc] = move.to;
+  var nb = b.map(function(row) { return row.map(function(cell) { return cell ? Object.assign({}, cell) : null; }); });
+  var fr = move.from[0], fc = move.from[1], tr = move.to[0], tc = move.to[1];
   nb[tr][tc] = nb[fr][fc];
   nb[fr][fc] = null;
   if (move.cap) nb[move.cap[0]][move.cap[1]] = null;
   // King promotion
-  if (nb[tr][tc].color==='w' && tr===0) nb[tr][tc].king = true;
-  if (nb[tr][tc].color==='r' && tr===7) nb[tr][tc].king = true;
+  if (nb[tr][tc].color === 'w' && tr === 0) nb[tr][tc].king = true;
+  if (nb[tr][tc].color === 'r' && tr === 7) nb[tr][tc].king = true;
   return nb;
 }
 
 function countPieces(b, color) {
-  let n=0;
-  for (const row of b) for (const c of row) if (c?.color===color) n++;
+  var n = 0;
+  for (var i = 0; i < b.length; i++) { for (var j = 0; j < b[i].length; j++) {
+    if (b[i][j] && b[i][j].color === color) n++;
+  }}
   return n;
 }
 
 function evalBoard(b) {
-  let score = 0;
-  for (let r=0;r<8;r++) for (let c=0;c<8;c++) {
-    const p=b[r][c]; if(!p) continue;
-    const v = p.king ? 3 : 1;
-    score += p.color==='r' ? v : -v;
-  }
+  var score = 0;
+  for (var r = 0; r < 8; r++) { for (var c = 0; c < 8; c++) {
+    var p = b[r][c]; if (!p) continue;
+    var v = p.king ? 3 : 1;
+    score += p.color === 'r' ? v : -v;
+  }}
   return score;
 }
 
 function minimax(b, depth, alpha, beta, maximizing) {
-  const color = maximizing ? 'r' : 'w';
-  const moves = getAllMoves(b, color);
-  if (depth===0||moves.length===0) return evalBoard(b);
+  var color = maximizing ? 'r' : 'w';
+  var moves = getAllMoves(b, color);
+  if (depth === 0 || moves.length === 0) return evalBoard(b);
   if (maximizing) {
-    let best = -Infinity;
-    for (const m of moves) {
-      const nb = applyMove(b, m);
-      best = Math.max(best, minimax(nb, depth-1, alpha, beta, false));
+    var best = -Infinity;
+    for (var i = 0; i < moves.length; i++) {
+      var nb = applyMove(b, moves[i]);
+      best = Math.max(best, minimax(nb, depth - 1, alpha, beta, false));
       alpha = Math.max(alpha, best);
       if (beta <= alpha) break;
     }
     return best;
   } else {
-    let best = Infinity;
-    for (const m of moves) {
-      const nb = applyMove(b, m);
-      best = Math.min(best, minimax(nb, depth-1, alpha, beta, true));
+    var best = Infinity;
+    for (var i = 0; i < moves.length; i++) {
+      var nb = applyMove(b, moves[i]);
+      best = Math.min(best, minimax(nb, depth - 1, alpha, beta, true));
       beta = Math.min(beta, best);
       if (beta <= alpha) break;
     }
@@ -214,21 +209,21 @@ function minimax(b, depth, alpha, beta, maximizing) {
 function aiMove() {
   thinking = true;
   setStatus('AI 思考中...');
-  setTimeout(() => {
-    const moves = getAllMoves(board, 'r');
-    if (!moves.length) { endGame('w'); return; }
-    let best = -Infinity, bestMove = moves[0];
-    for (const m of moves) {
-      const nb = applyMove(board, m);
-      const score = minimax(nb, 3, -Infinity, Infinity, false);
-      if (score > best) { best = score; bestMove = m; }
+  setTimeout(function() {
+    var moves = getAllMoves(board, 'r');
+    if (!moves.length) { endGame('w'); FW.audio.sfx('win'); return; }
+    var best = -Infinity, bestMove = moves[0];
+    for (var i = 0; i < moves.length; i++) {
+      var nb = applyMove(board, moves[i]);
+      var score = minimax(nb, 3, -Infinity, Infinity, false);
+      if (score > best) { best = score; bestMove = moves[i]; }
     }
     board = applyMove(board, bestMove);
     thinking = false;
     turn = 'w';
     updateCounts();
     render();
-    const wMoves = getAllMoves(board,'w');
+    var wMoves = getAllMoves(board, 'w');
     if (!wMoves.length) endGame('r');
     else setStatus('轮到你了！点击白棋');
   }, 100);
@@ -236,40 +231,56 @@ function aiMove() {
 
 function onCellClick(r, c) {
   if (turn !== 'w' || thinking) return;
-  const piece = board[r][c];
+  var piece = board[r][c];
 
   // Try move to target
-  const moveTarget = validMoves.find(m => m.to[0]===r && m.to[1]===c);
+  var moveTarget = null;
+  for (var i = 0; i < validMoves.length; i++) {
+    if (validMoves[i].to[0] === r && validMoves[i].to[1] === c) {
+      moveTarget = validMoves[i];
+      break;
+    }
+  }
   if (moveTarget) {
     board = applyMove(board, moveTarget);
+    FW.audio.sfx('move');
     selected = null; validMoves = [];
     // Multi-jump?
-    const capMoves = getMoves(board, r, c, true).filter(m => m.cap);
-    if (moveTarget.cap && capMoves.length) {
-      selected = [r,c];
-      validMoves = capMoves;
+    var capMoves = getMoves(board, r, c, true);
+    var filteredCaps = [];
+    for (var i = 0; i < capMoves.length; i++) { if (capMoves[i].cap) filteredCaps.push(capMoves[i]); }
+    if (moveTarget.cap && filteredCaps.length) {
+      selected = [r, c];
+      validMoves = filteredCaps;
+      FW.audio.sfx('select');
       render();
       return;
     }
     updateCounts();
     turn = 'r';
     render();
-    const rMoves = getAllMoves(board,'r');
+    var rMoves = getAllMoves(board, 'r');
     if (!rMoves.length) { endGame('w'); return; }
     aiMove();
     return;
   }
 
-  if (piece?.color === 'w') {
-    const allCaps = getAllMoves(board,'w').filter(m=>m.cap);
-    const pieceMoves = getMoves(board, r, c);
-    const filtered = allCaps.length ? pieceMoves.filter(m=>m.cap) : pieceMoves;
-    if (filtered.length === 0 && allCaps.length > 0) {
+  if (piece && piece.color === 'w') {
+    var allCaps = getAllMoves(board, 'w');
+    var allCapsFiltered = [];
+    for (var i = 0; i < allCaps.length; i++) { if (allCaps[i].cap) allCapsFiltered.push(allCaps[i]); }
+    var pieceMoves = getMoves(board, r, c);
+    var filtered = allCapsFiltered.length ? [] : pieceMoves;
+    if (allCapsFiltered.length) {
+      for (var i = 0; i < pieceMoves.length; i++) { if (pieceMoves[i].cap) filtered.push(pieceMoves[i]); }
+    }
+    if (filtered.length === 0 && allCapsFiltered.length > 0) {
       setStatus('必须进行跳吃！');
       return;
     }
     selected = [r, c];
     validMoves = filtered;
+    if (filtered.length) FW.audio.sfx('click');
   } else {
     selected = null; validMoves = [];
   }
@@ -277,37 +288,58 @@ function onCellClick(r, c) {
 }
 
 function render() {
-  const el = document.getElementById('board');
+  var el = document.getElementById('board');
   el.innerHTML = '';
-  for (let r=0;r<8;r++) for (let c=0;c<8;c++) {
-    const sq = document.createElement('div');
-    const dark = (r+c)%2===1;
+  for (var r = 0; r < 8; r++) { for (var c = 0; c < 8; c++) {
+    var sq = document.createElement('div');
+    var dark = (r + c) % 2 === 1;
     sq.className = 'sq ' + (dark ? 'dark' : 'light');
-    if (selected && selected[0]===r && selected[1]===c) sq.classList.add('highlight');
-    if (validMoves.find(m=>m.to[0]===r&&m.to[1]===c)) sq.classList.add('move-target');
+    if (selected && selected[0] === r && selected[1] === c) sq.classList.add('highlight');
+    var isMoveTarget = false;
+    for (var i = 0; i < validMoves.length; i++) {
+      if (validMoves[i].to[0] === r && validMoves[i].to[1] === c) { isMoveTarget = true; break; }
+    }
+    if (isMoveTarget) sq.classList.add('move-target');
     if (dark) {
-      const p = board[r][c];
+      var p = board[r][c];
       if (p) {
-        const div = document.createElement('div');
-        div.className = 'piece ' + p.color === 'w' ? 'white' : 'red';
-        div.className = 'piece ' + (p.color==='w'?'white':'red') + (p.king?' king':'');
-        if (selected && selected[0]===r && selected[1]===c) div.classList.add('selected');
+        var div = document.createElement('div');
+        div.className = 'piece ' + (p.color === 'w' ? 'white' : 'red');
+        div.className = 'piece ' + (p.color === 'w' ? 'white' : 'red') + (p.king ? ' king' : '');
+        if (selected && selected[0] === r && selected[1] === c) div.classList.add('selected');
         sq.appendChild(div);
       }
     }
-    sq.addEventListener('click', () => onCellClick(r, c));
+    sq.addEventListener('click', function(r2, c2) { return function() { onCellClick(r2, c2); }; }(r, c));
     el.appendChild(sq);
-  }
+  }}
 }
 
 function updateCounts() {
-  document.getElementById('wCount').textContent = countPieces(board,'w');
-  document.getElementById('rCount').textContent = countPieces(board,'r');
+  document.getElementById('wCount').textContent = countPieces(board, 'w');
+  document.getElementById('rCount').textContent = countPieces(board, 'r');
 }
 
 function endGame(winner) {
   thinking = true;
-  setStatus(winner==='w' ? '🏆 你赢了！' : '💀 AI 赢了！');
+  var won = winner === 'w';
+  var score = countPieces(board, won ? 'w' : 'r');
+  var high = FW.storage.getHighScore();
+  var isNewRecord = FW.storage.setHighScore(score);
+  var newHigh = FW.storage.getHighScore();
+  FW.events.reportScore(score);
+  FW.events.reportComplete(score, {won: won});
+  var overlayText = '得分: ' + score + ' | 最高分: ' + newHigh;
+  if (isNewRecord) overlayText = '新纪录！得分: ' + score;
+  if (won) {
+    FW.audio.sfx('win');
+    showOverlay('🏆 你赢了！', overlayText);
+    setStatus('🏆 你赢了！');
+  } else {
+    FW.audio.sfx('gameover');
+    showOverlay('💀 AI 赢了！', overlayText);
+    setStatus('💀 AI 赢了！');
+  }
 }
 
 function setStatus(msg) { document.getElementById('status').textContent = msg; }
