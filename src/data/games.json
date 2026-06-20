@@ -396,24 +396,6 @@
     "createdAt": "2025-05-02"
   },
   {
-    "id": "31",
-    "slug": "pacman",
-    "title": "吃豆人",
-    "description": "经典吃豆人迷宫游戏。吃掉所有豆子，躲避幽灵追击，利用能量豆反击！",
-    "url": "/games/pacman.html",
-    "thumbnail": "/images/games/pacman.svg",
-    "category": "arcade",
-    "tags": [
-      "classic",
-      "arcade",
-      "retro"
-    ],
-    "featured": true,
-    "width": 460,
-    "height": 520,
-    "createdAt": "2025-05-03"
-  },
-  {
     "id": "32",
     "slug": "bubble-shooter",
     "title": "泡泡龙",
@@ -522,24 +504,6 @@
     "createdAt": "2025-05-03"
   },
   {
-    "id": "39",
-    "slug": "pinball",
-    "title": "弹球",
-    "description": "经典弹珠台游戏。控制挡板弹射小球，击中目标得分，争取最高分！",
-    "url": "/games/pinball.html",
-    "thumbnail": "/images/games/pinball.svg",
-    "category": "arcade",
-    "tags": [
-      "classic",
-      "arcade",
-      "retro"
-    ],
-    "featured": false,
-    "width": 380,
-    "height": 560,
-    "createdAt": "2025-05-03"
-  },
-  {
     "id": "40",
     "slug": "24-game",
     "title": "24点",
@@ -645,24 +609,6 @@
     "featured": false,
     "width": 460,
     "height": 520,
-    "createdAt": "2026-05-07"
-  },
-  {
-    "id": "46",
-    "slug": "bomberman",
-    "title": "炸弹人",
-    "description": "经典炸弹人！在迷宫中放置炸弹炸开墙壁、消灭敌人，小心不要被自己的炸弹炸到！",
-    "url": "/games/bomberman.html",
-    "thumbnail": "/images/games/bomberman.svg",
-    "category": "arcade",
-    "tags": [
-      "arcade",
-      "classic",
-      "action"
-    ],
-    "featured": true,
-    "width": 480,
-    "height": 540,
     "createdAt": "2026-05-07"
   },
   {

@@ -402,12 +402,6 @@
       "metaTitle": "Reversi - Free Online Board Strategy Game | LeYou",
       "metaDesc": "Play Reversi online for free. Surround and flip opponent's pieces to occupy the most squares. Classic Othello strategy — no download."
     },
-    "pacman": {
-      "title": "Pac-Man",
-      "description": "Classic Pac-Man maze. Eat all dots, dodge ghosts, and use power pellets to fight back!",
-      "metaTitle": "Pac-Man - Free Online Classic Arcade Game | LeYou",
-      "metaDesc": "Play Pac-Man online for free. Eat all dots, dodge ghosts, and use power pellets in the timeless maze game. No download, instant browser play."
-    },
     "bubble-shooter": {
       "title": "Bubble Shooter",
       "description": "Classic bubble shooter. Aim and fire to match three same-colored bubbles and clear the board!",
@@ -444,12 +438,6 @@
       "metaTitle": "Bowling - Free Online Sports Game | LeYou",
       "metaDesc": "Play Bowling online for free. Adjust direction and power to knock down all the pins and bowl a perfect game. No download, instant browser play."
     },
-    "pinball": {
-      "title": "Pinball",
-      "description": "Classic pinball machine. Control the flippers to keep the ball in play and hit targets!",
-      "metaTitle": "Pinball - Free Online Arcade Game | LeYou",
-      "metaDesc": "Play Pinball online for free. Control the flippers to keep the ball in play and hit targets. Classic pinball machine in your browser."
-    },
     "24-game": {
       "title": "24 Game",
       "description": "Classic 24 card math puzzle. Use four cards with +−×÷ to make exactly 24!",
@@ -485,12 +473,6 @@
       "description": "Classic Checkers! Move pieces diagonally on an 8×8 board, jump over opponents, and capture all enemy pieces!",
       "metaTitle": "Checkers - Free Online Board Game | LeYou",
       "metaDesc": "Play Checkers online for free against AI. Move pieces diagonally, jump over opponents, and capture all enemy pieces. Classic board game."
-    },
-    "bomberman": {
-      "title": "Bomberman",
-      "description": "Classic Bomberman! Place bombs to blast walls and defeat enemies — don't get caught in your own explosion!",
-      "metaTitle": "Bomberman - Free Online Arcade Game | LeYou",
-      "metaDesc": "Play Bomberman online for free. Place bombs to blast walls and defeat enemies. Classic arcade strategy game — no download needed."
     },
     "war-card": {
       "title": "War (Card Game)",
