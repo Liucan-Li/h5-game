@@ -420,12 +420,6 @@
       "metaTitle": "Reversi - Free Online Board Strategy Game | LeYou",
       "metaDesc": "Play Reversi online for free. Surround and flip opponent's pieces to occupy the most squares. Classic Othello strategy — no download."
     },
-    "contra": {
-      "title": "Contra",
-      "description": "Classic pixel-art run-and-gun. Eliminate enemies, collect weapons, and defeat the Boss!",
-      "metaTitle": "Contra - Free Online Run and Gun Game | LeYou",
-      "metaDesc": "Play Contra online for free. Classic pixel-art run-and-gun action. Eliminate enemies, collect weapons, and defeat the Boss. No download needed."
-    },
     "pacman": {
       "title": "Pac-Man",
       "description": "Classic Pac-Man maze. Eat all dots, dodge ghosts, and use power pellets to fight back!",
@@ -563,18 +557,6 @@
       "description": "Manage your mine! Hire workers, upgrade equipment, dig deeper, and earn more wealth!",
       "metaTitle": "Idle Miner - Free Online Idle Game | LeYou",
       "metaDesc": "Play Idle Miner online for free. Hire workers, upgrade equipment, and dig deeper. The ultimate idle mining game — no download needed."
-    },
-    "slope-run": {
-      "title": "Slope Run",
-      "description": "Race down a steep slope! Dodge obstacles, keep your balance, and see how far you can go!",
-      "metaTitle": "Slope Run - Free Online Running Game | LeYou",
-      "metaDesc": "Play Slope Run online for free. Race down a steep slope, dodge obstacles, and see how far you can go. Addictive endless runner — no download."
-    },
-    "geometry-dash": {
-      "title": "Geometry Dash",
-      "description": "Rhythm-based platformer! Jump to the beat, dodge obstacles, and conquer insanely difficult levels!",
-      "metaTitle": "Geometry Dash - Free Online Rhythm Game | LeYou",
-      "metaDesc": "Play Geometry Dash online for free. Jump to the beat, dodge obstacles, and conquer difficult levels. Rhythm-based platformer — no download."
     },
     "worldle": {
       "title": "Worldle",

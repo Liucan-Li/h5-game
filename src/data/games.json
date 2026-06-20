@@ -449,25 +449,6 @@
     "createdAt": "2025-05-02"
   },
   {
-    "id": "30",
-    "slug": "contra",
-    "title": "魂斗罗",
-    "description": "经典像素风格横版射击游戏。消灭敌人、收集武器、挑战 Boss，还原童年回忆！",
-    "url": "/games/contra.html",
-    "thumbnail": "/images/games/contra.svg",
-    "category": "action",
-    "tags": [
-      "shooter",
-      "action",
-      "classic",
-      "adventure"
-    ],
-    "featured": true,
-    "width": 820,
-    "height": 520,
-    "createdAt": "2025-05-02"
-  },
-  {
     "id": "31",
     "slug": "pacman",
     "title": "吃豆人",
@@ -881,44 +862,6 @@
     "featured": false,
     "width": 600,
     "height": 500,
-    "createdAt": "2026-05-13"
-  },
-  {
-    "id": "55",
-    "slug": "slope-run",
-    "title": "Slope Run",
-    "description": "在倾斜的赛道上高速奔跑！躲避障碍物，保持平衡，看你能跑多远！",
-    "url": "/games/slope-run.html",
-    "thumbnail": "/images/games/slope-run.svg",
-    "category": "action",
-    "tags": [
-      "parkour",
-      "classic",
-      "speed",
-      "survival"
-    ],
-    "featured": false,
-    "width": 600,
-    "height": 400,
-    "createdAt": "2026-05-13"
-  },
-  {
-    "id": "56",
-    "slug": "geometry-dash",
-    "title": "Geometry Dash",
-    "description": "节奏感十足的跑酷游戏！跟随音乐节奏跳跃躲避障碍，挑战超高难度关卡！",
-    "url": "/games/geometry-dash.html",
-    "thumbnail": "/images/games/geometry-dash.svg",
-    "category": "action",
-    "tags": [
-      "parkour",
-      "rhythm",
-      "action",
-      "survival"
-    ],
-    "featured": false,
-    "width": 600,
-    "height": 400,
     "createdAt": "2026-05-13"
   },
   {

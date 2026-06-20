@@ -370,10 +370,6 @@
       "title": "リバーシ",
       "description": "クラシックなリバーシ（オセロ）。相手の石を囲んでひっくり返し、最多石数を目指せ！"
     },
-    "contra": {
-      "title": "魂斗羅",
-      "description": "クラシックなピクセルアート横スクロールシューティング。敵を倒し武器を集めてボスに挑め！"
-    },
     "pacman": {
       "title": "パックマン",
       "description": "クラシックなパックマン迷路。全てのドットを食べ、お化けを避け、パワーエサで反撃！"
@@ -465,14 +461,6 @@
     "idle-miner": {
       "title": "Idle Miner",
       "description": "鉱山を経営しよう！労働者を雇い、設備をアップグレードして深く掘り進み、富を築け！"
-    },
-    "slope-run": {
-      "title": "Slope Run",
-      "description": "傾斜したコースを高速で駆け抜けろ！障害物を避け、バランスを保ってどこまで行けるか挑戦！"
-    },
-    "geometry-dash": {
-      "title": "Geometry Dash",
-      "description": "リズムベースのアクションゲーム！音楽に合わせてジャンプし、障害物を避けて超難関レベルを攻略！"
     },
     "worldle": {
       "title": "Worldle",

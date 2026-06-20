@@ -370,10 +370,6 @@
       "title": "黑白棋",
       "description": "经典黑白棋（奥赛罗）游戏。放置棋子包围对手棋子即可翻转，占领最多格子者胜！"
     },
-    "contra": {
-      "title": "魂斗罗",
-      "description": "经典像素风格横版射击游戏。消灭敌人、收集武器、挑战 Boss，还原童年回忆！"
-    },
     "pacman": {
       "title": "吃豆人",
       "description": "经典吃豆人迷宫游戏。吃掉所有豆子，躲避幽灵追击，利用能量豆反击！"
@@ -465,14 +461,6 @@
     "idle-miner": {
       "title": "Idle Miner",
       "description": "经营你的矿场！雇佣工人升级设备，挖掘更深的地层，赚取更多财富！"
-    },
-    "slope-run": {
-      "title": "Slope Run",
-      "description": "在倾斜的赛道上高速奔跑！躲避障碍物，保持平衡，看你能跑多远！"
-    },
-    "geometry-dash": {
-      "title": "Geometry Dash",
-      "description": "节奏感十足的跑酷游戏！跟随音乐节奏跳跃躲避障碍，挑战超高难度关卡！"
     },
     "worldle": {
       "title": "Worldle",
